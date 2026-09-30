@@ -57,13 +57,18 @@ Each release also lists the SHA-256 of its APK. You can verify these with AppVer
 
 </details>
 
-<!-- SCREENSHOTS: uncomment and fill once real screenshots are added to a screenshots/ folder
 ## 📸 Screenshots
 
-| Dashboard | Subject view | Focus timer | Themes |
-| --- | --- | --- | --- |
-| ![Dashboard](screenshots/dashboard.png) | ![Subject](screenshots/subject.png) | ![Focus](screenshots/focus.png) | ![Themes](screenshots/themes.png) |
--->
+Real Android app screenshots in the Ultraviolet theme.
+
+| Dashboard | Focus timer | Settings & updates |
+| --- | --- | --- |
+| <img src="screenshots/dashboard.jpg" alt="Exam countdown dashboard" width="240"> | <img src="screenshots/focus.jpg" alt="Pomodoro focus timer" width="240"> | <img src="screenshots/settings.jpg" alt="Android update check in Settings" width="240"> |
+
+| Calendar month | Calendar events | Login |
+| --- | --- | --- |
+| <img src="screenshots/calendar-month.jpg" alt="Calendar month with event markers" width="240"> | <img src="screenshots/calendar-events.jpg" alt="Selected day's exam and practical entries" width="240"> | <img src="screenshots/login.jpg" alt="Google login or offline mode" width="240"> |
+
 
 ## 🧠 What is this?
 
