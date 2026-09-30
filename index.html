@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="auth-pending">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -89,7 +89,7 @@
         .btn-outline { background: transparent; border-color: var(--border-color); }
         .btn-outline.active { background: rgba(253, 224, 71, 0.1); border-color: var(--accent-primary); color: var(--accent-primary); box-shadow: var(--glow-primary); }
 
-        /* FIXED SETTINGS ICON STYLE (Crisp, clean, no glitchy rotation) */
+        /* FIXED SETTINGS ICON STYLE (Crisp, clean, no glitchy warp) */
         .icon-btn-settings { background: transparent; border: 1px solid transparent; color: var(--text-muted); border-radius: 0; padding: 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); flex-shrink: 0; }
         .icon-btn-settings:hover { color: var(--accent-primary); }
 
@@ -199,6 +199,8 @@
         
         .cal-view-toggles { display: flex; gap: 5px; background: #050505; padding: 5px; border-radius: var(--radius); border: 1px solid var(--border-color); }
         .cal-view-toggles .btn-outline { border: none; padding: 0.4rem 0.8rem; }
+        
+        .cal-grid-wrapper { width: 100%; }
         
         .cal-grid { display: grid; gap: 10px; width: 100%; transition: var(--transition); }
         .cal-grid.view-month { grid-template-columns: repeat(7, minmax(0, 1fr)); }
@@ -335,7 +337,7 @@
             .pomo-controls .btn { width: 100%; flex: 1 1 100%; }
             
             /* MONTH VIEW: Fitted 7-column grid without side blowouts */
-            #calendarSection .container {
+            #calendarSection.container {
                 padding-left: 0.4rem !important;
                 padding-right: 0.4rem !important;
             }
@@ -353,6 +355,10 @@
             .cal-nav-btn {
                 padding: 0.4rem 0.7rem !important;
             }
+            .cal-grid-wrapper {
+                width: 100% !important;
+                overflow: hidden !important;
+            }
             .cal-grid.view-month { 
                 grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
                 gap: 2px !important; 
@@ -361,17 +367,24 @@
             }
             .cal-grid.view-month .cal-cell { 
                 min-height: 52px !important; 
-                max-height: 68px !important; 
+                max-height: 70px !important; 
                 padding: 3px 2px !important; 
                 min-width: 0 !important;
                 overflow: hidden !important; 
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .cal-grid.view-month .cal-cell.empty {
+                min-height: 52px !important;
+                max-height: 70px !important;
             }
             .cal-grid.view-month .cal-header-day { 
                 font-size: 0.65rem !important; 
                 padding-bottom: 4px !important;
+                text-align: center !important;
             }
             .cal-grid.view-month .cal-date-num { 
-                font-size: 0.75rem !important; 
+                font-size: 0.72rem !important; 
                 margin-bottom: 2px !important; 
                 line-height: 1 !important;
             }
@@ -379,10 +392,13 @@
                 gap: 1px !important;
                 min-width: 0 !important;
                 overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                flex: 1 !important;
             }
             .cal-grid.view-month .cal-event { 
                 font-size: 0.55rem !important; 
-                line-height: 1.1 !important;
+                line-height: 1.15 !important;
                 padding: 1px 2px !important; 
                 margin-bottom: 1px !important; 
                 white-space: nowrap !important; 
@@ -406,10 +422,33 @@
             .day-time-label { width: 50px; padding-right: 10px; font-size: 0.7rem; }
             .day-events-area { padding-left: 10px; }
         }
+
+        /* Hold the first paint until Firebase resolves the persisted session. */
+        html.auth-pending #authScreen { visibility: hidden; }
+        #sessionSplash { position: fixed; inset: 0; z-index: 10001; display: flex; align-items: center; justify-content: center; background: var(--bg-color); color: var(--text-main); text-align: center; }
+        html:not(.auth-pending) #sessionSplash { display: none; }
+        #sessionSplash p { color: var(--text-muted); font-size: 0.85rem; }
+        #sessionRetry { display: none; color: var(--accent-primary); }
+        #sessionSplash.session-slow #sessionRetry { display: inline-block; }
     </style>
 </head>
 <body>
 
+    <div id="sessionSplash" role="status" aria-live="polite">
+        <div><h2>Relent<span class="accent-text">_</span>Tracker</h2>
+            <p id="sessionStatus">Opening your workspace...</p>
+            <a id="sessionRetry" href="" onclick="location.reload(); return false;">Retry loading</a>
+        </div>
+    </div>
+    <script>
+        // A slow/offline script load must never be mistaken for a signed-out session.
+        window.sessionWaitTimer = setTimeout(() => {
+            if (!document.documentElement.classList.contains('auth-pending')) return;
+            document.getElementById('sessionStatus').textContent = 'Still loading. Check your connection or retry.';
+            document.getElementById('sessionSplash').classList.add('session-slow');
+        }, 15000);
+    </script>
+    <noscript><style>#sessionSplash {display:none} #authScreen {visibility:visible !important}</style></noscript>
     <div class="grid-bg"></div>
 
     <div id="authScreen">
@@ -435,7 +474,7 @@
                     <button class="icon-btn-settings" id="btnGlobalSettings" title="Workspace Settings">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
                     </button>
                     
@@ -529,8 +568,10 @@
                     </div>
                 </div>
                 
-                <div class="cal-grid view-month" id="calHeaderGrid"></div>
-                <div class="cal-grid view-month" id="calDaysGrid" style="margin-top: 10px;"></div>
+                <div class="cal-grid-wrapper">
+                    <div class="cal-grid view-month" id="calHeaderGrid"></div>
+                    <div class="cal-grid view-month" id="calDaysGrid" style="margin-top: 10px;"></div>
+                </div>
             </div>
         </div>
 
@@ -570,7 +611,7 @@
                     <button id="btnPomoSettingsToggle" title="Adjust Protocols">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
                     </button>
                     <div class="pomo-modes">
@@ -2267,8 +2308,17 @@
         // ==========================================
         // APP BOOTSTRAP & OPEN LOGIC
         // ==========================================
+        function finishSessionCheck() {
+            clearTimeout(window.sessionWaitTimer);
+            document.documentElement.classList.remove('auth-pending');
+        }
+        function sessionCheckFailed(error) {
+            console.warn('Session check did not finish', error);
+            document.getElementById('sessionStatus').textContent = 'Could not check your session. Check your connection and retry.';
+            document.getElementById('sessionSplash').classList.add('session-slow');
+        }
         function openApp(mode) {
-            authScreen.classList.add('hidden'); appContainer.classList.add('visible'); updateGreeting();
+            authScreen.classList.add('hidden'); appContainer.classList.add('visible'); updateGreeting(); finishSessionCheck();
             if (mode === 'offline') {
                 isOfflineMode = true; localStorage.setItem('offline_mode', 'true');
                 document.getElementById('userSyncStatus').textContent = "[ SYNC: OFFLINE OVERRIDE ]";
@@ -2346,10 +2396,14 @@
                     currentUser = null;
                     try { if (window.AndroidWidget && window.AndroidWidget.clearCalendarEvents) window.AndroidWidget.clearCalendarEvents(); } catch (e) {}
                     if(localStorage.getItem('offline_mode') === 'true') openApp('offline');
-                    else { authScreen.classList.remove('hidden'); appContainer.classList.remove('visible'); }
+                    else { authScreen.classList.remove('hidden'); appContainer.classList.remove('visible'); finishSessionCheck(); }
                 }
-            });
-        } else { if(isOfflineMode) openApp('offline'); }
+            }, sessionCheckFailed);
+        } else {
+            if(isOfflineMode) openApp('offline');
+            else if (!isFirebaseConfigured) { finishSessionCheck(); }
+            else { sessionCheckFailed('Authentication could not start'); }
+        }
     </script>
 </body>
 </html>
