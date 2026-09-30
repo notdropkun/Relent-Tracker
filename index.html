@@ -775,6 +775,16 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
                 
                 <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 1.5rem 0;">
 
+                <!-- Only the Android app exposes the check-only native message bridge. -->
+                <div id="androidUpdateSection" style="display: none;">
+                    <div class="form-group">
+                        <label>Android App</label>
+                        <p id="androidUpdateHint" style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.4;">Check for a new app version. Your study data stays in place.</p>
+                        <button id="btnCheckAppUpdates" class="btn btn-outline" style="width: 100%;">Check for updates</button>
+                    </div>
+                    <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 1.5rem 0;">
+                </div>
+
                 <div class="form-group">
                     <label>User Alias</label>
                     <div style="display: flex; gap: 0.5rem;">
@@ -2017,8 +2027,28 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
         // ==========================================
         // SETTINGS MODAL & COMMAND CENTER
         // ==========================================
+        // The bridge accepts only a check request, never APK URLs or install commands.
+        const appUpdateSection = document.getElementById('androidUpdateSection');
+        const appUpdateButton = document.getElementById('btnCheckAppUpdates');
+        function refreshAppUpdateEntry() {
+            const bridgeReady = typeof window.RTrackerUpdates?.postMessage === 'function';
+            const inAndroidApp = bridgeReady || navigator.userAgent.includes('StudyDashApp');
+            appUpdateSection.style.display = inAndroidApp ? 'block' : 'none';
+            appUpdateButton.disabled = !bridgeReady;
+            appUpdateButton.style.opacity = bridgeReady ? '1' : '0.5';
+            document.getElementById('androidUpdateHint').textContent = bridgeReady
+                ? 'Check for a new app version. Your study data stays in place.'
+                : 'Install RTracker v1.1 or newer, and update Android System WebView to use in-app updates. You can still get the APK from GitHub or Obtainium.';
+        }
+        refreshAppUpdateEntry();
+        appUpdateButton.addEventListener('click', () => {
+            if (typeof window.RTrackerUpdates?.postMessage === 'function') {
+                window.RTrackerUpdates.postMessage('check-updates');
+            }
+        });
         const settingsModal = document.getElementById('globalSettingsModal');
         document.getElementById('btnGlobalSettings').addEventListener('click', () => {
+            refreshAppUpdateEntry();
             settingsModal.classList.add('active');
             document.getElementById('shareLinkOutput').style.display = 'none';
         });
