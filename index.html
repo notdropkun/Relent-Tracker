@@ -392,7 +392,7 @@
                         <span class="hide-mobile">Add Data</span>
                     </button>
                     <button class="icon-btn-settings" id="btnGlobalSettings" title="Workspace Settings">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     </button>
                     
                     <div id="navProfileArea" class="user-profile-container"></div>
@@ -2082,15 +2082,42 @@
             if (!skipRender) { renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); }
         }
 
+        // HOME-SCREEN WIDGET MIRROR: copies exam name/date/marks (nothing else) to widget/{uid}.
+        // Separate try/catch, so if this fails nothing else in the app is affected.
         async function mirrorExamsToWidget(uid) {
             try {
                 const exams = (currentSyllabusData || [])
                     .filter(e => e && e.date && e.date !== "No Date")
                     .map(e => ({ name: String(e.name || "Exam").slice(0, 80), date: String(e.date).slice(0, 40), marks: (e.marks && e.marks !== "-") ? String(e.marks).slice(0, 20) : null }))
                     .slice(0, 30);
+                // Big widget size: also copy up to 10 syllabus topics for the next few exams (separate try, never blocks the rest)
+                try { addWidgetTopics(exams, (currentSyllabusData || []).filter(e => e && e.date && e.date !== "No Date").slice(0, 30)); } catch (e) { console.warn("Widget topics skipped", e); }
                 await setDoc(doc(db, "widget", uid), { exams: exams, updatedAt: new Date().toISOString() });
             } catch (e) { console.warn("Widget mirror skipped", e); }
+            // Android app only: tell the home-screen widget whose data to show (does nothing in a browser)
             try { if (window.AndroidWidget && window.AndroidWidget.setWidgetUid) window.AndroidWidget.setWidgetUid(uid); } catch (e) {}
+        }
+
+        // Adds topics [{name, done}] (max 10, unticked first), topicsTotal and topicsDone
+        // to the next 3 upcoming exams in the widget copy. Other exams get nothing extra.
+        function addWidgetTopics(exams, src) {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const dayOf = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s).trim()); const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(s); return isNaN(d.getTime()) ? null : d; };
+            const done = completedTasksArray || [];
+            src.map((e, i) => ({ e, i, d: dayOf(e.date) }))
+                .filter(x => x.d && x.d >= today && exams[x.i])
+                .sort((a, b) => a.d - b.d)
+                .slice(0, 3)
+                .forEach(({ e, i }) => {
+                    const all = [];
+                    (e.subjects || []).forEach(sub => (sub.categories || []).forEach(cat => (cat.topics || []).forEach(topic => {
+                        const tid = `${e.id}_${sub.name}_${cat.name}_${topic}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                        all.push({ name: String(topic).slice(0, 60), done: done.includes(tid) });
+                    })));
+                    exams[i].topics = all.filter(t => !t.done).concat(all.filter(t => t.done)).slice(0, 10);
+                    exams[i].topicsTotal = all.length;
+                    exams[i].topicsDone = all.filter(t => t.done).length;
+                });
         }
 
         async function pullDataFromCloud(uid) {
