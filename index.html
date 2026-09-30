@@ -89,6 +89,7 @@
         .btn-outline { background: transparent; border-color: var(--border-color); }
         .btn-outline.active { background: rgba(253, 224, 71, 0.1); border-color: var(--accent-primary); color: var(--accent-primary); box-shadow: var(--glow-primary); }
 
+        /* FIXED SETTINGS ICON STYLE (Crisp, clean, no glitchy rotation) */
         .icon-btn-settings { background: transparent; border: 1px solid transparent; color: var(--text-muted); border-radius: 0; padding: 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); flex-shrink: 0; }
         .icon-btn-settings:hover { color: var(--accent-primary); }
 
@@ -189,7 +190,7 @@
         .topic-item input[type="checkbox"]:checked + .topic-label { color: var(--text-muted); text-decoration: line-through; opacity: 0.5; }
 
         /* =========================================================
-           CALENDAR SECTION
+           CALENDAR SECTION (Strict minmax to prevent blowout)
            ========================================================= */
         .cal-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;}
         .cal-nav-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 1rem; border-radius: var(--radius); cursor: pointer; transition: 0.2s; }
@@ -199,17 +200,13 @@
         .cal-view-toggles { display: flex; gap: 5px; background: #050505; padding: 5px; border-radius: var(--radius); border: 1px solid var(--border-color); }
         .cal-view-toggles .btn-outline { border: none; padding: 0.4rem 0.8rem; }
         
-        .cal-grid-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .cal-grid-wrapper::-webkit-scrollbar { height: 6px; }
-        .cal-grid-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-        
         .cal-grid { display: grid; gap: 10px; width: 100%; transition: var(--transition); }
-        .cal-grid.view-month { grid-template-columns: repeat(7, 1fr); }
-        .cal-grid.view-week { grid-template-columns: repeat(7, 1fr); }
+        .cal-grid.view-month { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+        .cal-grid.view-week { grid-template-columns: repeat(7, minmax(0, 1fr)); }
         .cal-grid.view-day { grid-template-columns: 1fr; }
 
         .cal-header-day { color: var(--text-muted); font-size: 0.8rem; text-align: center; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); font-weight: bold;}
-        .cal-cell { min-height: 100px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--surface-color); display: flex; flex-direction: column; transition: var(--transition); cursor: pointer; }
+        .cal-cell { min-height: 100px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--surface-color); display: flex; flex-direction: column; transition: var(--transition); cursor: pointer; min-width: 0; overflow: hidden; }
         .cal-cell:hover { border-color: var(--accent-secondary); background: rgba(34, 211, 238, 0.05); }
         .cal-cell.today { border-color: var(--accent-primary); background: rgba(253, 224, 71, 0.05); }
         .cal-cell.empty { background: transparent; border-color: transparent; cursor: default; }
@@ -218,7 +215,7 @@
         .cal-cell.today .cal-date-num { color: var(--accent-primary); }
         .cal-cell.has-event .cal-date-num { color: var(--text-main); }
         
-        .cal-events-container { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
+        .cal-events-container { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; min-width: 0; }
         
         .mobile-day-header { display: none; font-weight: bold; margin-bottom: 10px; color: var(--accent-secondary); border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; }
 
@@ -236,6 +233,7 @@
             overflow-wrap: break-word;
             line-height: 1.2;
             margin-bottom: 4px;
+            min-width: 0;
         }
         .cal-event-time { font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 2px; opacity: 0.9;}
         .cal-event-desc { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; white-space: normal; }
@@ -278,7 +276,7 @@
         .stat-label { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-align: center; }
         
         #btnPomoSettingsToggle { position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; transition: var(--transition); flex-shrink: 0;}
-        #btnPomoSettingsToggle:hover { color: var(--text-main); transform: rotate(90deg); }
+        #btnPomoSettingsToggle:hover { color: var(--text-main); }
         .pomo-settings-panel { background: #050505; border: 1px solid var(--border-color); border-radius: var(--radius); padding: 1.5rem; margin-top: 1.5rem; text-align: left; }
 
         /* Modals & Forms */
@@ -304,7 +302,7 @@
         .app-footer { text-align: center; padding: 2rem; color: #555; font-size: 0.8rem; font-family: var(--font-mono); letter-spacing: 2px; margin-top: auto; width: 100%; text-transform: uppercase; margin-bottom: 60px; }
 
         /* =========================================================
-           MOBILE / ANDROID OPTIMIZATIONS (Fixed Month View Breakage)
+           MOBILE / ANDROID OPTIMIZATIONS (True Full-Width Fit)
            ========================================================= */
         .hide-mobile { display: inline; }
         
@@ -336,36 +334,71 @@
             .pomo-timer { font-size: 20vw; } 
             .pomo-controls .btn { width: 100%; flex: 1 1 100%; }
             
-            /* MOBILE MONTH VIEW FIX: Horizontal scroll wrapper to prevent grid breakage */
+            /* MONTH VIEW: Fitted 7-column grid without side blowouts */
+            #calendarSection .container {
+                padding-left: 0.4rem !important;
+                padding-right: 0.4rem !important;
+            }
+            #calendarSection .card-panel {
+                padding: 0.75rem 0.25rem !important;
+            }
+            .cal-controls {
+                gap: 8px !important;
+                margin-bottom: 0.8rem !important;
+            }
+            .cal-month-title {
+                font-size: 1.15rem !important;
+                letter-spacing: 1px !important;
+            }
+            .cal-nav-btn {
+                padding: 0.4rem 0.7rem !important;
+            }
             .cal-grid.view-month { 
-                min-width: 600px; /* Forces enough space for 7 columns */
-                gap: 4px; 
+                grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+                gap: 2px !important; 
+                width: 100% !important;
+                min-width: 0 !important;
             }
             .cal-grid.view-month .cal-cell { 
-                min-height: 70px; 
-                max-height: 90px; 
-                padding: 5px; 
-                overflow: hidden; 
+                min-height: 52px !important; 
+                max-height: 68px !important; 
+                padding: 3px 2px !important; 
+                min-width: 0 !important;
+                overflow: hidden !important; 
             }
-            .cal-grid.view-month .cal-header-day { font-size: 0.75rem; }
+            .cal-grid.view-month .cal-header-day { 
+                font-size: 0.65rem !important; 
+                padding-bottom: 4px !important;
+            }
             .cal-grid.view-month .cal-date-num { 
-                font-size: 0.8rem; 
-                margin-bottom: 2px; 
+                font-size: 0.75rem !important; 
+                margin-bottom: 2px !important; 
+                line-height: 1 !important;
+            }
+            .cal-grid.view-month .cal-events-container {
+                gap: 1px !important;
+                min-width: 0 !important;
+                overflow: hidden !important;
             }
             .cal-grid.view-month .cal-event { 
-                font-size: 0.65rem; 
-                padding: 2px 4px; 
-                margin-bottom: 2px; 
-                white-space: nowrap; 
-                overflow: hidden; 
-                text-overflow: ellipsis; 
+                font-size: 0.55rem !important; 
+                line-height: 1.1 !important;
+                padding: 1px 2px !important; 
+                margin-bottom: 1px !important; 
+                white-space: nowrap !important; 
+                overflow: hidden !important; 
+                text-overflow: ellipsis !important; 
+                border-left-width: 2px !important;
+                display: block !important;
+                min-width: 0 !important;
             }
             .cal-grid.view-month .cal-event-time, 
             .cal-grid.view-month .cal-event-desc { 
-                display: none; 
+                display: none !important; 
             }
             
             .cal-view-toggles { width: 100%; justify-content: space-between; }
+            .cal-view-toggles .btn-outline { flex: 1; text-align: center; padding: 0.4rem 0.2rem; font-size: 0.85rem; }
             .cal-grid.view-week { grid-template-columns: 1fr; }
             #calHeaderGrid.view-week { display: none; }
             .mobile-day-header { display: block; }
@@ -398,9 +431,12 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> 
                         <span class="hide-mobile">Add Data</span>
                     </button>
-                    <!-- Settings icon swapped to 'Sliders' to prevent SVG rendering/warp glitches -->
+                    <!-- Settings icon with official, verified Feather SVG path (clean teeth, zero warp) -->
                     <button class="icon-btn-settings" id="btnGlobalSettings" title="Workspace Settings">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
                     </button>
                     
                     <div id="navProfileArea" class="user-profile-container"></div>
@@ -493,11 +529,8 @@
                     </div>
                 </div>
                 
-                <!-- Horizontal wrapper for Android month-view protection -->
-                <div class="cal-grid-wrapper">
-                    <div class="cal-grid view-month" id="calHeaderGrid"></div>
-                    <div class="cal-grid view-month" id="calDaysGrid" style="margin-top: 10px;"></div>
-                </div>
+                <div class="cal-grid view-month" id="calHeaderGrid"></div>
+                <div class="cal-grid view-month" id="calDaysGrid" style="margin-top: 10px;"></div>
             </div>
         </div>
 
@@ -535,7 +568,10 @@
             <div style="display: flex; justify-content: center;">
                 <div class="pomo-card card-panel">
                     <button id="btnPomoSettingsToggle" title="Adjust Protocols">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
                     </button>
                     <div class="pomo-modes">
                         <button class="pomo-mode-btn active" data-mode="focus">Focus</button>
@@ -2018,10 +2054,11 @@
             if (delBtn) {
                 if (isTeacherMode) return; 
                 e.stopPropagation();
-                if (confirm("Execute deletion protocol for this ledger?")) {
-                    currentSyllabusData = currentSyllabusData.filter(ex => String(ex.id) !== String(delBtn.dataset.examId));
-                    await syncData(); showToast("Ledger Deleted.");
-                } return;
+                currentSyllabusData = currentSyllabusData.filter(ex => String(ex.id) !== String(delBtn.dataset.examId));
+                renderDashboardStructure();
+                showToast("Ledger Deleted.");
+                await syncData(true);
+                return;
             }
 
             const editBtn = e.target.closest('.edit-btn');
@@ -2109,8 +2146,6 @@
                 if (currentUser && currentUser.uid === uid && window.AndroidWidget && window.AndroidWidget.setWidgetUid) {
                     window.AndroidWidget.setWidgetUid(uid);
                     if (window.AndroidWidget.setCalendarEvents) {
-                        // PRIVATE phone cache: never add calendarEvents to public widget/{uid}.
-                        // Use exactly the same dated entries that the website calendar renders.
                         const events = (calendarEvents || []).filter(e => e && /^\d{4}-\d{2}-\d{2}$/.test(String(e.date || '')))
                             .map(e => ({
                                 title: String(e.title || 'Event').slice(0, 120),
@@ -2126,8 +2161,6 @@
             } catch (e) { console.warn('Private calendar widget sync skipped', e); }
         }
 
-        // Adds topics [{name, done}] (public max 10; private phone preview max 32, unticked first), topicsTotal and topicsDone
-        // to the next 3 upcoming exams in the widget copy. Other exams get nothing extra.
         function addWidgetTopics(exams, src, limit = 10) {
             const today = new Date(); today.setHours(0, 0, 0, 0);
             const dayOf = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s).trim()); const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(s); return isNaN(d.getTime()) ? null : d; };
@@ -2147,6 +2180,65 @@
                     exams[i].topicsDone = all.filter(t => t.done).length;
                 });
         }
+
+        function widgetDate(s) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
+            if (!m) return null;
+            const d = new Date(+m[1], +m[2] - 1, +m[3]);
+            return d.getFullYear() === +m[1] && d.getMonth() === +m[2]-1 && d.getDate() === +m[3] ? d : null;
+        }
+        window.openWidgetRoute = function(route) {
+            if (!route || !['day','month','add'].includes(route.view) || !widgetDate(route.date)) return;
+            sessionStorage.setItem('pending_widget_route', JSON.stringify(route));
+            applyWidgetRoute();
+        };
+        function applyWidgetRoute() {
+            if (!currentUser && !isOfflineMode) return;
+            let route; try { route = JSON.parse(sessionStorage.getItem('pending_widget_route') || 'null'); } catch(e) { return; }
+            if (!route || !widgetDate(route.date)) return;
+            sessionStorage.removeItem('pending_widget_route');
+            document.querySelector('.taskbar-btn[data-target="calendarSection"]').click();
+            currentCalDate = widgetDate(route.date);
+            currentCalView = route.view === 'month' ? 'month' : 'day';
+            calDaysGrid.className = `cal-grid view-${currentCalView}`;
+            calHeaderGrid.className = `cal-grid view-${currentCalView}`;
+            document.querySelectorAll('#calViewToggles .btn-outline').forEach(b => b.classList.toggle('active', b.dataset.view === currentCalView));
+            renderCalendar();
+            if (route.view === 'add') {
+                document.getElementById('btnAddCalEvent').click();
+                document.getElementById('calEventDate').value = route.date;
+                document.getElementById('calEventTitle').focus();
+            }
+        }
+        function syncWidgetTheme() {
+            const bridge = window.AndroidWidget;
+            if (!bridge || !bridge.setWidgetTheme) return;
+            const css = getComputedStyle(document.body);
+            const probe = document.createElement('span'); document.body.appendChild(probe);
+            const color = (name, fallback) => {
+                probe.style.color = css.getPropertyValue(name).trim() || fallback;
+                const value = getComputedStyle(probe).color;
+                const canvas = document.createElement('canvas'); canvas.width = canvas.height = 1;
+                const painter = canvas.getContext('2d');
+                painter.fillStyle = value; painter.fillRect(0,0,1,1);
+                const rgb = painter.getImageData(0,0,1,1).data;
+                return '#' + Array.from(rgb).slice(0,3).map(n => n.toString(16).padStart(2,'0')).join('');
+            };
+            const palette = { bg: color('--surface-color','#111114'), main: color('--text-main','#e4e4e7'), muted: color('--text-muted','#71717a'), primary: color('--accent-primary','#fde047'), secondary: color('--accent-secondary','#22d3ee'), border: color('--border-color','#27272a'), page: color('--bg-color','#050505') };
+            probe.remove();
+            try { bridge.setWidgetTheme(JSON.stringify(palette)); } catch(e) {}
+        }
+        new MutationObserver(syncWidgetTheme).observe(document.body, { attributes:true, attributeFilter:['class','style'] });
+        new MutationObserver(syncWidgetTheme).observe(document.documentElement, { attributes:true, attributeFilter:['class','style'] });
+        new MutationObserver(() => { clearTimeout(window.widgetThemeTimer); window.widgetThemeTimer = setTimeout(syncWidgetTheme,100); }).observe(document.head, { childList:true, subtree:true, characterData:true });
+        window.addEventListener('load', syncWidgetTheme);
+        const widgetHash = new URLSearchParams(location.hash.slice(1));
+        if (widgetHash.has('widgetView')) {
+            const route = { view: widgetHash.get('widgetView'), date: widgetHash.get('date') };
+            if (['day','month','add'].includes(route.view) && widgetDate(route.date)) sessionStorage.setItem('pending_widget_route', JSON.stringify(route));
+            history.replaceState(null, '', location.pathname + location.search);
+        }
+        syncWidgetTheme();
 
         async function pullDataFromCloud(uid) {
             try {
@@ -2182,7 +2274,7 @@
                 document.getElementById('userSyncStatus').textContent = "[ SYNC: OFFLINE OVERRIDE ]";
                 document.getElementById('navProfileArea').innerHTML = `<button class="btn btn-outline" id="btnExitOffline" style="font-size: 0.7rem; padding: 4px 8px;">Log In</button>`;
                 document.getElementById('btnExitOffline').addEventListener('click', () => { localStorage.removeItem('offline_mode'); location.reload(); });
-                renderDashboardStructure(); renderSimpleTasks(); renderCalendar();
+                renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute();
             }
         }
 
@@ -2249,7 +2341,7 @@
                     document.getElementById('userSyncStatus').textContent = `[ SYNC: CLOUD ACTIVE ]`;
                     document.getElementById('navProfileArea').innerHTML = `<span class="logout-text" id="btnNavSignOut">Disconnect</span><img src="${user.photoURL}" class="profile-pic" title="${user.email}">`;
                     document.getElementById('btnNavSignOut').addEventListener('click', () => signOut(auth));
-                    await pullDataFromCloud(user.uid); openApp('cloud'); renderDashboardStructure(); renderSimpleTasks(); renderCalendar();
+                    await pullDataFromCloud(user.uid); openApp('cloud'); renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute(); syncWidgetTheme();
                 } else {
                     currentUser = null;
                     try { if (window.AndroidWidget && window.AndroidWidget.clearCalendarEvents) window.AndroidWidget.clearCalendarEvents(); } catch (e) {}
