@@ -89,7 +89,6 @@
         .btn-outline { background: transparent; border-color: var(--border-color); }
         .btn-outline.active { background: rgba(253, 224, 71, 0.1); border-color: var(--accent-primary); color: var(--accent-primary); box-shadow: var(--glow-primary); }
 
-        /* FIXED SETTINGS ICON STYLE (Crisp, clean, no glitchy warp) */
         .icon-btn-settings { background: transparent; border: 1px solid transparent; color: var(--text-muted); border-radius: 0; padding: 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); flex-shrink: 0; }
         .icon-btn-settings:hover { color: var(--accent-primary); }
 
@@ -199,6 +198,10 @@
         
         .cal-view-toggles { display: flex; gap: 5px; background: #050505; padding: 5px; border-radius: var(--radius); border: 1px solid var(--border-color); }
         .cal-view-toggles .btn-outline { border: none; padding: 0.4rem 0.8rem; }
+        
+        .cal-grid-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .cal-grid-wrapper::-webkit-scrollbar { height: 6px; }
+        .cal-grid-wrapper::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
         
         .cal-grid { display: grid; gap: 10px; width: 100%; transition: var(--transition); }
         .cal-grid.view-month { grid-template-columns: repeat(7, 1fr); }
@@ -333,21 +336,25 @@
             .pomo-timer { font-size: 20vw; } 
             .pomo-controls .btn { width: 100%; flex: 1 1 100%; }
             
-            /* MOBILE MONTH VIEW FIX: Compact grid, constrained cell sizing, safe text wrap */
-            .cal-grid.view-month { gap: 2px; }
+            /* MOBILE MONTH VIEW FIX: Horizontal scroll wrapper to prevent grid breakage */
+            .cal-grid.view-month { 
+                min-width: 600px; /* Forces enough space for 7 columns */
+                gap: 4px; 
+            }
             .cal-grid.view-month .cal-cell { 
-                min-height: 65px; 
-                max-height: 85px; 
-                padding: 4px; 
+                min-height: 70px; 
+                max-height: 90px; 
+                padding: 5px; 
                 overflow: hidden; 
             }
+            .cal-grid.view-month .cal-header-day { font-size: 0.75rem; }
             .cal-grid.view-month .cal-date-num { 
-                font-size: 0.75rem; 
+                font-size: 0.8rem; 
                 margin-bottom: 2px; 
             }
             .cal-grid.view-month .cal-event { 
-                font-size: 0.55rem; 
-                padding: 2px 3px; 
+                font-size: 0.65rem; 
+                padding: 2px 4px; 
                 margin-bottom: 2px; 
                 white-space: nowrap; 
                 overflow: hidden; 
@@ -391,8 +398,9 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> 
                         <span class="hide-mobile">Add Data</span>
                     </button>
+                    <!-- Settings icon swapped to 'Sliders' to prevent SVG rendering/warp glitches -->
                     <button class="icon-btn-settings" id="btnGlobalSettings" title="Workspace Settings">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
                     </button>
                     
                     <div id="navProfileArea" class="user-profile-container"></div>
@@ -485,8 +493,11 @@
                     </div>
                 </div>
                 
-                <div class="cal-grid view-month" id="calHeaderGrid"></div>
-                <div class="cal-grid view-month" id="calDaysGrid" style="margin-top: 10px;"></div>
+                <!-- Horizontal wrapper for Android month-view protection -->
+                <div class="cal-grid-wrapper">
+                    <div class="cal-grid view-month" id="calHeaderGrid"></div>
+                    <div class="cal-grid view-month" id="calDaysGrid" style="margin-top: 10px;"></div>
+                </div>
             </div>
         </div>
 
@@ -524,7 +535,7 @@
             <div style="display: flex; justify-content: center;">
                 <div class="pomo-card card-panel">
                     <button id="btnPomoSettingsToggle" title="Adjust Protocols">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     </button>
                     <div class="pomo-modes">
                         <button class="pomo-mode-btn active" data-mode="focus">Focus</button>
@@ -2094,13 +2105,30 @@
                 try { addWidgetTopics(exams, (currentSyllabusData || []).filter(e => e && e.date && e.date !== "No Date").slice(0, 30)); } catch (e) { console.warn("Widget topics skipped", e); }
                 await setDoc(doc(db, "widget", uid), { exams: exams, updatedAt: new Date().toISOString() });
             } catch (e) { console.warn("Widget mirror skipped", e); }
-            // Android app only: tell the home-screen widget whose data to show (does nothing in a browser)
-            try { if (window.AndroidWidget && window.AndroidWidget.setWidgetUid) window.AndroidWidget.setWidgetUid(uid); } catch (e) {}
+            try {
+                if (currentUser && currentUser.uid === uid && window.AndroidWidget && window.AndroidWidget.setWidgetUid) {
+                    window.AndroidWidget.setWidgetUid(uid);
+                    if (window.AndroidWidget.setCalendarEvents) {
+                        // PRIVATE phone cache: never add calendarEvents to public widget/{uid}.
+                        // Use exactly the same dated entries that the website calendar renders.
+                        const events = (calendarEvents || []).filter(e => e && /^\d{4}-\d{2}-\d{2}$/.test(String(e.date || '')))
+                            .map(e => ({
+                                title: String(e.title || 'Event').slice(0, 120),
+                                date: String(e.date),
+                                startTime: e.allDay ? '' : String(e.startTime || '').slice(0, 5)
+                            }));
+                        const previewSrc = (currentSyllabusData || []).filter(e => e && e.date && e.date !== 'No Date');
+                        const previews = previewSrc.map(e => ({ name: String(e.name || 'Exam').slice(0, 80), date: String(e.date).slice(0, 40) }));
+                        addWidgetTopics(previews, previewSrc, 32);
+                        window.AndroidWidget.setCalendarEvents(uid, JSON.stringify({ events, exams: previews.filter(e => e.topics) }));
+                    }
+                }
+            } catch (e) { console.warn('Private calendar widget sync skipped', e); }
         }
 
-        // Adds topics [{name, done}] (max 10, unticked first), topicsTotal and topicsDone
+        // Adds topics [{name, done}] (public max 10; private phone preview max 32, unticked first), topicsTotal and topicsDone
         // to the next 3 upcoming exams in the widget copy. Other exams get nothing extra.
-        function addWidgetTopics(exams, src) {
+        function addWidgetTopics(exams, src, limit = 10) {
             const today = new Date(); today.setHours(0, 0, 0, 0);
             const dayOf = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s).trim()); const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(s); return isNaN(d.getTime()) ? null : d; };
             const done = completedTasksArray || [];
@@ -2114,7 +2142,7 @@
                         const tid = `${e.id}_${sub.name}_${cat.name}_${topic}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
                         all.push({ name: String(topic).slice(0, 60), done: done.includes(tid) });
                     })));
-                    exams[i].topics = all.filter(t => !t.done).concat(all.filter(t => t.done)).slice(0, 10);
+                    exams[i].topics = all.filter(t => !t.done).concat(all.filter(t => t.done)).slice(0, limit);
                     exams[i].topicsTotal = all.length;
                     exams[i].topicsDone = all.filter(t => t.done).length;
                 });
@@ -2224,6 +2252,7 @@
                     await pullDataFromCloud(user.uid); openApp('cloud'); renderDashboardStructure(); renderSimpleTasks(); renderCalendar();
                 } else {
                     currentUser = null;
+                    try { if (window.AndroidWidget && window.AndroidWidget.clearCalendarEvents) window.AndroidWidget.clearCalendarEvents(); } catch (e) {}
                     if(localStorage.getItem('offline_mode') === 'true') openApp('offline');
                     else { authScreen.classList.remove('hidden'); appContainer.classList.remove('visible'); }
                 }
