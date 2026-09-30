@@ -431,6 +431,34 @@
         #sessionRetry { display: none; color: var(--accent-primary); }
         #sessionSplash.session-slow #sessionRetry { display: inline-block; }
     </style>
+<style id="v6PhoneWorkspace">
+/* v6: the workspace presentation is phone-only. Original tablet/desktop CSS remains above. */
+.v6-mobile-only{display:none!important}
+@media(max-width:600px){
+.v6-desktop-title{display:none!important}
+body{--bg-color:#0b090a;--surface-color:#100b0e;--surface-hover:#1b1116;--border-color:#44212d;--text-main:#e9dfe4;--text-muted:#a77384;--accent-primary:#ec758f;--accent-secondary:#ec758f;--glow-primary:none;--glow-secondary:none;--radius:0px;background:var(--bg-color)}
+.grid-bg{display:none}button,input,select,textarea{font-family:var(--font-mono)}button{touch-action:manipulation}.v6-mobile-only{display:block!important}
+#appContainer nav{background:#0b090a;border-bottom:1px solid #44212d;position:relative;backdrop-filter:none}.nav-content{padding:14px 20px;gap:8px}.brand h1{font-size:23px;text-shadow:none}.nav-actions{gap:8px}.nav-actions .btn,.icon-btn-settings{min-width:35px;min-height:35px;padding:7px}.profile-pic{width:28px;height:28px}.logout-text{font-size:9px}
+.container{width:100%;max-width:none;margin:0;padding:18px 20px 110px}#dashboardSection>.hero-section,#dashboardSection>.stats-grid{display:none}
+.side-taskbar{position:fixed;inset:auto 0 0 0;transform:none;width:100%;height:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:9px 12px calc(9px + env(safe-area-inset-bottom));background:#0b090a;border:0;border-top:1px solid #613341;border-radius:0;box-shadow:none;z-index:100}
+.taskbar-btn{width:auto;height:52px;display:flex;flex-direction:column;justify-content:center;gap:6px;font-size:17px;border:0;border-radius:0;background:none;box-shadow:none!important}.taskbar-btn:after{content:attr(data-mobile-label);position:static;transform:none;opacity:1;visibility:visible;background:none;border:0;padding:0;font:10px var(--font-mono);color:inherit;white-space:nowrap}.taskbar-btn.active{color:var(--accent-primary);background:none}.taskbar-btn:hover{transform:none}
+.v6-path{font:10px var(--font-mono);color:#a77384;margin:0 0 18px}.v6-path span{color:var(--accent-primary)}.v6-file{border:1px solid #613341;margin-bottom:22px}.v6-filebar{background:#1b1116;padding:12px 14px;border-bottom:1px solid #613341;font:10px var(--font-mono);color:var(--accent-primary);display:flex;justify-content:space-between;gap:10px}.v6-content{padding:18px 14px}.v6-kicker{font:9px var(--font-mono);color:#a77384}.v6-name{font:600 36px/1.1 var(--font-display);margin:8px 0 14px;overflow-wrap:anywhere}.v6-meta{font:9px/1.8 var(--font-mono);color:#ba8795}.v6-countrow{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin:23px 0}.v6-count{font:600 82px/.9 var(--font-display);color:var(--accent-primary);white-space:nowrap}.v6-count small{font:9px var(--font-mono);margin-left:7px}.v6-percent{text-align:right;min-width:75px}.v6-percent b{font:500 30px var(--font-display);color:var(--accent-primary);display:block}.v6-percent small{font:8px var(--font-mono);color:#a77384}.v6-bar{height:4px;background:#44212d}.v6-bar i{display:block;height:100%;background:var(--accent-primary)}.v6-open{display:flex;justify-content:space-between;width:100%;gap:8px;padding:15px 14px;border:0;border-top:1px solid #44212d;background:none;color:var(--accent-primary);text-align:left;font:11px var(--font-mono)}.v6-open small{font-size:8px;color:#a77384;overflow-wrap:anywhere}.v6-sectionhead{font:10px var(--font-mono);color:var(--accent-primary);margin:23px 0 12px}.v6-examrow{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;background:none;border:1px solid #44212d;color:var(--text-main);padding:15px 13px;margin-bottom:10px}.v6-examrow b{font:600 19px var(--font-display);overflow-wrap:anywhere}.v6-examrow small{font:8px/1.8 var(--font-mono);color:#a77384;display:block}.v6-examrow strong{font:500 28px var(--font-display);color:var(--accent-primary);flex-shrink:0}.v6-tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}.v6-tools button{padding:15px 12px;text-align:left;border:1px solid #44212d;color:var(--text-main);background:none;font:600 16px var(--font-display)}.v6-tools small{display:block;margin-top:6px;font:8px var(--font-mono);color:#a77384}
+#dashboardSection:not(.v6-detail) #timelineContainer{display:none}#dashboardSection.v6-detail #v6MobileHome{display:none!important}#dashboardSection.v6-detail #timelineContainer{margin:0;padding:0;border:0}.v6-back{display:block;margin-bottom:18px;background:none;border:0;color:#ba8795;font:11px var(--font-mono);padding:8px 0}.v6-detail .exam-card-wrapper{display:none}.v6-detail .exam-card-wrapper.v6-selected{display:block;margin:0}.timeline-date-marker{display:none}.v6-detail .exam-card{border:0;background:none;box-shadow:none;border-radius:0;overflow:visible}.v6-detail .exam-header{padding:0 0 15px;flex-direction:row;align-items:center;gap:10px}.v6-detail .exam-info{display:none}.v6-detail .header-actions{margin-left:auto}.v6-detail .expand-icon{display:none}.v6-detail .exam-body{display:block!important;padding:0;border:0;max-height:none;opacity:1}.v6-detail .syllabus-grid{display:block}.v6-detail .subject-block{background:none;border:0;padding:0;margin:0 0 25px}.v6-detail .subject-block h4{font:500 23px var(--font-display);color:var(--accent-primary)!important;border-bottom:1px solid #44212d;padding:0 0 12px}.v6-detail .category-title{font:600 18px var(--font-display);color:var(--text-main);margin:20px 0 12px}.v6-detail .topic-item{padding:11px 0;border-bottom:1px solid #25161d;margin:0;font:16px/1.45 var(--font-display);gap:12px}.topic-item input[type=checkbox]{width:18px;height:18px;border-radius:3px}.topic-item input[type=checkbox]:checked{background:var(--accent-primary);border-color:var(--accent-primary);box-shadow:none}
+#calendarSection>.hero-section,#simpleTodoSection>.hero-section,#pomodoroSection>.hero-section{margin:0 0 20px;padding:0;border:0;text-align:left!important}#calendarSection h2,#simpleTodoSection h2,#pomodoroSection h2{font:500 34px var(--font-display);text-shadow:none}#calendarSection .hero-title,#pomodoroSection .hero-title{justify-content:flex-start!important}#calendarSection .view-title,#simpleTodoSection .view-title,#pomodoroSection .view-title{display:none}.card-panel{border:1px solid #613341;border-radius:0;background:none;box-shadow:none;padding:15px}.v6-panelbar{margin:-15px -15px 18px;padding:12px 14px;border-bottom:1px solid #613341;background:#1b1116;color:var(--accent-primary);font:10px var(--font-mono)}
+.cal-controls{display:flex;flex-direction:column;align-items:stretch;gap:14px}.cal-controls>div:first-child{justify-content:space-between}.cal-controls>div:last-child{justify-content:space-between}.cal-month-title{font:500 25px var(--font-display)}.cal-nav-btn{background:none;border:0;color:var(--accent-primary);min-width:36px;min-height:36px}.cal-view-toggles{display:flex;gap:8px}.cal-view-toggles .btn{font-size:10px;padding:9px 12px;flex:0}.cal-header-day{font:8px var(--font-mono);color:#a77384}.cal-grid.view-month{gap:4px;min-width:0}.cal-grid.view-month .cal-cell{min-height:43px!important;height:43px;padding:7px 2px;align-items:center;justify-content:flex-start;gap:5px;border-color:#21151b;border-radius:0;background:none}.cal-grid.view-month .cal-date-num{font:11px var(--font-mono);margin:0}.cal-grid.view-month .cal-events-container{display:none}.cal-grid.view-month .cal-cell.has-event:after{content:'';height:3px;width:3px;background:var(--accent-primary)}.cal-grid.view-month .cal-cell.v6-cal-selected{background:var(--accent-primary);border-color:var(--accent-primary)}.cal-grid.view-month .cal-cell.v6-cal-selected .cal-date-num{color:#200d14}.cal-grid.view-month .cal-cell.v6-cal-selected:after{background:#200d14}.cal-grid.view-week{overflow-x:auto;display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));min-width:0}.cal-grid.view-week .cal-cell{min-height:160px!important}.cal-grid.view-day .cal-cell{padding:10px!important}#v6Agenda{margin-top:22px}.v6-agenda-title{font:10px var(--font-mono);color:var(--accent-primary);padding-bottom:12px}.v6-agenda-item{width:100%;display:flex;gap:12px;text-align:left;background:none;color:var(--text-main);border:0;border-bottom:1px solid #44212d;padding:15px 0}.v6-agenda-item span{font:9px/1.8 var(--font-mono);color:#a77384;min-width:60px}.v6-agenda-item b{font:600 19px var(--font-display);border-left:2px solid var(--accent-primary);padding-left:12px}.v6-agenda-item small{font:9px/1.7 var(--font-mono);color:#a77384;display:block}.btn{border-radius:0;box-shadow:none!important;text-shadow:none;font-size:11px}.btn-primary{background:var(--accent-primary);border-color:var(--accent-primary);color:#200d14}.btn-outline{border-color:#613341}.simple-task-item{padding:19px 0;border-radius:0;border:0;border-bottom:1px solid #44212d;background:none;gap:10px}.simple-task-item label{font:500 18px/1.4 var(--font-display)}#simpleTaskForm{gap:8px!important}#simpleTaskInput{min-width:0;flex:1;font:10px var(--font-mono)}#btnInjectSimpleTask{padding:10px 13px}.form-control{border-radius:0;background:none;color:var(--text-main);border-color:#613341}.simple-task-check{accent-color:var(--accent-primary)}
+#pomodoroSection{min-height:0;align-items:stretch;gap:0;padding-bottom:110px}#pomodoroSection>div{display:block!important}.pomo-card{width:100%;max-width:none;padding:15px}.pomo-modes{gap:5px;justify-content:space-between}.pomo-mode-btn{font:9px var(--font-mono);padding:10px 7px;border-radius:0;white-space:normal}.pomo-mode-btn.active{background:#2d1520;border-color:var(--accent-primary);color:var(--accent-primary)}.pomo-timer{font:600 clamp(68px,23vw,100px)/1 var(--font-display);color:var(--accent-primary);text-shadow:none;margin:32px 0}.pomo-controls{gap:10px;justify-content:center}.pomo-controls .btn{padding:13px 24px}.pomo-stats-panel{border-color:#44212d;margin-top:28px;gap:12px;flex-wrap:wrap}.stat-item .stat-label{font:9px var(--font-mono)}#btnPomoSettingsToggle{top:8px;right:8px;color:var(--accent-primary)}.pomo-card .v6-panelbar{padding-right:45px}.modal-content{max-width:calc(100% - 24px);border-radius:0;max-height:calc(100dvh - 40px);overflow:auto}.app-footer{display:block;position:static;margin:0;padding:10px 20px calc(100px + env(safe-area-inset-bottom));font:9px var(--font-mono);text-align:center;color:var(--text-muted);border:0;text-shadow:none}
+}
+
+@media(max-width:600px){
+#calendarSection.container{padding:18px 20px 110px!important}#calendarSection .card-panel{padding:15px!important}.cal-grid.view-month .cal-events-container{display:none!important}.cal-grid.view-month .cal-cell,.cal-grid.view-month .cal-cell.empty{min-height:43px!important;max-height:43px!important;height:43px!important}.pomo-controls .btn{width:auto;flex:0 1 auto}.pomo-controls{flex-wrap:wrap}.v6-detail .timeline:before{display:none}.v6-detail .header-actions{border:0;padding:0;width:auto}.v6-desktop-copy{display:none}.v6-mobile-copy{display:inline}.cal-grid-wrapper{overflow-x:auto!important}h2,h3,h4,.v6-name{text-transform:none;letter-spacing:0}.taskbar-btn::before{display:none}.v6-persona{margin-top:12px}.v6-persona .chibi-icon{height:55px;margin-left:0}
+}
+.v6-mobile-copy{display:none}
+@media(max-width:600px){.v6-mobile-copy{display:inline}}
+@media(max-width:600px){
+.side-taskbar .taskbar-btn{border:0!important;background:none!important}.side-taskbar .taskbar-btn:after{display:block;right:auto;box-shadow:none;text-transform:none;font-size:9px}.pomo-controls .btn{border-radius:0}.cal-view-toggles .btn-outline.active{background:#2d1520;color:var(--accent-primary);border-color:var(--accent-primary)}.v6-detail .syllabus-grid{padding:0}.v6-detail .exam-body{background:none}.v6-detail .category-title{text-transform:none;letter-spacing:0}#btnSyncGCal:after{content:' Sync GCal';font:9px var(--font-mono)}#btnAddCalEvent:after{content:' Add event';font:9px var(--font-mono)}#btnSyncGCal,#btnAddCalEvent{gap:5px}#simpleTaskInput{font-size:16px}.nav-content{padding:12px 16px;flex-wrap:nowrap}.brand h1{font-size:20px;white-space:nowrap}.user-profile-container{padding-left:8px;gap:6px}.nav-actions{gap:5px}.v6-count{font-size:clamp(58px,20vw,82px)}.v6-mobile-path{margin-bottom:16px}.v6-category-toggle{display:inline-block;border:0;padding:0;background:none;color:inherit;font:inherit;text-align:left}.v6-category-toggle:before{content:'⌄ ';color:var(--accent-primary)}.v6-chapter-closed .v6-category-toggle:before{content:'› '}.v6-chapter-closed .topic-item{display:none}
+}@media(max-width:360px){.brand h1{font-size:16px}.nav-content{padding:12px}.nav-actions .btn,.icon-btn-settings{min-width:30px;min-height:32px;padding:5px}.nav-actions{gap:3px}.v6-count small{font-size:8px}.v6-percent{min-width:65px}}
+@media(max-width:600px){#dashboardSection:not(.v6-detail) #v6MobileDetail{display:none!important}}
+</style>
 </head>
 <body>
 
@@ -485,10 +513,10 @@
 
         <!-- Taskbar -->
         <div class="side-taskbar">
-            <button class="taskbar-btn active" data-target="dashboardSection" data-tooltip="> WORK_TYPE_SHI">🗂️</button>
-            <button class="taskbar-btn" data-target="calendarSection" data-tooltip="> CALENDAR_SYNC">📅</button>
-            <button class="taskbar-btn" data-target="simpleTodoSection" data-tooltip="> SIMPLE_TO_DO">📝</button>
-            <button class="taskbar-btn" data-target="pomodoroSection" data-tooltip="> FOCUS_PROTOCOL">⏱️</button>
+            <button class="taskbar-btn active" data-target="dashboardSection" data-mobile-label="Home" data-tooltip="> WORK_TYPE_SHI">🗂️</button>
+            <button class="taskbar-btn" data-target="calendarSection" data-mobile-label="Calendar" data-tooltip="> CALENDAR_SYNC">📅</button>
+            <button class="taskbar-btn" data-target="simpleTodoSection" data-mobile-label="To-do" data-tooltip="> SIMPLE_TO_DO">📝</button>
+            <button class="taskbar-btn" data-target="pomodoroSection" data-mobile-label="Focus" data-tooltip="> FOCUS_PROTOCOL">⏱️</button>
         </div>
 
         <!-- 1. WORK_TYPE_SHI SECTION -->
@@ -528,6 +556,7 @@
                 </div>
             </section>
 
+            <div id="v6MobileHome" class="v6-mobile-only"></div><div id="v6MobileDetail" class="v6-mobile-only"></div>
             <main class="timeline" id="timelineContainer"></main>
         </div>
 
@@ -536,13 +565,14 @@
             <header class="hero-section">
                 <div>
                     <div class="hero-title">
-                        <h2><span class="terminal-prefix">>_</span> CALENDAR_SYNC</h2>
+                        <h2 class="v6-desktop-title"><span class="terminal-prefix">>_</span> CALENDAR_SYNC</h2><h2 class="v6-mobile-only">Calendar</h2>
                     </div>
                     <div class="view-title">> TIMELINE_OVERVIEW</div>
                 </div>
             </header>
 
             <div class="card-panel">
+                <div class="v6-panelbar v6-mobile-only">□ calendar.workspace</div>
                 <div class="cal-controls">
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <button class="cal-nav-btn" id="btnPrevDate">◀</button>
@@ -573,23 +603,24 @@
                     <div class="cal-grid view-month" id="calDaysGrid" style="margin-top: 10px;"></div>
                 </div>
             </div>
+            <div id="v6Agenda" class="v6-mobile-only"></div>
         </div>
-
         <!-- 3. SIMPLE TO-DO SECTION -->
         <div class="container hidden-section" id="simpleTodoSection">
             <header class="hero-section">
                 <div>
                     <div class="hero-title">
-                        <h2><span class="terminal-prefix">>_</span> TRACK_TASKS</h2>
+                        <h2 class="v6-desktop-title"><span class="terminal-prefix">>_</span> TRACK_TASKS</h2><h2 class="v6-mobile-only">To-do</h2>
                     </div>
                     <div class="view-title">> SIMPLE_TO_DO</div>
                 </div>
             </header>
 
             <div class="card-panel" style="max-width: 800px; width: 100%; margin: 0 auto;">
+                <div class="v6-panelbar v6-mobile-only">□ tasks.list</div>
                 <form id="simpleTaskForm" style="display: flex; gap: 1rem;">
                     <input type="text" id="simpleTaskInput" class="form-control" placeholder="> Enter basic task payload..." required>
-                    <button type="submit" class="btn btn-primary" id="btnInjectSimpleTask">Inject</button>
+                    <button type="submit" class="btn btn-primary" id="btnInjectSimpleTask"><span class="v6-desktop-copy">Inject</span><span class="v6-mobile-copy">+ Add</span></button>
                 </form>
                 <div class="simple-task-list" id="simpleTaskList"></div>
             </div>
@@ -600,7 +631,7 @@
             <header class="hero-section" style="text-align: center; border: none; margin-bottom: 1rem;">
                 <div style="width: 100%;">
                     <div class="hero-title" style="justify-content: center;">
-                        <h2>Focus Protocol</h2>
+                        <h2 class="v6-desktop-title">Focus Protocol</h2><h2 class="v6-mobile-only">Focus</h2>
                     </div>
                     <div class="view-title" style="text-align: center;">> DEEP_WORK_STATE</div>
                 </div>
@@ -608,6 +639,7 @@
 
             <div style="display: flex; justify-content: center;">
                 <div class="pomo-card card-panel">
+                    <div class="v6-panelbar v6-mobile-only">□ focus.timer</div>
                     <button id="btnPomoSettingsToggle" title="Adjust Protocols">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3"></circle>
@@ -623,9 +655,9 @@
                     <div class="pomo-timer" id="timerDisplay">25:00</div>
                     
                     <div class="pomo-controls">
-                        <button class="btn btn-primary" id="btnTimerStart">EXECUTE</button>
-                        <button class="btn btn-danger" id="btnTimerGiveUp" style="display: none;">ABORT?</button>
-                        <button class="btn btn-outline" id="btnTimerReset">RESET</button>
+                        <button class="btn btn-primary" id="btnTimerStart"><span class="v6-desktop-copy">EXECUTE</span><span class="v6-mobile-copy">Start</span></button>
+                        <button class="btn btn-danger" id="btnTimerGiveUp" style="display: none;"><span class="v6-desktop-copy">ABORT?</span><span class="v6-mobile-copy">Give up</span></button>
+                        <button class="btn btn-outline" id="btnTimerReset"><span class="v6-desktop-copy">RESET</span><span class="v6-mobile-copy">Reset</span></button>
                     </div>
 
                     <div class="pomo-stats-panel">
@@ -869,6 +901,8 @@
         let simpleTasksArray = safeParse('simple_tasks', []);
         let calendarEvents = safeParse('cal_events', []);
         let availableCalendars = safeParse('gcal_calendars', []);
+        const v6Phone = window.matchMedia('(max-width:600px)');
+        let v6SelectedExam = null, v6SelectedDate = null;
         
         let currentUser = null;
         let isOfflineMode = localStorage.getItem('offline_mode') === 'true';
@@ -1101,6 +1135,7 @@
                 e.currentTarget.classList.add('active');
                 
                 const target = e.currentTarget.dataset.target;
+                if(v6Phone.matches && target==='dashboardSection'){v6SelectedExam=null;v6RenderMobile();}
                 sections.forEach(sec => {
                     if(sec === target) {
                         document.getElementById(sec).classList.remove('hidden-section');
@@ -1121,6 +1156,7 @@
             let checks = 0; boxes.forEach(b => { if(b.checked) checks++; });
             document.getElementById('statPercent').textContent = boxes.length === 0 ? "0%" : `${Math.round((checks/boxes.length)*100)}%`;
 
+            v6RenderMobile();
             const topDisplay = document.getElementById('topNextLedgerDisplay');
 
             if(currentSyllabusData.length > 0) {
@@ -1199,7 +1235,7 @@
                             const isDisabled = isTeacherMode ? 'disabled' : ''; 
                             topicsHtml += `<label class="topic-item"><input type="checkbox" data-uid="${uniqueId}" ${isChecked} ${isDisabled}><span class="topic-label">${topic}</span></label>`;
                         });
-                        blocks += `<div><div class="category-title">${cat.name}</div>${topicsHtml}</div>`;
+                        blocks += `<div><div class="category-title">${v6Phone.matches?`<button class="v6-category-toggle" aria-expanded="true">${v6Escape(cat.name)}</button>`:cat.name}</div>${topicsHtml}</div>`;
                     });
                     syllabusHtml += `<div class="subject-block"><h4 style="color:${subjectColors[sub.name]||'var(--accent-secondary)'}">:: ${sub.name}</h4>${blocks}</div>`;
                 });
@@ -1637,6 +1673,7 @@
                     </div>
                 `;
             }
+            v6RenderAgenda();
         }
 
         calDaysGrid.addEventListener('click', (e) => {
@@ -2091,6 +2128,8 @@
         });
 
         document.getElementById('timelineContainer').addEventListener('click', async (e) => {
+            const chapterToggle = e.target.closest('.v6-category-toggle');
+            if(chapterToggle && v6Phone.matches){const chapter=chapterToggle.parentElement.parentElement;const closed=chapter.classList.toggle('v6-chapter-closed');chapterToggle.setAttribute('aria-expanded',String(!closed));return;}
             const delBtn = e.target.closest('.delete-btn');
             if (delBtn) {
                 if (isTeacherMode) return; 
@@ -2127,7 +2166,7 @@
                 } return;
             }
             const header = e.target.closest('.exam-header');
-            if(header && !e.target.closest('.topic-item')) header.closest('.exam-card').classList.toggle('expanded');
+            if(header && !v6Phone.matches && !e.target.closest('.topic-item')) header.closest('.exam-card').classList.toggle('expanded');
         });
 
         document.getElementById('timelineContainer').addEventListener('change', async (e) => {
@@ -2376,6 +2415,44 @@
                 showToast("API keys missing or DB failed. Engaging offline mode."); setTimeout(() => openApp('offline'), 2000);
             }
         });
+
+
+        // v6 phone presentation. Data persistence and integration handlers remain original.
+        function v6Escape(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        function v6Date(value) { return widgetDate(value); }
+        function v6Days(exam) { const d=v6Date(exam.date); if(!d) return null; const now=new Date(); return Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()))/86400000); }
+        function v6DateLabel(value) { const d=v6Date(value); return d?d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}):String(value||'No date'); }
+        function v6TopicStats(exam) { let total=0,done=0; (exam.subjects||[]).forEach(sub=>(sub.categories||[]).forEach(cat=>(cat.topics||[]).forEach(topic=>{total++;const uid=`${exam.id}_${sub.name}_${cat.name}_${topic}`.toLowerCase().replace(/[^a-z0-9]/g,'_');if(completedTasksArray.includes(uid))done++;})));return {total,done,percent:total?Math.round(done/total*100):0}; }
+        function v6ExamPanel(exam,home=false) { const st=v6TopicStats(exam), days=v6Days(exam); const count=days===null?'--':days<0?String(Math.abs(days)).padStart(2,'0'):String(days).padStart(2,'0');const unit=days===null?'NO DATE':days<0?'DAYS AGO':days===0?'TODAY':'DAYS LEFT'; return `<div class="v6-file"><div class="v6-filebar"><span>□ ${home?'next-exam':v6Escape(exam.name)+'.exam'}</span><span>${home?'UP NEXT':''}</span></div><div class="v6-content"><div class="v6-name">${v6Escape(exam.name)}</div><div class="v6-meta">${v6Escape(v6DateLabel(exam.date))} / ${v6Escape(exam.marks||'N/A')} MARKS</div><div class="v6-countrow"><div class="v6-count">${count}<small>${unit}</small></div><div class="v6-percent"><b>${st.percent}%</b><small>${st.done} / ${st.total} topics done</small></div></div><div class="v6-bar"><i style="width:${st.percent}%"></i></div></div>${home?`<button class="v6-open" data-v6-exam="${v6Escape(exam.id)}">Open syllabus <small>${v6Escape(exam.name)}.exam ↗</small></button>`:''}</div>`; }
+        function v6RenderMobile() {
+            document.getElementById('simpleTaskInput').placeholder=v6Phone.matches?'Add a task...':'> Enter basic task payload...';
+            if(!v6Phone.matches) return;
+            const upcoming=currentSyllabusData.filter(ex=>v6Days(ex)!==null&&v6Days(ex)>=0).sort((a,b)=>v6Days(a)-v6Days(b));
+            const lead=upcoming[0];
+            const others=currentSyllabusData.filter(ex=>ex!==lead).sort((a,b)=>(v6Days(a)??Infinity)-(v6Days(b)??Infinity));
+            const home=document.getElementById('v6MobileHome');
+            home.innerHTML=`<div class="v6-path">workspace / <span>home</span></div>${lead?v6ExamPanel(lead,true):'<div class="v6-file"><div class="v6-filebar">□ next-exam</div><div class="v6-content"><div class="v6-name">No upcoming exams</div><div class="v6-meta">Use Add Data above to add an exam.</div></div></div>'}${others.length?'<div class="v6-sectionhead">Other exams</div>':''}${others.map(ex=>`<button class="v6-examrow" data-v6-exam="${v6Escape(ex.id)}"><span><b>${v6Escape(ex.name)}</b><small>${v6Escape(v6DateLabel(ex.date))} / ${v6Escape(ex.marks||'N/A')} MARKS</small></span><strong>${v6Days(ex)===null?'↗':v6Days(ex)<0?'PAST':String(v6Days(ex)).padStart(2,'0')}<small>${v6Days(ex)!==null&&v6Days(ex)>=0?'DAYS LEFT ↗':'OPEN ↗'}</small></strong></button>`).join('')}<div class="v6-sectionhead">&gt; Your workspace</div><div class="v6-tools"><button data-v6-target="simpleTodoSection">To-do<small>Small tasks, one list</small></button><button data-v6-target="pomodoroSection">Focus<small>Pomodoro timer</small></button></div>`;
+            const ex=currentSyllabusData.find(ex=>String(ex.id)===v6SelectedExam);
+            if(!ex) v6SelectedExam=null;
+            document.getElementById('dashboardSection').classList.toggle('v6-detail',!!ex);
+            if(activePersona!=='default'){const icons=document.getElementById('dynamicGreetingText').querySelectorAll('.chibi-icon');const preview=document.createElement('div');preview.className='v6-persona';icons.forEach(icon=>preview.appendChild(icon.cloneNode(true)));home.appendChild(preview);}
+            document.getElementById('v6MobileDetail').innerHTML=ex?`<button class="v6-back" id="v6BackHome">← Dashboard</button><div class="v6-path">workspace / <span>subject</span></div>${v6ExamPanel(ex)}<div class="v6-sectionhead">Syllabus</div>`:'';
+            document.querySelectorAll('#timelineContainer .exam-card-wrapper').forEach((wrap,i)=>wrap.classList.toggle('v6-selected',String(currentSyllabusData[i]?.id)===v6SelectedExam));
+        }
+        document.getElementById('v6MobileHome').addEventListener('click',e=>{const ex=e.target.closest('[data-v6-exam]');if(ex){v6SelectedExam=ex.dataset.v6Exam;v6RenderMobile();window.scrollTo({top:0});}const target=e.target.closest('[data-v6-target]');if(target)document.querySelector(`.taskbar-btn[data-target="${target.dataset.v6Target}"]`).click();});
+        document.getElementById('v6MobileDetail').addEventListener('click',e=>{if(e.target.closest('#v6BackHome')){v6SelectedExam=null;v6RenderMobile();window.scrollTo({top:0});}});
+        function v6RenderAgenda() {
+            const agenda=document.getElementById('v6Agenda');if(!v6Phone.matches||currentCalView!=='month'){agenda.innerHTML='';return;}
+            const cells=Array.from(calDaysGrid.querySelectorAll('.cal-cell[data-date]'));
+            if(!cells.some(c=>c.dataset.date===v6SelectedDate)){const today=new Date();const key=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;v6SelectedDate=cells.some(c=>c.dataset.date===key)?key:cells[0]?.dataset.date;}
+            cells.forEach(c=>c.classList.toggle('v6-cal-selected',c.dataset.date===v6SelectedDate));
+            const events=calendarEvents.filter(ev=>ev.date===v6SelectedDate);
+            agenda.innerHTML=`<div class="v6-agenda-title">${v6Escape(v6DateLabel(v6SelectedDate))}</div>${events.length?events.map(ev=>`<button class="v6-agenda-item" data-v6-event="${v6Escape(ev.id)}"><span>${ev.allDay?'ALL DAY':v6Escape(formatTime(ev.startTime))}</span><b>${v6Escape(ev.title)}${ev.description?`<small>${v6Escape(ev.description)}</small>`:''}</b></button>`).join(''):'<div class="v6-meta">No events on this day. Use Add event to plan one.</div>'}`;
+        }
+        document.getElementById('v6Agenda').addEventListener('click',e=>{const b=e.target.closest('[data-v6-event]');if(!b)return;const original=Array.from(calDaysGrid.querySelectorAll('.cal-event')).find(el=>el.dataset.id===b.dataset.v6Event);if(original)original.click();});
+        calDaysGrid.addEventListener('click',e=>{if(!v6Phone.matches||currentCalView!=='month'||e.target.closest('.cal-event'))return;const cell=e.target.closest('.cal-cell[data-date]');if(cell){e.stopImmediatePropagation();v6SelectedDate=cell.dataset.date;v6RenderAgenda();}},true);
+        document.getElementById('btnAddCalEvent').addEventListener('click',()=>{if(v6Phone.matches&&currentCalView==='month'&&v6SelectedDate)document.getElementById('calEventDate').value=v6SelectedDate;});
+        v6Phone.addEventListener('change',()=>{renderDashboardStructure();v6RenderMobile();v6RenderAgenda();});
 
         if(isFirebaseConfigured && auth) {
             getRedirectResult(auth).then((result) => {
