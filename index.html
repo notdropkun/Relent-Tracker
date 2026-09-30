@@ -459,6 +459,12 @@ body{--bg-color:#0b090a;--surface-color:#100b0e;--surface-hover:#1b1116;--border
 }@media(max-width:360px){.brand h1{font-size:16px}.nav-content{padding:12px}.nav-actions .btn,.icon-btn-settings{min-width:30px;min-height:32px;padding:5px}.nav-actions{gap:3px}.v6-count small{font-size:8px}.v6-percent{min-width:65px}}
 @media(max-width:600px){#dashboardSection:not(.v6-detail) #v6MobileDetail{display:none!important}}
 </style>
+<style id="v6CalendarPlainText">.cal-event.gcal .cal-event-desc{white-space:pre-line;overflow-wrap:anywhere}.v6-agenda-item small{white-space:pre-line;overflow-wrap:anywhere}</style>
+<style id="v6PhoneToast">
+@media(max-width:600px){
+#toastAlert.toast{box-sizing:border-box;width:max-content;max-width:calc(100vw - 32px);max-height:calc(100dvh - 120px);overflow-y:auto;white-space:normal;overflow-wrap:anywhere;word-break:normal;font-size:clamp(11px,3.2vw,14px);line-height:1.6;padding:12px 16px;bottom:calc(82px + env(safe-area-inset-bottom));border-radius:0}
+}
+</style>
 </head>
 <body>
 
@@ -1521,6 +1527,31 @@ body{--bg-color:#0b090a;--surface-color:#100b0e;--surface-hover:#1b1116;--border
             document.getElementById('calendarSelectGroup').style.display = 'block';
         }
 
+
+        // Calendar HTML is display data, never executable markup. Keep stored values unchanged.
+        function calendarPlainText(value) {
+            let text=String(value ?? '');
+            // Google descriptions may contain literal HTML or entity-encoded HTML.
+            for(let pass=0;pass<4;pass++) {
+                const template=document.createElement('template');
+                template.innerHTML=text
+                    .replace(/<br\s*\/?\s*>/gi,'\n')
+                    .replace(/<li\b[^>]*>/gi,'\n• ')
+                    .replace(/<\/(?:li|ul|ol|p|div|section|h[1-6]|tr)\s*>/gi,'\n');
+                template.content.querySelectorAll('script,style,iframe,object,embed').forEach(node=>node.remove());
+                const decoded=template.content.textContent || '';
+                if(decoded===text) break;
+                text=decoded;
+            }
+            return text.replace(/\u00a0/g,' ').replace(/[\t ]+\n/g,'\n').replace(/\n[\t ]+/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+        }
+        function calendarDisplayText(event,field) {
+            return event.gcalId ? calendarPlainText(event[field]) : String(event[field] ?? '');
+        }
+        function calendarDisplayHtml(event,field) {
+            return v6Escape(calendarDisplayText(event,field));
+        }
+
         function renderCalendar() {
             calDaysGrid.innerHTML = '';
             calHeaderGrid.innerHTML = '';
@@ -1552,8 +1583,8 @@ body{--bg-color:#0b090a;--surface-color:#100b0e;--surface-hover:#1b1116;--border
                         const gcalClass = ev.gcalId ? 'gcal' : '';
                         const color = getEventColor(ev.calendarId);
                         const timeStr = ev.allDay ? '' : `<div class="cal-event-time" style="color:${color}; opacity:0.9;">${formatTime(ev.startTime)} - ${formatTime(ev.endTime)}</div>`;
-                        const descStr = ev.description ? `<div class="cal-event-desc">${ev.description}</div>` : '';
-                        eventsHtml += `<div class="cal-event ${gcalClass}" data-id="${ev.id}" title="${ev.title}" style="border-left-color: ${color};">${timeStr}<strong>${ev.title}</strong>${descStr}</div>`;
+                        const descStr = ev.description ? `<div class="cal-event-desc">${calendarDisplayHtml(ev,'description')}</div>` : '';
+                        eventsHtml += `<div class="cal-event ${gcalClass}" data-id="${ev.id}" title="${calendarDisplayHtml(ev,'title')}" style="border-left-color: ${color};">${timeStr}<strong>${calendarDisplayHtml(ev,'title')}</strong>${descStr}</div>`;
                     });
 
                     calDaysGrid.innerHTML += `
@@ -1589,8 +1620,8 @@ body{--bg-color:#0b090a;--surface-color:#100b0e;--surface-hover:#1b1116;--border
                         const gcalClass = ev.gcalId ? 'gcal' : '';
                         const color = getEventColor(ev.calendarId);
                         const timeStr = ev.allDay ? '' : `<div class="cal-event-time" style="color:${color}; opacity:0.9;">${formatTime(ev.startTime)} - ${formatTime(ev.endTime)}</div>`;
-                        const descStr = ev.description ? `<div class="cal-event-desc">${ev.description}</div>` : '';
-                        eventsHtml += `<div class="cal-event ${gcalClass}" data-id="${ev.id}" title="${ev.title}" style="border-left-color: ${color};">${timeStr}<strong>${ev.title}</strong>${descStr}</div>`;
+                        const descStr = ev.description ? `<div class="cal-event-desc">${calendarDisplayHtml(ev,'description')}</div>` : '';
+                        eventsHtml += `<div class="cal-event ${gcalClass}" data-id="${ev.id}" title="${calendarDisplayHtml(ev,'title')}" style="border-left-color: ${color};">${timeStr}<strong>${calendarDisplayHtml(ev,'title')}</strong>${descStr}</div>`;
                     });
 
                     calDaysGrid.innerHTML += `
@@ -1615,10 +1646,10 @@ body{--bg-color:#0b090a;--surface-color:#100b0e;--surface-hover:#1b1116;--border
                 allDayEvents.forEach(ev => {
                     const gcalClass = ev.gcalId ? 'gcal' : '';
                     const color = getEventColor(ev.calendarId);
-                    const descStr = ev.description ? `<div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">${ev.description}</div>` : '';
+                    const descStr = ev.description ? `<div class="cal-event-desc" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">${calendarDisplayHtml(ev,'description')}</div>` : '';
                     allDayHtml += `
                         <div class="cal-event ${gcalClass}" data-id="${ev.id}" style="padding: 10px; font-size: 1rem; border-left-width: 4px; border-left-color: ${color}; cursor: pointer;">
-                            <strong>${ev.title}</strong>
+                            <strong>${calendarDisplayHtml(ev,'title')}</strong>
                             ${descStr}
                         </div>
                     `;
@@ -1639,11 +1670,11 @@ body{--bg-color:#0b090a;--surface-color:#100b0e;--surface-hover:#1b1116;--border
                         const gcalClass = ev.gcalId ? 'gcal' : '';
                         const color = getEventColor(ev.calendarId);
                         const timeStr = `<span style="color: ${color}; font-weight: bold; font-family: var(--font-mono); font-size: 0.85rem;">${formatTime(ev.startTime)} - ${formatTime(ev.endTime)}</span>`;
-                        const descStr = ev.description ? `<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 3px;">${ev.description}</div>` : '';
+                        const descStr = ev.description ? `<div class="cal-event-desc" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 3px;">${calendarDisplayHtml(ev,'description')}</div>` : '';
                         hEventsHtml += `
                             <div class="cal-event ${gcalClass}" data-id="${ev.id}" style="padding: 10px; font-size: 1rem; border-left-width: 3px; border-left-color: ${color}; cursor: pointer;">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; flex-wrap: wrap; gap: 5px;">
-                                    <strong>${ev.title}</strong>
+                                    <strong>${calendarDisplayHtml(ev,'title')}</strong>
                                     ${timeStr}
                                 </div>
                                 ${descStr}
@@ -2447,7 +2478,7 @@ body{--bg-color:#0b090a;--surface-color:#100b0e;--surface-hover:#1b1116;--border
             if(!cells.some(c=>c.dataset.date===v6SelectedDate)){const today=new Date();const key=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;v6SelectedDate=cells.some(c=>c.dataset.date===key)?key:cells[0]?.dataset.date;}
             cells.forEach(c=>c.classList.toggle('v6-cal-selected',c.dataset.date===v6SelectedDate));
             const events=calendarEvents.filter(ev=>ev.date===v6SelectedDate);
-            agenda.innerHTML=`<div class="v6-agenda-title">${v6Escape(v6DateLabel(v6SelectedDate))}</div>${events.length?events.map(ev=>`<button class="v6-agenda-item" data-v6-event="${v6Escape(ev.id)}"><span>${ev.allDay?'ALL DAY':v6Escape(formatTime(ev.startTime))}</span><b>${v6Escape(ev.title)}${ev.description?`<small>${v6Escape(ev.description)}</small>`:''}</b></button>`).join(''):'<div class="v6-meta">No events on this day. Use Add event to plan one.</div>'}`;
+            agenda.innerHTML=`<div class="v6-agenda-title">${v6Escape(v6DateLabel(v6SelectedDate))}</div>${events.length?events.map(ev=>`<button class="v6-agenda-item" data-v6-event="${v6Escape(ev.id)}"><span>${ev.allDay?'ALL DAY':v6Escape(formatTime(ev.startTime))}</span><b>${calendarDisplayHtml(ev,'title')}${ev.description?`<small>${calendarDisplayHtml(ev,'description')}</small>`:''}</b></button>`).join(''):'<div class="v6-meta">No events on this day. Use Add event to plan one.</div>'}`;
         }
         document.getElementById('v6Agenda').addEventListener('click',e=>{const b=e.target.closest('[data-v6-event]');if(!b)return;const original=Array.from(calDaysGrid.querySelectorAll('.cal-event')).find(el=>el.dataset.id===b.dataset.v6Event);if(original)original.click();});
         calDaysGrid.addEventListener('click',e=>{if(!v6Phone.matches||currentCalView!=='month'||e.target.closest('.cal-event'))return;const cell=e.target.closest('.cal-cell[data-date]');if(cell){e.stopImmediatePropagation();v6SelectedDate=cell.dataset.date;v6RenderAgenda();}},true);
