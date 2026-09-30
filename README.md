@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/🚀%20LIVE%20DEMO-ENTER%20DASHBOARD-8b5cf6?style=for-the-badge" alt="Live Demo">
 </a>
 <a href="https://github.com/notdropkun/Relent-Tracker/releases">
-  <img src="https://img.shields.io/github/v/release/notdropkun/Relent-Tracker?style=for-the-badge&label=📱%20ANDROID%20APP&color=22c55e" alt="Android App">
+  <img src="https://img.shields.io/badge/ANDROID%20APP-DOWNLOAD-22c55e?style=for-the-badge" alt="Android App">
 </a>
 <a href="https://github.com/notdropkun/Relent-Tracker">
   <img src="https://img.shields.io/github/last-commit/notdropkun/Relent-Tracker?style=for-the-badge&label=LAST%20UPDATE&color=111827" alt="Last Commit">
