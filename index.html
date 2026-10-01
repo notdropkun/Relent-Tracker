@@ -474,6 +474,22 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
 body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .btn-primary:hover{background:rgba(var(--neon-rgb),.08)}
 @media(max-width:600px){body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .v6-file,body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .card-panel{background:var(--surface-color);box-shadow:0 0 12px rgba(var(--neon-rgb),.09)}body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .v6-count{ text-shadow:var(--glow-primary)}body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .v6-percent b{color:var(--accent-secondary)}body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .v6-filebar,body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .v6-panelbar{background:var(--surface-color)}}
 </style>
+<style id="rtFocusHeatmapStyle">
+/* Focus heatmap: uses the existing palettes, including secret themes. */
+.rt-heatmap{margin-top:22px;max-width:100%;min-width:0;text-align:left}
+.rt-hm-bar{display:flex;justify-content:space-between;gap:10px;font:10px var(--font-mono);color:var(--accent-primary);border-bottom:1px solid var(--border-color);padding:12px 14px;margin:-15px -15px 16px;background:var(--surface-color)}
+.rt-hm-controls{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}.rt-hm-controls .btn{font:10px var(--font-mono);padding:8px 10px}.rt-hm-controls select{width:auto;padding:8px;font:10px var(--font-mono)}
+.rt-hm-scroll{overflow-x:auto;padding:3px 3px 9px;max-width:100%;scrollbar-width:thin;scrollbar-color:var(--accent-primary) var(--surface-color)}
+.rt-hm-grid{display:grid;gap:4px;align-items:center}.rt-hm-label{font:8px var(--font-mono);color:var(--text-muted)}
+.rt-hm-cell{display:block;width:100%;height:17px;min-width:17px;border:1px solid var(--border-color);padding:0;border-radius:1px;background:var(--bg-color);cursor:pointer;color:var(--accent-primary);position:relative}
+.rt-hm-cell::before{content:'';position:absolute;inset:0;background:var(--accent-primary);opacity:var(--hm-opacity,0)}
+.rt-hm-cell[aria-pressed="true"],.rt-hm-cell:focus-visible{outline:1px solid var(--text-main);outline-offset:2px}.rt-hm-cell:disabled{cursor:default;opacity:.3}
+.rt-hm-legend{display:flex;justify-content:flex-end;align-items:center;gap:4px;font:8px var(--font-mono);color:var(--text-muted);margin:8px 0 16px}.rt-hm-legend i{width:13px;height:13px;background:var(--accent-primary)}
+.rt-hm-detail{border-top:1px solid var(--border-color);padding-top:13px;font:11px/1.8 var(--font-mono)}.rt-hm-detail strong{color:var(--accent-primary)}.rt-hm-detail small{display:block;color:var(--text-muted);font-size:10px}
+.rt-hm-stats{display:flex;justify-content:space-between;border-top:1px solid var(--border-color);padding-top:15px;margin-top:15px;gap:10px}.rt-hm-stats small{display:block;color:var(--text-muted);font:9px var(--font-mono);margin-bottom:7px}.rt-hm-stats b{font:700 20px var(--font-mono);color:var(--accent-primary)}
+.rt-hm-note{font:10px/1.8 var(--font-mono);color:var(--text-muted);margin-top:15px}.rt-hm-empty{font:11px/1.8 var(--font-mono);color:var(--text-muted);margin-bottom:14px}.rt-hm-status{font:9px/1.7 var(--font-mono);color:var(--text-muted);margin-top:12px}
+@media(min-width:601px){.rt-heatmap{width:100%;max-width:640px;margin:22px auto}.rt-hm-bar{font-size:12px}.rt-hm-label{font-size:10px}.rt-hm-cell{height:20px}}
+</style>
 </head>
 <body>
 
@@ -697,6 +713,17 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
                     </div>
                 </div>
             </div>
+            <section class="rt-heatmap card-panel" aria-label="Focus activity heatmap" id="rtHeatmap">
+                <div class="rt-hm-bar"><span>□ focus.heatmap</span><span id="rtHmRangeLabel">13 WEEKS</span></div>
+                <div class="rt-hm-controls"><button class="btn btn-outline active" id="rtHmRecent" type="button">13 weeks</button><button class="btn btn-outline" id="rtHmYear" type="button">Year</button><select class="form-control" id="rtHmYearSelect" aria-label="Focus activity year"></select></div>
+                <p class="rt-hm-empty" id="rtHmEmpty">Your heatmap starts with your next completed focus session. Old totals stay unchanged.</p>
+                <div class="rt-hm-scroll" id="rtHmScroll"><div class="rt-hm-grid" id="rtHmGrid" role="group" aria-label="Daily focus minutes"></div></div>
+                <div class="rt-hm-legend"><span>0m</span><i style="opacity:.06"></i><i style="opacity:.22"></i><i style="opacity:.42"></i><i style="opacity:.67"></i><i></i><span>120m+</span></div>
+                <div class="rt-hm-detail" id="rtHmDetail" aria-live="polite"></div>
+                <div class="rt-hm-stats"><div><small>FOCUS HOURS</small><b id="rtHmHours">0h</b></div><div><small>ACTIVE DAYS</small><b id="rtHmDays">0</b></div></div>
+                <p class="rt-hm-note">Tap a square to see that day's sessions.<br>Brighter square = more focused minutes.<br>Only completed focus sessions count, not breaks or aborted timers. Totals use the selected range.</p>
+                <p class="rt-hm-status" id="rtHmStatus" aria-live="polite"></p>
+            </section>
         </div>
 
         <footer class="app-footer">:: engineered by advaay ::</footer>
@@ -1363,6 +1390,124 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
             }
         });
 
+        // Dated focus history is separate from legacy pomoStats. No backfill.
+        let rtFocusSessions = {}, rtFocusRun = null, rtFocusScope = null;
+        let rtHmRange = 'recent', rtHmYear = new Date().getFullYear(), rtHmSelected = rtLocalDay(new Date());
+        let rtFocusCloudFailed = false;
+        function rtLocalDay(d) {
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+        function rtDayDate(key) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(String(key))) return null;
+            const [y,m,d] = key.split('-').map(Number), date = new Date(y,m-1,d,12);
+            return rtLocalDay(date) === key ? date : null;
+        }
+        function rtCleanSessions(value) {
+            const clean = {};
+            if (!value || typeof value !== 'object' || Array.isArray(value)) return clean;
+            Object.entries(value).forEach(([id,s]) => {
+                if (/^[a-zA-Z0-9_-]{1,100}$/.test(id) && s && rtDayDate(s.day) && Number.isFinite(s.minutes) && s.minutes > 0 && s.minutes <= 1440 && typeof s.finishedAt === 'string')
+                    clean[id] = { day:s.day, minutes:s.minutes, finishedAt:s.finishedAt };
+            });
+            return clean;
+        }
+        function rtSetFocusScope(uid) {
+            const scope = uid ? `user_${uid}` : 'offline';
+            if (scope === rtFocusScope) return;
+            rtFocusScope = scope; rtFocusRun = null; rtFocusCloudFailed = false;
+            rtFocusSessions = rtCleanSessions(safeParse(`rt_focus_sessions_${scope}`, {}));
+            rtHmSelected = rtLocalDay(new Date()); rtRenderHeatmap();
+        }
+        function rtSaveFocusLocal() {
+            if (!rtFocusScope || isTeacherMode) return;
+            try { localStorage.setItem(`rt_focus_sessions_${rtFocusScope}`, JSON.stringify(rtFocusSessions)); }
+            catch(e) { console.warn('Focus history local save failed', e); }
+        }
+        async function rtUploadFocusHistory(uid) {
+            if (isTeacherMode || !uid || !db || rtFocusScope !== `user_${uid}` || !Object.keys(rtFocusSessions).length) return;
+            try {
+                // Merge session IDs individually: concurrent devices do not replace an array.
+                await setDoc(doc(db, 'users', uid), { focusSessions:rtFocusSessions }, { merge:true });
+                if (rtFocusScope === `user_${uid}`) rtFocusCloudFailed = false;
+            } catch(e) {
+                if (rtFocusScope === `user_${uid}`) rtFocusCloudFailed = true;
+                console.warn('Focus history cloud save failed; local copy retained', e);
+            }
+            rtRenderHeatmap();
+        }
+        function rtRecordFocusCompletion() {
+            const run = rtFocusRun; rtFocusRun = null;
+            if (!run || run.mode !== 'focus' || isTeacherMode || run.scope !== rtFocusScope || !Number.isFinite(run.minutes) || run.minutes <= 0) return;
+            const now = new Date();
+            rtFocusSessions[run.id] = { day:rtLocalDay(now), minutes:run.minutes, finishedAt:now.toISOString() };
+            rtSaveFocusLocal(); rtHmSelected = rtLocalDay(now); rtRenderHeatmap();
+            if (currentUser && isFirebaseConfigured) rtUploadFocusHistory(currentUser.uid);
+        }
+        function rtRenderHeatmap() {
+            const grid = document.getElementById('rtHmGrid');
+            if (!grid) return;
+            // Observer links expose no owner's focus history.
+            document.getElementById('rtHeatmap').hidden = isTeacherMode;
+            if (isTeacherMode) return;
+            const today = new Date(); today.setHours(12,0,0,0);
+            const days = {};
+            Object.values(rtFocusSessions).forEach(s => {
+                if (!days[s.day]) days[s.day] = {minutes:0,count:0};
+                days[s.day].minutes += s.minutes; days[s.day].count++;
+            });
+            const select = document.getElementById('rtHmYearSelect');
+            const years = [...new Set([today.getFullYear(), rtHmYear, ...Object.keys(days).map(x=>+x.slice(0,4))])].sort((a,b)=>b-a);
+            select.replaceChildren(...years.map(year => { const o=document.createElement('option');o.value=year;o.textContent=year;return o; })); select.value=rtHmYear;
+            const from = rtHmRange === 'year' ? new Date(rtHmYear,0,1,12) : new Date(today);
+            const to = rtHmRange === 'year' ? new Date(rtHmYear,11,31,12) : new Date(today);
+            if (rtHmRange === 'recent') {from.setDate(from.getDate()-((from.getDay()+6)%7)-84);to.setDate(to.getDate()+(6-((to.getDay()+6)%7)));}
+            const start = new Date(from); start.setDate(start.getDate()-((start.getDay()+6)%7));
+            const end = new Date(to); end.setDate(end.getDate()+(6-((end.getDay()+6)%7)));
+            const cols = Math.floor((Date.UTC(end.getFullYear(),end.getMonth(),end.getDate())-Date.UTC(start.getFullYear(),start.getMonth(),start.getDate()))/86400000/7)+1;
+            grid.style.gridTemplateColumns=`22px repeat(${cols}, minmax(17px, 1fr))`;
+            grid.style.minWidth=rtHmRange==='year'?`${22+cols*21}px`: '0';
+            grid.replaceChildren();
+            const label = (text) => {const el=document.createElement('span');el.className='rt-hm-label';el.textContent=text;grid.appendChild(el);};
+            label(''); let previousMonth=-1;
+            for(let col=0;col<cols;col++){
+                const d=new Date(start);d.setDate(d.getDate()+col*7);
+                const show=d.getMonth()!==previousMonth;label(show?d.toLocaleDateString(undefined,{month:'short'}):'');previousMonth=d.getMonth();
+            }
+            for(let row=0;row<7;row++){
+                label(['M','','W','','F','','S'][row]);
+                for(let col=0;col<cols;col++){
+                    const d=new Date(start);d.setDate(d.getDate()+col*7+row);const key=rtLocalDay(d),item=days[key]||{minutes:0,count:0};
+                    const valid=d>=from && d<=to && d<=today;
+                    const b=document.createElement('button');b.type='button';b.className='rt-hm-cell';b.dataset.day=key;b.disabled=!valid;
+                    b.style.setProperty('--hm-opacity',item.minutes>=120?'1':item.minutes>=60?'.67':item.minutes>=30?'.42':item.minutes>0?'.22':'.04');
+                    b.setAttribute('aria-pressed',String(key===rtHmSelected));
+                    b.title=`${key}: ${item.minutes} min, ${item.count} focus sessions`;b.setAttribute('aria-label',b.title);grid.appendChild(b);
+                }
+            }
+            const fromKey=rtLocalDay(from),toKey=rtLocalDay(to),todayKey=rtLocalDay(today);
+            const visible=Object.entries(days).filter(([key])=>key>=fromKey&&key<=toKey&&key<=todayKey);
+            document.getElementById('rtHmHours').textContent=`${(visible.reduce((n,[,v])=>n+v.minutes,0)/60).toFixed(1)}h`;
+            document.getElementById('rtHmDays').textContent=visible.length;
+            if(rtHmSelected<fromKey||rtHmSelected>toKey||rtHmSelected>todayKey)rtHmSelected=todayKey>=fromKey&&todayKey<=toKey?todayKey:fromKey;
+            const selected=days[rtHmSelected]||{minutes:0,count:0},date=rtDayDate(rtHmSelected);
+            const detail=document.getElementById('rtHmDetail');detail.replaceChildren();
+            const strong=document.createElement('strong');strong.textContent=date.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+            const small=document.createElement('small');small.textContent=`${selected.count} completed focus session${selected.count===1?'':'s'}`;
+            detail.append(strong,document.createTextNode(` · ${selected.minutes} min`),small);
+            grid.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===rtHmSelected)));
+            document.getElementById('rtHmEmpty').hidden=Object.keys(days).length>0;
+            document.getElementById('rtHmRangeLabel').textContent=rtHmRange==='year'?`${rtHmYear} / YEAR`:'13 WEEKS';
+            document.getElementById('rtHmRecent').classList.toggle('active',rtHmRange==='recent');
+            document.getElementById('rtHmYear').classList.toggle('active',rtHmRange==='year');
+            select.disabled=rtHmRange!=='year';
+            document.getElementById('rtHmStatus').textContent=rtFocusCloudFailed?'Saved on this device. Cloud sync did not finish; retry when online.':currentUser?'Personal focus history · cloud sync enabled':'Saved on this device · log in for cloud sync. Offline history stays separate.';
+        }
+        document.getElementById('rtHmGrid').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b||b.disabled)return;rtHmSelected=b.dataset.day;rtRenderHeatmap();});
+        document.getElementById('rtHmRecent').addEventListener('click',()=>{rtHmRange='recent';rtRenderHeatmap();document.getElementById('rtHmScroll').scrollLeft=0;});
+        document.getElementById('rtHmYear').addEventListener('click',()=>{rtHmRange='year';rtRenderHeatmap();});
+        document.getElementById('rtHmYearSelect').addEventListener('change',e=>{rtHmYear=+e.target.value;rtHmRange='year';rtRenderHeatmap();});
+        window.addEventListener('online',()=>{if(currentUser&&!isTeacherMode)rtUploadFocusHistory(currentUser.uid);});
+
         // ==========================================
         // POMODORO ENGINE
         // ==========================================
@@ -1406,6 +1551,7 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
         btnPomoSettingsToggle.addEventListener('click', () => pomoSettingsPanel.classList.toggle('hidden-section'));
 
         btnSavePomoSettings.addEventListener('click', () => {
+            rtFocusRun = null; // Changing a running timer does not earn a focus session.
             pomoSettings.focus = parseInt(setPomoFocus.value) || 25;
             pomoSettings.short = parseInt(setPomoShort.value) || 5;
             pomoSettings.long = parseInt(setPomoLong.value) || 15;
@@ -1426,6 +1572,7 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
                 e.target.classList.add('active');
                 
                 clearInterval(pomoTimer);
+                rtFocusRun = null;
                 btnPomoStart.style.display = 'flex';
                 btnPomoReset.style.display = 'flex';
                 btnPomoGiveUp.style.display = 'none';
@@ -1437,6 +1584,7 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
         });
 
         function resetTimerUI() {
+            rtFocusRun = null;
             btnPomoStart.style.display = 'flex';
             btnPomoReset.style.display = 'flex';
             btnPomoGiveUp.style.display = 'none';
@@ -1446,6 +1594,10 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
         }
 
         btnPomoStart.addEventListener('click', () => {
+            if (btnPomoStart.style.display === 'none') return;
+            const rtMode = document.querySelector('.pomo-mode-btn.active').dataset.mode;
+            rtFocusRun = { id: `fs_${Date.now()}_${globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2)}`, mode:rtMode, minutes:pomoTimeLeft/60, scope:rtFocusScope };
+
             btnPomoStart.style.display = 'none';
             btnPomoReset.style.display = 'none';
             btnPomoGiveUp.style.display = 'flex';
@@ -1458,6 +1610,7 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
                     clearInterval(pomoTimer);
                     playSysSound('success');
                     pomoStats.completed++;
+                    rtRecordFocusCompletion();
                     localStorage.setItem('pomo_stats', JSON.stringify(pomoStats));
                     updatePomoStatsDisplay();
                     syncData(true);
@@ -2402,9 +2555,15 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
 
         async function pullDataFromCloud(uid) {
             try {
+                rtSetFocusScope(uid);
                 const userDoc = await getDoc(doc(db, "users", uid));
                 if (userDoc.exists()) {
                     const data = userDoc.data();
+                    if (rtFocusScope === `user_${uid}`) {
+                        rtFocusSessions = { ...rtCleanSessions(data.focusSessions), ...rtFocusSessions };
+                        rtSaveFocusLocal(); rtRenderHeatmap();
+                        rtUploadFocusHistory(uid);
+                    }
                     if(data.completedTasks) completedTasksArray = data.completedTasks;
                     if(data.customSyllabus) currentSyllabusData = data.customSyllabus;
                     if(data.pomoStats) pomoStats = data.pomoStats;
@@ -2438,8 +2597,10 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
         }
         function openApp(mode) {
             authScreen.classList.add('hidden'); appContainer.classList.add('visible'); updateGreeting(); finishSessionCheck();
+            rtRenderHeatmap(); updatePomoStatsDisplay();
             if (mode === 'offline') {
                 isOfflineMode = true; localStorage.setItem('offline_mode', 'true');
+                rtSetFocusScope(null);
                 document.getElementById('userSyncStatus').textContent = "[ SYNC: OFFLINE OVERRIDE ]";
                 document.getElementById('navProfileArea').innerHTML = `<button class="btn btn-outline" id="btnExitOffline" style="font-size: 0.7rem; padding: 4px 8px;">Log In</button>`;
                 document.getElementById('btnExitOffline').addEventListener('click', () => { localStorage.removeItem('offline_mode'); location.reload(); });
@@ -2551,6 +2712,7 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
                     await pullDataFromCloud(user.uid); openApp('cloud'); renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute(); syncWidgetTheme();
                 } else {
                     currentUser = null;
+                    rtFocusScope = null; rtFocusSessions = {}; rtFocusRun = null; rtRenderHeatmap();
                     try { if (window.AndroidWidget && window.AndroidWidget.clearCalendarEvents) window.AndroidWidget.clearCalendarEvents(); } catch (e) {}
                     if(localStorage.getItem('offline_mode') === 'true') openApp('offline');
                     else { authScreen.classList.remove('hidden'); appContainer.classList.remove('visible'); finishSessionCheck(); }
