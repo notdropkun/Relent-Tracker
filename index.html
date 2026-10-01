@@ -490,6 +490,13 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
 .rt-hm-note{font:10px/1.8 var(--font-mono);color:var(--text-muted);margin-top:15px}.rt-hm-empty{font:11px/1.8 var(--font-mono);color:var(--text-muted);margin-bottom:14px}.rt-hm-status{font:9px/1.7 var(--font-mono);color:var(--text-muted);margin-top:12px}
 @media(min-width:601px){.rt-heatmap{width:100%;max-width:640px;margin:22px auto}.rt-hm-bar{font-size:12px}.rt-hm-label{font-size:10px}.rt-hm-cell{height:20px}}
 </style>
+<style id="rtRevisionStyle">
+.rt-rev-overlay .modal-content{width:500px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 40px);overflow:auto;border-radius:0}.rt-rev-body{padding:18px 15px}.rt-rev-body h2{font:600 32px var(--font-display);text-transform:none;margin-bottom:18px}.rt-rev-path{font:10px var(--font-mono);color:var(--text-muted);margin-bottom:14px}.rt-rev-body .form-group{margin-bottom:16px}.rt-rev-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.rt-rev-note{font:10px/1.8 var(--font-mono);color:var(--text-muted);margin:12px 0}.rt-rev-topic{display:grid;grid-template-columns:18px 1fr 66px;gap:8px;align-items:center;border-bottom:1px solid var(--border-color);padding:10px 0}.rt-rev-topic span{font:600 17px var(--font-display);overflow-wrap:anywhere}.rt-rev-topic small{display:block;font:9px var(--font-mono);color:var(--accent-secondary);margin-top:4px}.rt-rev-topic input[type=number]{width:66px;font:11px var(--font-mono);padding:8px;background:var(--bg-color);color:var(--text-main);border:1px solid var(--border-color)}.rt-rev-topic input[type=checkbox]{accent-color:var(--accent-primary)}.rt-rev-error{font:11px/1.8 var(--font-mono);color:var(--accent-danger);margin:12px 0}.rt-rev-planrow{display:flex;gap:12px;border-bottom:1px solid var(--border-color);padding:14px 0}.rt-rev-planrow time{font:10px/1.8 var(--font-mono);color:var(--accent-primary);min-width:48px}.rt-rev-planrow b{display:block;font:600 20px var(--font-display);overflow-wrap:anywhere}.rt-rev-planrow small{display:block;font:10px/1.8 var(--font-mono);color:var(--text-muted)}.rt-rev-summary{font:11px/1.9 var(--font-mono);color:var(--text-muted);border-bottom:1px solid var(--border-color);padding-bottom:15px}.rt-rev-summary strong{color:var(--accent-primary)}.rt-rev-buttons{display:flex;flex-direction:column;gap:12px;margin-top:18px}.rt-rev-buttons .btn{font:11px var(--font-mono);white-space:normal;padding:14px}.rt-rev-open{margin-top:12px;font:10px var(--font-mono);padding:10px 14px;white-space:normal}.rt-rev-taskdate{display:block;color:var(--accent-secondary);font:9px/1.8 var(--font-mono);margin-top:5px}
+/* Modal is outside appContainer, so give it its own opaque theme surface. */
+.rt-rev-overlay .modal-content,.rt-rev-overlay .modal-header{background:var(--surface-color);color:var(--text-main)}
+.rt-rev-overlay .modal-header h3{color:var(--accent-primary)}
+</style>
+<style id="rtNavIcons">.rt-nav-icon{display:block;flex-shrink:0;color:inherit;width:20px;height:20px}.side-taskbar .taskbar-btn{display:flex;flex-direction:column;gap:6px}.side-taskbar .taskbar-btn:after{content:attr(data-mobile-label);position:static;transform:none;opacity:1;visibility:visible;background:none;border:0;box-shadow:none;padding:0;font:10px var(--font-mono);color:inherit;white-space:nowrap;text-transform:none}@media(min-width:601px){.side-taskbar .taskbar-btn{width:72px;height:64px}.side-taskbar .taskbar-btn:hover{transform:none}}.side-taskbar .taskbar-btn{color:var(--text-muted)}.side-taskbar .taskbar-btn.active{color:var(--accent-primary)}</style>
 </head>
 <body>
 
@@ -544,10 +551,10 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
 
         <!-- Taskbar -->
         <div class="side-taskbar">
-            <button class="taskbar-btn active" data-target="dashboardSection" data-mobile-label="Home" data-tooltip="> WORK_TYPE_SHI">🗂️</button>
-            <button class="taskbar-btn" data-target="calendarSection" data-mobile-label="Calendar" data-tooltip="> CALENDAR_SYNC">📅</button>
-            <button class="taskbar-btn" data-target="simpleTodoSection" data-mobile-label="To-do" data-tooltip="> SIMPLE_TO_DO">📝</button>
-            <button class="taskbar-btn" data-target="pomodoroSection" data-mobile-label="Focus" data-tooltip="> FOCUS_PROTOCOL">⏱️</button>
+            <button class="taskbar-btn active" aria-label="Home" data-target="dashboardSection" data-mobile-label="Home" data-tooltip="> WORK_TYPE_SHI"><svg class="rt-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h7l2 3h9v11H3z"/></svg></button>
+            <button class="taskbar-btn" aria-label="Calendar" data-target="calendarSection" data-mobile-label="Calendar" data-tooltip="> CALENDAR_SYNC"><svg class="rt-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16"/><path d="M7 3v4m10-4v4M3 11h18"/></svg></button>
+            <button class="taskbar-btn" aria-label="To-do" data-target="simpleTodoSection" data-mobile-label="To-do" data-tooltip="> SIMPLE_TO_DO"><svg class="rt-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 7 2 2 4-4m3 2h9M3 15l2 2 4-4m3 2h9"/></svg></button>
+            <button class="taskbar-btn" aria-label="Focus" data-target="pomodoroSection" data-mobile-label="Focus" data-tooltip="> FOCUS_PROTOCOL"><svg class="rt-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M9 2h6m-3 4v7l3 2"/></svg></button>
         </div>
 
         <!-- 1. WORK_TYPE_SHI SECTION -->
@@ -778,6 +785,24 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
                 </form>
             </div>
         </div>
+    </div>
+
+    <div class="modal-overlay rt-rev-overlay" id="rtRevisionModal" role="dialog" aria-modal="true" aria-labelledby="rtRevTitle">
+      <div class="modal-content card-panel">
+        <div class="modal-header"><h3>SYS.REVISION</h3><button class="close-btn" id="rtRevClose" aria-label="Close revision scheduler">×</button></div>
+        <div class="rt-rev-body">
+          <div class="rt-rev-path">workspace / exam / revision</div><h2 id="rtRevTitle">Revision scheduler</h2>
+          <form id="rtRevSetup">
+            <div class="form-group"><label for="rtRevExam">Exam</label><select class="form-control" id="rtRevExam" required></select></div>
+            <div class="rt-rev-two"><div class="form-group"><label for="rtRevStart">Start date</label><input class="form-control" type="date" id="rtRevStart" required></div><div class="form-group"><label for="rtRevLimit">Daily limit (minutes)</label><input class="form-control" type="number" id="rtRevLimit" value="60" min="15" max="480" required></div></div>
+            <div class="form-group"><label for="rtRevReview">Final review days</label><input class="form-control" type="number" id="rtRevReview" value="2" min="0" max="14" required></div>
+            <div class="rt-rev-note">Unfinished exam topics only. Select what to revise and edit each time estimate (minutes). Defaults are estimates, not measured study times. The exam day is never scheduled.</div>
+            <div id="rtRevTopics"></div><p class="rt-rev-error" id="rtRevError" role="alert"></p>
+            <div class="rt-rev-buttons"><button class="btn btn-primary" type="submit">Generate plan ↗</button></div>
+          </form>
+          <div id="rtRevPreview" hidden><div id="rtRevSummary" class="rt-rev-summary"></div><div id="rtRevDays"></div><p class="rt-rev-note">All dated tasks appear in To-do with their planned date. Review them before saving. Completing a revision task does not change your syllabus checkboxes.</p><p class="rt-rev-error" id="rtRevSaveError" role="alert"></p><div class="rt-rev-buttons"><button class="btn btn-primary" id="rtRevSave" type="button">Save plan to To-do ↗</button><button class="btn btn-outline" id="rtRevAdjust" type="button">Adjust plan</button></div></div>
+        </div>
+      </div>
     </div>
 
     <!-- GLOBAL SETTINGS MODAL -->
@@ -1318,7 +1343,7 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
                                     <svg class="expand-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </div>
                             </div>
-                            <div class="exam-body"><div class="syllabus-grid">${syllabusHtml}</div></div>
+                            <div class="exam-body">${!isTeacherMode?`<button class="btn btn-primary rt-rev-open" data-rt-revision="${v6Escape(exam.id)}">Plan revision ↗</button>`:''}<div class="syllabus-grid">${syllabusHtml}</div></div>
                         </article>
                     </div>
                 `;
@@ -1349,7 +1374,7 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
                     <div class="simple-task-item ${completedClass}">
                         <label>
                             <input type="checkbox" class="simple-task-check" data-id="${task.id}" ${isChecked} ${isDisabled}>
-                            <span>${task.text}</span>
+                            <span>${v6Escape(task.text)}${rtDayDate(task.plannedDate)?`<small class="rt-rev-taskdate">Planned: ${v6Escape(v6DateLabel(task.plannedDate))}${task.plannedDate===rtLocalDay(new Date())?' · TODAY':task.plannedDate<rtLocalDay(new Date())&&!task.completed?' · OVERDUE':''}</small>`:''}</span>
                         </label>
                         ${deleteBtnHtml}
                     </div>
@@ -1388,6 +1413,136 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
                 renderSimpleTasks();
                 await syncData(true);
             }
+        });
+
+        // Revision scheduler: preview only until Save; no external calendar writes.
+        let rtRevDraft = null, rtRevReturnFocus = null, rtRevSaving = false;
+        const rtRevModal = document.getElementById('rtRevisionModal');
+        function rtRevTopicsFor(exam) {
+            const topics=[],seen=new Set();
+            (exam.subjects||[]).forEach(sub=>(sub.categories||[]).forEach(cat=>(cat.topics||[]).forEach(topic=>{
+                const uid=`${exam.id}_${sub.name}_${cat.name}_${topic}`.toLowerCase().replace(/[^a-z0-9]/g,'_');
+                if(!completedTasksArray.includes(uid)&&!seen.has(uid)) {seen.add(uid);topics.push({uid,title:String(topic),subject:String(sub.name),minutes:45});}
+            })));
+            return topics;
+        }
+        function rtRevExamSignature(exam) {return JSON.stringify({id:String(exam.id),name:exam.name,date:exam.date,topics:rtRevTopicsFor(exam).map(t=>t.uid)});}
+        function rtRevEligible(exam) {const d=rtDayDate(exam.date);return d&&rtLocalDay(d)>=rtLocalDay(new Date())&&!/\bwindow\b|\bnsure\b/i.test(String(exam.name));}
+        function rtRevShowTopics() {
+            const ex=currentSyllabusData.find(e=>String(e.id)===document.getElementById('rtRevExam').value);
+            const container=document.getElementById('rtRevTopics');container.replaceChildren();
+            if(!ex){container.textContent='No upcoming exam with an exact date is available.';return;}
+            const topics=rtRevTopicsFor(ex);
+            if(!topics.length){container.textContent='No unfinished topics found. Add a syllabus to this exam, or select another exam.';return;}
+            topics.forEach(t=>{
+                const row=document.createElement('label');row.className='rt-rev-topic';row.dataset.uid=t.uid;
+                const check=document.createElement('input');check.type='checkbox';check.checked=true;check.setAttribute('aria-label',`Include ${t.title}`);
+                const span=document.createElement('span');span.textContent=t.title;const small=document.createElement('small');small.textContent=t.subject;span.append(small);
+                const estimate=document.createElement('input');estimate.type='number';estimate.value='45';estimate.min='5';estimate.max='480';estimate.step='1';estimate.setAttribute('aria-label',`${t.title} estimated minutes`);
+                row.append(check,span,estimate);container.append(row);
+            });
+        }
+        function rtRevOpen(examId) {
+            if(isTeacherMode)return;
+            rtRevReturnFocus=document.activeElement; rtRevDraft=null;
+            const select=document.getElementById('rtRevExam');select.replaceChildren();
+            currentSyllabusData.filter(rtRevEligible).sort((a,b)=>a.date.localeCompare(b.date)).forEach(ex=>{const o=document.createElement('option');o.value=String(ex.id);o.textContent=`${ex.name} / ${ex.date}`;select.append(o);});
+            if([...select.options].some(o=>o.value===String(examId)))select.value=String(examId);
+            document.getElementById('rtRevStart').value=rtLocalDay(new Date());document.getElementById('rtRevStart').min=rtLocalDay(new Date());
+            document.getElementById('rtRevError').textContent='';document.getElementById('rtRevSaveError').textContent='';
+            document.getElementById('rtRevSetup').hidden=false;document.getElementById('rtRevPreview').hidden=true;document.getElementById('rtRevTitle').textContent='Revision scheduler';
+            rtRevShowTopics();rtRevModal.classList.add('active');rtRevModal.querySelector('.modal-content').scrollTop=0;select.focus();
+        }
+        function rtRevClose() {rtRevModal.classList.remove('active');rtRevReturnFocus?.focus();}
+        document.getElementById('rtRevClose').addEventListener('click',rtRevClose);
+        rtRevModal.addEventListener('click',e=>{if(e.target===rtRevModal)rtRevClose();});
+        rtRevModal.addEventListener('keydown',e=>{
+            if(e.key==='Escape'){rtRevClose();return;}
+            if(e.key!=='Tab')return;
+            const els=[...rtRevModal.querySelectorAll('button,input,select')].filter(el=>!el.disabled&&el.getClientRects().length);
+            const first=els[0],last=els.at(-1);
+            if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+            else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+        });
+        document.getElementById('rtRevExam').addEventListener('change',rtRevShowTopics);
+        document.addEventListener('click',e=>{const b=e.target.closest('[data-rt-revision]');if(b){e.stopPropagation();rtRevOpen(b.dataset.rtRevision);}});
+        function rtRevBuild(exam,startKey,limit,review,topics) {
+            const start=rtDayDate(startKey),due=rtDayDate(exam.date),todayKey=rtLocalDay(new Date());
+            if(!start||!due||startKey<todayKey)throw Error('Choose today or a future start date, and an exam with an exact date.');
+            const days=Math.round((Date.UTC(due.getFullYear(),due.getMonth(),due.getDate())-Date.UTC(start.getFullYear(),start.getMonth(),start.getDate()))/86400000);
+            if(days<1)throw Error('Start before the exam date. The exam day is kept free.');
+            if(days>730)throw Error('Choose a start date within two years of the exam.');
+            if(!Number.isInteger(limit)||limit<15||limit>480||!Number.isInteger(review)||review<0||review>14)throw Error('Daily limit must be 15-480 minutes; review days must be 0-14.');
+            if(review>=days)throw Error('Leave at least one study day before your final review days.');
+            if(!topics.length)throw Error('Select at least one unfinished topic.');
+            if(topics.some(t=>!Number.isInteger(t.minutes)||t.minutes<5||t.minutes>480))throw Error('Each topic estimate must be 5-480 whole minutes.');
+            const studyDays=days-review,total=topics.reduce((n,t)=>n+t.minutes,0);
+            if(total>studyDays*limit)throw Error(`${total} estimated minutes will not fit into ${studyDays} study days at ${limit} min/day. Increase the daily limit, start earlier, reduce review days or select fewer topics.`);
+            // Alternate subjects, then balance remaining minutes across remaining days.
+            const buckets=new Map();topics.forEach(t=>{if(!buckets.has(t.subject))buckets.set(t.subject,[]);buckets.get(t.subject).push({...t});});
+            const ordered=[];while([...buckets.values()].some(b=>b.length))buckets.forEach(b=>{if(b.length)ordered.push(b.shift());});
+            const loads=Array(studyDays).fill(0),entries=[];
+            ordered.forEach((topic,index)=>{
+                let left=topic.minutes,preferred=Math.floor(index*studyDays/ordered.length);
+                while(left>0){
+                    let chunk=Math.min(left,limit),day=-1;
+                    // Keep topics whole where they fit, spread them across the available days.
+                    for(let offset=0;offset<studyDays;offset++){const candidate=(preferred+offset)%studyDays;if(limit-loads[candidate]>=chunk){day=candidate;break;}}
+                    if(day<0){day=loads.findIndex(n=>n<limit);chunk=Math.min(left,limit-loads[day]);}
+                    const date=new Date(start);date.setDate(date.getDate()+day);
+                    entries.push({date:rtLocalDay(date),uid:topic.uid,title:topic.title,subject:topic.subject,minutes:chunk,kind:'topic'});
+                    loads[day]+=chunk;left-=chunk;preferred=Math.min(day+1,studyDays-1);
+                }
+            });
+            entries.sort((a,b)=>a.date.localeCompare(b.date));
+            const subjects=[...new Set(topics.map(t=>t.subject))];
+            for(let day=0;day<review;day++){
+                const date=new Date(start);date.setDate(date.getDate()+studyDays+day);
+                const group=subjects.filter((_,i)=>i%review===day%review);const label=(group.length?group:subjects).join(' / ');
+                entries.push({date:rtLocalDay(date),uid:`review_${day}`,title:`${label} review`,subject:label,minutes:limit,kind:'review'});
+            }
+            const counts={};entries.filter(e=>e.kind==='topic').forEach(e=>counts[e.uid]=(counts[e.uid]||0)+1);const parts={};
+            entries.forEach(e=>{if(e.kind==='topic'&&counts[e.uid]>1){parts[e.uid]=(parts[e.uid]||0)+1;e.part=`Part ${parts[e.uid]}/${counts[e.uid]}`;}else e.part='';});
+            return {examId:String(exam.id),examName:String(exam.name),examDate:exam.date,signature:rtRevExamSignature(exam),scope:currentUser?.uid||'offline',start:startKey,limit,review,studyDays,total,topicCount:topics.length,entries};
+        }
+        function rtRevRenderPreview() {
+            const draft=rtRevDraft,summary=document.getElementById('rtRevSummary');summary.replaceChildren();
+            const strong=document.createElement('strong');strong.textContent=draft.examName;
+            summary.append(strong,document.createElement('br'),document.createTextNode(`Exam ${draft.examDate} · ${draft.topicCount} topics · ${draft.total} estimated study minutes`),document.createElement('br'),document.createTextNode(`${draft.studyDays} available study days + ${draft.review} review days · up to ${draft.limit} min/day`));
+            const existing=simpleTasksArray.filter(t=>String(t.revisionExamId)===draft.examId&&!t.completed);
+            if(existing.length){const label=document.createElement('label');label.style.display='block';label.style.marginTop='12px';const check=document.createElement('input');check.type='checkbox';check.id='rtRevReplace';label.append(check,document.createTextNode(` Replace ${existing.length} unfinished revision tasks for this exam. Completed tasks and other tasks are kept.`));summary.append(label);}
+            const list=document.getElementById('rtRevDays');list.replaceChildren();
+            draft.entries.forEach(entry=>{const row=document.createElement('div');row.className='rt-rev-planrow';const time=document.createElement('time');time.dateTime=entry.date;time.textContent=rtDayDate(entry.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short'});const body=document.createElement('div'),title=document.createElement('b'),meta=document.createElement('small');title.textContent=entry.title;meta.textContent=`${entry.subject} · ${entry.minutes} min${entry.part?' · '+entry.part:''}${entry.kind==='review'?' · Recall + practice':''}`;body.append(title,meta);row.append(time,body);list.append(row);});
+            document.getElementById('rtRevSetup').hidden=true;document.getElementById('rtRevPreview').hidden=false;document.getElementById('rtRevTitle').textContent='Your revision plan';document.getElementById('rtRevSave').disabled=false;document.getElementById('rtRevSave').textContent='Save plan to To-do ↗';document.getElementById('rtRevSaveError').textContent='';document.getElementById('rtRevTitle').tabIndex=-1;document.getElementById('rtRevTitle').focus({preventScroll:true});rtRevModal.querySelector('.modal-content').scrollTop=0;
+        }
+        document.getElementById('rtRevSetup').addEventListener('submit',e=>{
+            e.preventDefault();if(isTeacherMode)return;
+            const error=document.getElementById('rtRevError');error.textContent='';
+            try{
+                const exam=currentSyllabusData.find(ex=>String(ex.id)===document.getElementById('rtRevExam').value);if(!exam||!rtRevEligible(exam))throw Error('Select an upcoming exam with an exact date, not a window.');
+                const available=rtRevTopicsFor(exam),selected=[];
+                document.querySelectorAll('#rtRevTopics .rt-rev-topic').forEach(row=>{if(row.querySelector('[type=checkbox]').checked){const topic=available.find(t=>t.uid===row.dataset.uid);if(topic)selected.push({...topic,minutes:Number(row.querySelector('[type=number]').value)});}});
+                rtRevDraft=rtRevBuild(exam,document.getElementById('rtRevStart').value,Number(document.getElementById('rtRevLimit').value),Number(document.getElementById('rtRevReview').value),selected);rtRevRenderPreview();
+            }catch(err){error.textContent=err.message;}
+        });
+        document.getElementById('rtRevAdjust').addEventListener('click',()=>{document.getElementById('rtRevSetup').hidden=false;document.getElementById('rtRevPreview').hidden=true;document.getElementById('rtRevTitle').textContent='Revision scheduler';document.getElementById('rtRevExam').focus();});
+        document.getElementById('rtRevSave').addEventListener('click',async()=>{
+            if(rtRevSaving||isTeacherMode||!rtRevDraft)return;
+            const draft=rtRevDraft,error=document.getElementById('rtRevSaveError');error.textContent='';
+            const exam=currentSyllabusData.find(e=>String(e.id)===draft.examId);
+            if(!exam||rtRevExamSignature(exam)!==draft.signature||draft.scope!==(currentUser?.uid||'offline')||draft.start<rtLocalDay(new Date())){error.textContent='The exam, progress, account or start date changed. Adjust and generate a fresh plan.';return;}
+            const existing=simpleTasksArray.filter(t=>String(t.revisionExamId)===draft.examId&&!t.completed);
+            if(existing.length&&!document.getElementById('rtRevReplace')?.checked){error.textContent='This exam already has revision tasks. Tick Replace above to update only its unfinished revision tasks.';return;}
+            rtRevSaving=true;document.getElementById('rtRevSave').disabled=true;
+            try{
+                const id=`rev_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+                const tasks=draft.entries.map((e,i)=>({id:`${id}_${i}`,text:`${draft.examName}: ${e.title}${e.part?' ('+e.part+')':''} · ${e.minutes} min`,completed:false,plannedDate:e.date,revisionExamId:draft.examId,revisionTopicUid:e.uid,revisionMinutes:e.minutes}));
+                const next=simpleTasksArray.filter(t=>String(t.revisionExamId)!==draft.examId||t.completed).concat(tasks);
+                // Confirm local durability before replacing the live array.
+                localStorage.setItem('simple_tasks',JSON.stringify(next));simpleTasksArray=next;renderSimpleTasks();await syncData(true);
+                rtRevDraft=null;rtRevClose();document.querySelector('.taskbar-btn[data-target="simpleTodoSection"]').click();showToast('Revision tasks saved. Planned dates are shown in To-do.');
+            }catch(err){error.textContent='Could not save your plan. Check device storage and try again.';console.warn('Revision save failed',err);document.getElementById('rtRevSave').disabled=false;}
+            finally{rtRevSaving=false;}
         });
 
         // Dated focus history is separate from legacy pomoStats. No backfill.
@@ -2664,7 +2819,7 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
         function v6Days(exam) { const d=v6Date(exam.date); if(!d) return null; const now=new Date(); return Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()))/86400000); }
         function v6DateLabel(value) { const d=v6Date(value); return d?d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}):String(value||'No date'); }
         function v6TopicStats(exam) { let total=0,done=0; (exam.subjects||[]).forEach(sub=>(sub.categories||[]).forEach(cat=>(cat.topics||[]).forEach(topic=>{total++;const uid=`${exam.id}_${sub.name}_${cat.name}_${topic}`.toLowerCase().replace(/[^a-z0-9]/g,'_');if(completedTasksArray.includes(uid))done++;})));return {total,done,percent:total?Math.round(done/total*100):0}; }
-        function v6ExamPanel(exam,home=false) { const st=v6TopicStats(exam), days=v6Days(exam); const count=days===null?'--':days<0?String(Math.abs(days)).padStart(2,'0'):String(days).padStart(2,'0');const unit=days===null?'NO DATE':days<0?'DAYS AGO':days===0?'TODAY':'DAYS LEFT'; return `<div class="v6-file"><div class="v6-filebar"><span>□ ${home?'next-exam':v6Escape(exam.name)+'.exam'}</span><span>${home?'UP NEXT':''}</span></div><div class="v6-content"><div class="v6-name">${v6Escape(exam.name)}</div><div class="v6-meta">${v6Escape(v6DateLabel(exam.date))} / ${v6Escape(exam.marks||'N/A')} MARKS</div><div class="v6-countrow"><div class="v6-count">${count}<small>${unit}</small></div><div class="v6-percent"><b>${st.percent}%</b><small>${st.done} / ${st.total} topics done</small></div></div><div class="v6-bar"><i style="width:${st.percent}%"></i></div></div>${home?`<button class="v6-open" data-v6-exam="${v6Escape(exam.id)}">Open syllabus <small>${v6Escape(exam.name)}.exam ↗</small></button>`:''}</div>`; }
+        function v6ExamPanel(exam,home=false) { const st=v6TopicStats(exam), days=v6Days(exam); const count=days===null?'--':days<0?String(Math.abs(days)).padStart(2,'0'):String(days).padStart(2,'0');const unit=days===null?'NO DATE':days<0?'DAYS AGO':days===0?'TODAY':'DAYS LEFT'; return `<div class="v6-file"><div class="v6-filebar"><span>□ ${home?'next-exam':v6Escape(exam.name)+'.exam'}</span><span>${home?'UP NEXT':''}</span></div><div class="v6-content"><div class="v6-name">${v6Escape(exam.name)}</div><div class="v6-meta">${v6Escape(v6DateLabel(exam.date))} / ${v6Escape(exam.marks||'N/A')} MARKS</div><div class="v6-countrow"><div class="v6-count">${count}<small>${unit}</small></div><div class="v6-percent"><b>${st.percent}%</b><small>${st.done} / ${st.total} topics done</small></div></div><div class="v6-bar"><i style="width:${st.percent}%"></i></div></div>${home?`<button class="v6-open" data-v6-exam="${v6Escape(exam.id)}">Open syllabus <small>${v6Escape(exam.name)}.exam ↗</small></button>`:(!isTeacherMode?`<button class="v6-open" data-rt-revision="${v6Escape(exam.id)}">Plan revision <small>Spread unfinished topics ↗</small></button>`:'')}</div>`; }
         function v6RenderMobile() {
             document.getElementById('simpleTaskInput').placeholder=v6Phone.matches?'Add a task...':'> Enter basic task payload...';
             if(!v6Phone.matches) return;
