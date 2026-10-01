@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/screenshots/brand-mark.png" alt="Relent Tracker RT mark" width="72">
+<img src="docs/screenshots/brand-mark.png" alt="RTracker terminal-prompt app logo" width="72">
 
 # RELENT TRACKER
 
@@ -140,7 +140,7 @@ CF:00:EA:AB:E7:AA:7F:F7:CE:9A:FB:3A:EA:D8:74:0D:83:9B:74:8A:D2:39:51:4A:89:B9:06
 
 [Launch Relent Tracker](https://study-dashboard-rose-psi.vercel.app).
 
-The web app includes a PWA manifest and service worker for installation and cached offline use. Online features such as sign-in, cloud sync and fetching updates still need a connection.
+The web app includes a PWA manifest and service worker for installation. Online features such as sign-in, cloud sync and fetching updates still need a connection.
 
 ## 🔐 Your data, without the small print
 
@@ -171,7 +171,7 @@ Relent-Tracker/
 ├── manifest.json     # PWA configuration
 ├── sw.js             # Service worker
 ├── assets/           # Audio, icons and other app assets
-├── screenshots/      # Real Android screenshots
+├── docs/screenshots/ # README hero, logo and promo posters
 ├── .well-known/      # App/site association files
 ├── SECURITY.md
 └── LICENSE
