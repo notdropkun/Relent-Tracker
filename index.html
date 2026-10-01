@@ -1651,7 +1651,18 @@ window.addEventListener('online',()=>{if(currentUser&&!isTeacherMode)rtMRefresh(
             rtSaveFocusLocal(); rtHmSelected = rtLocalDay(now); rtRenderHeatmap();
             if (currentUser && isFirebaseConfigured) rtUploadFocusHistory(currentUser.uid);
         }
+        function rtSyncFocusWidget() {
+            const bridge=window.AndroidWidget;
+            if(!bridge||!bridge.setFocusHeatmap)return;
+            if(isTeacherMode||!rtFocusScope){try{bridge.clearFocusHeatmap?.();}catch(e){}return;}
+            const today=new Date();today.setHours(12,0,0,0);
+            const first=new Date(today);first.setDate(first.getDate()-48);
+            const days={};
+            Object.values(rtFocusSessions).forEach(s=>{if(s.day>=rtLocalDay(first)&&s.day<=rtLocalDay(today))days[s.day]=(days[s.day]||0)+s.minutes;});
+            try{bridge.setFocusHeatmap(rtFocusScope,JSON.stringify({days}));}catch(e){}
+        }
         function rtRenderHeatmap() {
+            rtSyncFocusWidget();
             const grid = document.getElementById('rtHmGrid');
             if (!grid) return;
             // Observer links expose no owner's focus history.
@@ -2667,6 +2678,7 @@ window.addEventListener('online',()=>{if(currentUser&&!isTeacherMode)rtMRefresh(
             try {
                 if (currentUser && currentUser.uid === uid && window.AndroidWidget && window.AndroidWidget.setWidgetUid) {
                     window.AndroidWidget.setWidgetUid(uid);
+                    rtSyncFocusWidget();
                     if (window.AndroidWidget.setCalendarEvents) {
                         const events = (calendarEvents || []).filter(e => e && /^\d{4}-\d{2}-\d{2}$/.test(String(e.date || '')))
                             .map(e => ({
@@ -2710,7 +2722,7 @@ window.addEventListener('online',()=>{if(currentUser&&!isTeacherMode)rtMRefresh(
             return d.getFullYear() === +m[1] && d.getMonth() === +m[2]-1 && d.getDate() === +m[3] ? d : null;
         }
         window.openWidgetRoute = function(route) {
-            if (!route || !['day','month','add'].includes(route.view) || !widgetDate(route.date)) return;
+            if (!route || !['day','month','add','focus'].includes(route.view) || !widgetDate(route.date)) return;
             sessionStorage.setItem('pending_widget_route', JSON.stringify(route));
             applyWidgetRoute();
         };
@@ -2719,6 +2731,7 @@ window.addEventListener('online',()=>{if(currentUser&&!isTeacherMode)rtMRefresh(
             let route; try { route = JSON.parse(sessionStorage.getItem('pending_widget_route') || 'null'); } catch(e) { return; }
             if (!route || !widgetDate(route.date)) return;
             sessionStorage.removeItem('pending_widget_route');
+            if(route.view==='focus'){document.querySelector('.taskbar-btn[data-target="pomodoroSection"]').click();return;}
             document.querySelector('.taskbar-btn[data-target="calendarSection"]').click();
             currentCalDate = widgetDate(route.date);
             currentCalView = route.view === 'month' ? 'month' : 'day';
@@ -2757,7 +2770,7 @@ window.addEventListener('online',()=>{if(currentUser&&!isTeacherMode)rtMRefresh(
         const widgetHash = new URLSearchParams(location.hash.slice(1));
         if (widgetHash.has('widgetView')) {
             const route = { view: widgetHash.get('widgetView'), date: widgetHash.get('date') };
-            if (['day','month','add'].includes(route.view) && widgetDate(route.date)) sessionStorage.setItem('pending_widget_route', JSON.stringify(route));
+            if (['day','month','add','focus'].includes(route.view) && widgetDate(route.date)) sessionStorage.setItem('pending_widget_route', JSON.stringify(route));
             history.replaceState(null, '', location.pathname + location.search);
         }
         syncWidgetTheme();
