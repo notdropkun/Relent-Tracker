@@ -1656,7 +1656,7 @@ window.addEventListener('online',()=>{if(currentUser&&!isTeacherMode)rtMRefresh(
             if(!bridge||!bridge.setFocusHeatmap)return;
             if(isTeacherMode||!rtFocusScope){try{bridge.clearFocusHeatmap?.();}catch(e){}return;}
             const today=new Date();today.setHours(12,0,0,0);
-            const first=new Date(today);first.setDate(first.getDate()-48);
+            const first=new Date(today);first.setDate(first.getDate()-104);
             const days={};
             Object.values(rtFocusSessions).forEach(s=>{if(s.day>=rtLocalDay(first)&&s.day<=rtLocalDay(today))days[s.day]=(days[s.day]||0)+s.minutes;});
             try{bridge.setFocusHeatmap(rtFocusScope,JSON.stringify({days}));}catch(e){}
