@@ -525,7 +525,7 @@ body,#appContainer{background-image:none!important}.grid-bg{display:none!importa
 #rtHomePersonal{display:contents}#rtHomePersonal>.rt-rank-button{grid-column:2;grid-row:1;height:100%}#rtHomePersonal>.rt-mini-grid{grid-column:2;grid-row:2;margin-top:0;align-items:stretch}.rt-mini-grid>.rt-panel{display:flex;flex-direction:column}.rt-mini-grid .rt-navlink{margin-top:auto;text-align:left}
 .rt-hm-grid{grid-auto-flow:row!important;grid-template-rows:repeat(8,auto)!important;gap:4px}#rtHmGrid .rt-hm-label{line-height:17px;white-space:nowrap;font-size:9px}#rtHmGrid .rt-hm-label:nth-child(n+1){z-index:1}#rtHmGrid .rt-hm-label.rt-weekday{position:sticky;left:0;background:var(--surface-color);z-index:3;box-shadow:6px 0 0 var(--surface-color)}.rt-habit-grid{grid-template-columns:32px repeat(13,minmax(0,1fr))}.rt-hm-months{grid-template-columns:32px repeat(13,minmax(0,1fr))}.rt-daylabel{font-size:9px;white-space:nowrap}
 #sessionSplash{background:var(--bg-color);text-align:left;align-items:flex-start;padding:clamp(28px,6vw,64px);pointer-events:all}html:not(.auth-pending) #sessionSplash.rt-terminal-active{display:flex}
-.rt-terminal{width:min(640px,100%);margin:0 auto}.rt-terminal-brand{font:700 17px var(--font-mono);color:var(--accent-primary);margin:18px 0 28px;letter-spacing:1px}.rt-terminal pre{font:12px/2 var(--font-mono);color:var(--text-muted);white-space:pre-wrap;overflow-wrap:anywhere;min-height:200px;margin:0}.rt-terminal pre:after{content:' ▌';color:var(--accent-primary);animation:rtCursor 1s step-end infinite}.rt-terminal #sessionStatus{font:11px/1.8 var(--font-mono);color:var(--accent-primary)}.rt-terminal #sessionSkip{margin:18px 16px 0 0}.rt-terminal-pixel{display:grid;grid-template-columns:repeat(7,7px);gap:3px;margin:24vh auto 0;width:max-content;transition:margin .5s ease,opacity .5s ease;animation:rtPixelPulse 1.6s ease-in-out infinite}.rt-terminal-pixel i{width:7px;height:7px;background:var(--accent-primary)}.rt-terminal-pixel.rt-pixel-away{margin:0;animation:none}
+.rt-terminal{width:min(640px,100%);margin:0 auto}.rt-terminal-brand{font:700 17px var(--font-mono);color:var(--accent-primary);margin:18px 0 28px;letter-spacing:1px}.rt-terminal pre{font:12px/2 var(--font-mono);color:var(--text-muted);white-space:pre-wrap;overflow-wrap:anywhere;min-height:200px;margin:0}.rt-terminal pre:after{content:' ▌';color:var(--accent-primary);animation:rtCursor 1s step-end infinite}.rt-terminal #sessionStatus{font:11px/1.8 var(--font-mono);color:var(--accent-primary)}.rt-terminal-pixel{display:grid;grid-template-columns:repeat(11,7px);gap:3px;margin:24vh auto 0;width:max-content;transition:margin .5s ease,opacity .5s ease;animation:rtPixelPulse 1.6s ease-in-out infinite}.rt-terminal-pixel i{width:7px;height:7px;background:var(--accent-primary)}.rt-terminal-pixel.rt-pixel-away{margin:0;animation:none}
 .auth-card{animation:rtReveal .5s ease both}.auth-card h2:after{content:'_';color:var(--accent-primary);animation:rtCursor 1s step-end infinite}.auth-card .btn{transition:transform .18s ease,background .18s ease,border-color .18s ease}.auth-card .btn:hover{transform:translateY(-2px)}.auth-card .btn:active{transform:translateY(0) scale(.99)}
 #appContainer>.container:not(.hidden-section){animation:rtReveal .35s ease both}.rt-action,.rt-preset,.rt-row,.rt-rank-button{transition:transform .18s ease,border-color .18s ease,background .18s ease}.rt-action:active,.rt-preset:active{transform:scale(.98)}.rt-rank-button:hover{border-color:var(--accent-primary)}.rt-progress>span{transition:width .4s cubic-bezier(.2,.8,.2,1)}.rt-dialog{animation:rtReveal .22s ease both}
 @keyframes rtReveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes rtCursor{50%{opacity:0}}@keyframes rtPixelPulse{50%{opacity:.55}}
@@ -534,22 +534,32 @@ body,#appContainer{background-image:none!important}.grid-bg{display:none!importa
 </style></head>
 <body>
 
-    <div id="sessionSplash" role="status" aria-live="polite"><div class="rt-terminal"><div class="rt-terminal-pixel" id="sessionPixel" aria-hidden="true"></div><div class="rt-terminal-brand">RELENT_TRACKER</div><pre id="sessionLog"></pre><p id="sessionStatus">Starting...</p><button class="rt-action" id="sessionSkip" hidden>SKIP INTRO</button><a id="sessionRetry" href="" onclick="location.reload(); return false;">Retry loading</a></div></div>
+    <div id="sessionSplash" role="status" aria-live="polite"><div class="rt-terminal"><div class="rt-terminal-pixel" id="sessionPixel" aria-hidden="true"></div><div class="rt-terminal-brand">RELENT_TRACKER</div><pre id="sessionLog"></pre><p id="sessionStatus">Starting...</p><a id="sessionRetry" href="" onclick="location.reload(); return false;">Retry loading</a></div></div>
     <script>
     (()=>{
-      const splash=document.getElementById('sessionSplash'),log=document.getElementById('sessionLog'),status=document.getElementById('sessionStatus'),pixel=document.getElementById('sessionPixel'),skip=document.getElementById('sessionSkip');
+      const splash=document.getElementById('sessionSplash'),log=document.getElementById('sessionLog'),status=document.getElementById('sessionStatus'),pixel=document.getElementById('sessionPixel');
       const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-      pixel.innerHTML=Array.from({length:49},(_,i)=>'<i style="opacity:'+([0,6,7,13,35,41,42,48,17,24,31].includes(i)?0:1)+'"></i>').join('');
-      let timers=[],ready=false,started=0,serial=0;
+      const glyph=['11110011111','10001000100','10001000100','11110000100','10100000100','10010000100','10001000100'].join('');
+      pixel.innerHTML=[...glyph].map(bit=>'<i style="opacity:'+bit+'"></i>').join('');
+      let timers=[],ready=false,serial=0,queue=[],typing=false;
+      function later(fn,ms){const run=serial;timers.push(setTimeout(()=>{if(run===serial)fn();},ms));}
+      function cancel(){serial++;timers.forEach(clearTimeout);timers=[];typing=false;queue=[];}
+      function close(){if(!ready)return;cancel();document.documentElement.classList.remove('auth-pending');splash.classList.remove('rt-terminal-active');}
       function line(text){log.textContent+=(log.textContent?'\n':'')+'> '+text;}
-      function close(){if(!ready)return;serial++;timers.forEach(clearTimeout);document.documentElement.classList.remove('auth-pending');splash.classList.remove('rt-terminal-active');}
-      function begin(mode='session'){
-        timers.forEach(clearTimeout);timers=[];serial++;const run=serial;ready=false;started=performance.now();log.textContent='';status.textContent='';splash.classList.add('rt-terminal-active');splash.classList.remove('session-slow');skip.hidden=true;pixel.classList.remove('rt-pixel-away');
-        const steps=mode==='session'?['RELENT_TRACKER / boot','Loading workspace modules...','Checking saved session...','Preparing exam workspace...','Preparing habits and ranks...','Preparing focus history...']:['RELENT_TRACKER / workspace',mode==='cloud'?'Signed-in account selected':'Local device selected','Loading saved workspace...','Preparing exam workspace...','Preparing habits and ranks...','Preparing focus history...'];
-        if(reduce){pixel.classList.add('rt-pixel-away');steps.forEach(line);}else steps.forEach((text,i)=>timers.push(setTimeout(()=>{if(run!==serial)return;pixel.classList.add('rt-pixel-away');line(text);},650+i*390)));
+      function pump(){
+        if(typing)return;
+        if(!queue.length){if(ready){status.textContent='READY';later(close,reduce?0:450);}return;}
+        typing=true;pixel.classList.add('rt-pixel-away');const text='> '+queue.shift();log.textContent+=log.textContent?'\n':'';
+        if(reduce){log.textContent+=text;typing=false;pump();return;}
+        let i=0;function type(){log.textContent+=text[i++];if(i<text.length)later(type,9);else{typing=false;later(pump,100);}}type();
       }
-      window.rtTerminal={begin,complete(mode){if(ready)return;ready=true;skip.hidden=reduce;const run=serial;const done=()=>{if(run!==serial)return;pixel.classList.add('rt-pixel-away');line(mode||'Session checked');line('Rendering workspace...');status.textContent='READY';skip.hidden=false;timers.push(setTimeout(close,reduce?0:600));};timers.push(setTimeout(done,reduce?0:Math.max(0,3000-(performance.now()-started))));},fail(text){serial++;ready=false;timers.forEach(clearTimeout);line('Loading paused');status.textContent=text;splash.classList.add('session-slow');}};
-      skip.onclick=close;begin();
+      function begin(mode='session'){
+        cancel();ready=false;log.textContent='';status.textContent='Starting...';splash.classList.add('rt-terminal-active');splash.classList.remove('session-slow');pixel.classList.remove('rt-pixel-away');
+        queue=mode==='session'?['RELENT_TRACKER / boot','Loading workspace modules...','Checking saved session...','Preparing exam workspace...','Preparing habits and ranks...','Preparing focus history...']:['RELENT_TRACKER / workspace',mode==='cloud'?'Signed-in account selected':'Local device selected','Loading saved workspace...','Preparing exam workspace...','Preparing habits and ranks...','Preparing focus history...'];
+        typing=true;later(()=>{typing=false;pump();},reduce?0:650);
+      }
+      window.rtTerminal={begin,complete(mode){if(ready)return;ready=true;queue.push(mode||'Session checked','Rendering workspace...');if(!typing)later(pump,reduce?0:100);},fail(text){cancel();ready=false;line('Loading paused');status.textContent=text;splash.classList.add('session-slow');}};
+      begin();
       window.sessionWaitTimer=setTimeout(()=>{if(document.documentElement.classList.contains('auth-pending'))window.rtTerminal.fail('Connection is taking longer than expected. Retry when ready.');},15000);
     })();
     </script>
@@ -575,12 +585,8 @@ body,#appContainer{background-image:none!important}.grid-bg{display:none!importa
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> 
                         <span class="hide-mobile">Add Data</span>
                     </button>
-                    <!-- Settings icon with official, verified Feather SVG path (clean teeth, zero warp) -->
-                    <button class="icon-btn-settings" id="btnGlobalSettings" title="Workspace Settings">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
+                    <!-- Workspace control faders -->
+                    <button class="icon-btn-settings" id="btnGlobalSettings" title="Workspace Settings" aria-label="Workspace Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h6m4 0h8M3 12h12m4 0h2M3 18h2m4 0h12"/><path d="M11 3v1m0 4v1m6 0v1m0 4v1M7 15v1m0 4v1"/><rect x="9" y="4" width="4" height="4" rx="1"/><rect x="15" y="10" width="4" height="4" rx="1"/><rect x="5" y="16" width="4" height="4" rx="1"/></svg>
                     </button>
                     
                     <div id="navProfileArea" class="user-profile-container"></div>
@@ -701,11 +707,7 @@ body,#appContainer{background-image:none!important}.grid-bg{display:none!importa
             <div style="display: flex; justify-content: center;">
                 <div class="pomo-card card-panel">
                     <div class="v6-panelbar v6-mobile-only">□ focus.timer</div>
-                    <button id="btnPomoSettingsToggle" title="Adjust Protocols">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
+                    <button id="btnPomoSettingsToggle" title="Adjust Protocols" aria-label="Focus Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h6m4 0h8M3 12h12m4 0h2M3 18h2m4 0h12"/><path d="M11 3v1m0 4v1m6 0v1m0 4v1M7 15v1m0 4v1"/><rect x="9" y="4" width="4" height="4" rx="1"/><rect x="15" y="10" width="4" height="4" rx="1"/><rect x="5" y="16" width="4" height="4" rx="1"/></svg>
                     </button>
                     <div class="pomo-modes">
                         <button class="pomo-mode-btn active" data-mode="focus">Focus</button>
