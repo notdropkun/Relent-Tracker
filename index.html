@@ -548,17 +548,17 @@ body,#appContainer{background-image:none!important}.grid-bg{display:none!importa
       function line(text){log.textContent+=(log.textContent?'\n':'')+'> '+text;}
       function pump(){
         if(typing)return;
-        if(!queue.length){if(ready){status.textContent='READY';later(close,reduce?0:450);}return;}
+        if(!queue.length){if(ready){status.textContent='READY';later(close,reduce?0:150);}return;}
         typing=true;pixel.classList.add('rt-pixel-away');const text='> '+queue.shift();log.textContent+=log.textContent?'\n':'';
         if(reduce){log.textContent+=text;typing=false;pump();return;}
-        let i=0;function type(){log.textContent+=text[i++];if(i<text.length)later(type,9);else{typing=false;later(pump,100);}}type();
+        let i=0;function type(){log.textContent+=text[i++];if(i<text.length)later(type,4);else{typing=false;later(pump,40);}}type();
       }
       function begin(mode='session'){
         cancel();ready=false;log.textContent='';status.textContent='Starting...';splash.classList.add('rt-terminal-active');splash.classList.remove('session-slow');pixel.classList.remove('rt-pixel-away');
-        queue=mode==='session'?['RELENT_TRACKER / boot','Loading workspace modules...','Checking saved session...','Preparing exam workspace...','Preparing habits and ranks...','Preparing focus history...']:['RELENT_TRACKER / workspace',mode==='cloud'?'Signed-in account selected':'Local device selected','Loading saved workspace...','Preparing exam workspace...','Preparing habits and ranks...','Preparing focus history...'];
-        typing=true;later(()=>{typing=false;pump();},reduce?0:650);
+        queue=mode==='session'?['RELENT_TRACKER / boot','Loading workspace...']:['RELENT_TRACKER / workspace',mode==='cloud'?'Signed-in account selected':'Local device selected'];
+        typing=true;later(()=>{typing=false;pump();},reduce?0:120);
       }
-      window.rtTerminal={begin,complete(mode){if(ready)return;ready=true;queue.push(mode||'Session checked','Rendering workspace...');if(!typing)later(pump,reduce?0:100);},fail(text){cancel();ready=false;line('Loading paused');status.textContent=text;splash.classList.add('session-slow');}};
+      window.rtTerminal={begin,complete(mode){if(ready)return;ready=true;queue.push(mode||'Session checked');if(!typing)later(pump,reduce?0:40);},fail(text){cancel();ready=false;line('Loading paused');status.textContent=text;splash.classList.add('session-slow');}};
       begin();
       window.sessionWaitTimer=setTimeout(()=>{if(document.documentElement.classList.contains('auth-pending'))window.rtTerminal.fail('Connection is taking longer than expected. Retry when ready.');},15000);
     })();
@@ -2504,7 +2504,7 @@ function rtMRender() {}
             return d.getFullYear() === +m[1] && d.getMonth() === +m[2]-1 && d.getDate() === +m[3] ? d : null;
         }
         window.openWidgetRoute = function(route) {
-            if (!route || !['day','month','add','focus'].includes(route.view) || !widgetDate(route.date)) return;
+            if (!route || !['day','month','add','focus','habits'].includes(route.view) || !widgetDate(route.date)) return;
             sessionStorage.setItem('pending_widget_route', JSON.stringify(route));
             applyWidgetRoute();
         };
@@ -2513,6 +2513,7 @@ function rtMRender() {}
             let route; try { route = JSON.parse(sessionStorage.getItem('pending_widget_route') || 'null'); } catch(e) { return; }
             if (!route || !widgetDate(route.date)) return;
             sessionStorage.removeItem('pending_widget_route');
+            if(route.view==='habits'){rtGo('habitsSection');return;}
             if(route.view==='focus'){document.querySelector('.taskbar-btn[data-target="pomodoroSection"]').click();return;}
             document.querySelector('.taskbar-btn[data-target="calendarSection"]').click();
             currentCalDate = widgetDate(route.date);
@@ -2552,7 +2553,7 @@ function rtMRender() {}
         const widgetHash = new URLSearchParams(location.hash.slice(1));
         if (widgetHash.has('widgetView')) {
             const route = { view: widgetHash.get('widgetView'), date: widgetHash.get('date') };
-            if (['day','month','add','focus'].includes(route.view) && widgetDate(route.date)) sessionStorage.setItem('pending_widget_route', JSON.stringify(route));
+            if (['day','month','add','focus','habits'].includes(route.view) && widgetDate(route.date)) sessionStorage.setItem('pending_widget_route', JSON.stringify(route));
             history.replaceState(null, '', location.pathname + location.search);
         }
         syncWidgetTheme();
@@ -2731,12 +2732,42 @@ function rtHApplyFocus(){if(isTeacherMode||!rtHabitScope)return;let changed=fals
 function rtHDayStats(day){const habits=rtHActive(day);const done=habits.filter(h=>h.checks[day]?.done).length;return {total:habits.length,done,perfect:habits.length>0&&done===habits.length};}
 function rtHXP(){let count=0;const days=new Set();for(const h of Object.values(rtHabitData)){for(const [day,e] of Object.entries(h.checks)){if(e.done&&day<=rtHDay()&&day>=h.createdDay&&(!h.archivedDay||day<h.archivedDay)){count++;days.add(day);}}}let perfect=0;for(const day of days)if(rtHDayStats(day).perfect)perfect++;return {xp:count*RT_GAME.checkInXP+perfect*RT_GAME.perfectDayXP,count,perfect};}
 function rtHRank(){const {xp}=rtHXP();let i=0;RT_GAME.thresholds.forEach((v,n)=>{if(xp>=v)i=n;});const base=RT_GAME.thresholds[i],next=RT_GAME.thresholds[i+1];return {i,xp,base,next,percent:next?Math.max(0,Math.min(100,(xp-base)/(next-base)*100)):100};}
+
+let rtWidgetHabitSignature='',rtWidgetHabitTimer=null,rtWidgetHabitBusy=false;
+function rtSyncHabitWidget(force=false){
+ const b=window.RTrackerHabits;if(!b?.postMessage)return;
+ clearTimeout(rtWidgetHabitTimer);
+ rtWidgetHabitTimer=setTimeout(()=>{
+  if(!rtHabitScope)return;
+  if(isTeacherMode){try{b.postMessage(JSON.stringify({type:'clear'}));rtWidgetHabitSignature='';}catch(e){}return;}
+  const payload={type:'snapshot',scope:rtHabitScope,records:rtHabitData,day:rtHDay(),minutes:Math.floor(rtHMinutes(rtHDay()))};
+  const sig=JSON.stringify(payload);if(!force&&sig===rtWidgetHabitSignature)return;
+  rtWidgetHabitSignature=sig;try{b.postMessage(sig);}catch(e){rtWidgetHabitSignature='';}
+ },80);
+}
+window.rtHabitWidgetRefresh=()=>{rtSyncHabitWidget(true);if(rtHabitScope&&!isTeacherMode)rtHRefresh();};
+if(window.RTrackerHabits){window.RTrackerHabits.onmessage=e=>{
+ try{
+  const data=JSON.parse(e.data);if(isTeacherMode||data.scope!==rtHabitScope||typeof data.token!=='string'||!Array.isArray(data.pending))return;
+  let changed=false;const before=structuredClone(rtHabitData);
+  for(const item of data.pending){
+   const h=rtHabitData[item.id];if(!h||h.mode!=='manual'||!rtHValidDay(item.day)||typeof item.done!=='boolean'||!Number.isFinite(item.at))continue;
+   if(item.day<h.createdDay||(h.archivedDay&&item.day>=h.archivedDay))continue;
+   const old=h.checks[item.day];if(!old||item.at>=old.at){h.checks[item.day]={done:item.done,at:item.at};changed=true;}
+  }
+  // Ack only after durable web storage. Replayed events are safe by timestamp merge.
+  if(!rtHSave()){rtHabitData=before;rtWidgetHabitSignature='';return;}
+  window.RTrackerHabits.postMessage(JSON.stringify({type:'ack',scope:rtHabitScope,token:data.token}));
+  if(changed){rtWidgetHabitSignature='';rtHRender();rtHUpload();}
+ }catch(e){console.warn('Habit widget reconcile paused; local data kept',e);rtWidgetHabitSignature='';}
+};}
+
 function rtHStreak(h){let day=rtHDay();if(!h.checks[day]?.done)day=rtHShift(day,-1);let n=0;while(day>=h.createdDay&&h.checks[day]?.done){n++;day=rtHShift(day,-1);}return n;}
 function rtRankCard(){const r=rtHRank();return `<button type="button" class="rt-panel rt-rank-button" data-rt-ranks><div class="rt-bar-label"><span>□ your.rank</span><span>FULL LADDER ↗</span></div><div class="rt-rank-line"><span class="rt-rank-name">${rtSVG(RT_RANK_PATHS[r.i])}${RT_RANK_NAMES[r.i]}</span><span class="rt-xp">${r.xp.toLocaleString()} TOTAL XP</span></div><div class="rt-progress"><span style="width:${r.percent}%"></span></div><p class="rt-row-note">${r.next?`Next: ${RT_RANK_NAMES[r.i+1]} · ${(r.next-r.xp).toLocaleString()} XP to go`:'RELENTLESS · highest rank reached'}</p></button>`;}
 function rtRankOpen(){rtHE('rtRankDetails').innerHTML=rtRankCard()+RT_RANK_NAMES.map((n,i)=>`<div class="rt-rank-row ${i===rtHRank().i?'current':''}">${rtSVG(RT_RANK_PATHS[i])}<div style="flex:1"><strong>${n}</strong><small>${RT_GAME.thresholds[i].toLocaleString()} total XP${i===rtHRank().i?' · CURRENT RANK':''}</small></div>${i<rtHRank().i?'✓':''}</div>`).join('')+`<p class="rt-subtitle">+${RT_GAME.checkInXP} XP per completed habit/day. +${RT_GAME.perfectDayXP} XP for a perfect day. One reward per habit/day; undo removes that reward. Focus auto-checks earn the same reward. No bonus from re-tapping or editing names.</p>`;rtDialogOpen('rtRankModal');}
 function rtHColor(fraction){if(!fraction)return 'var(--bg-color)';return `color-mix(in srgb,var(--accent-primary) ${Math.round(25+fraction*75)}%,var(--bg-color))`;}
 function rtHHeatmap(){const today=new Date(),start=new Date(today.getFullYear(),today.getMonth(),today.getDate());start.setDate(start.getDate()-((start.getDay()+6)%7)-84);const monthLabels=['<span></span>'];let previous='';for(let week=0;week<13;week++){const d=new Date(start);d.setDate(start.getDate()+week*7);const weekEnd=new Date(d);weekEnd.setDate(d.getDate()+6);const m=(weekEnd.getMonth()!==d.getMonth()?weekEnd:d).toLocaleDateString('en',{month:'short'});monthLabels.push(`<span>${m!==previous?m:''}</span>`);previous=m;}let html=`<div class="rt-hm-months">${monthLabels.join('')}</div><div class="rt-habit-grid">`;['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d=>html+=`<span class="rt-daylabel">${d}</span>`);for(let n=0;n<91;n++){const d=new Date(start);d.setDate(start.getDate()+n);const day=rtHDay(d),stats=rtHDayStats(day),future=day>rtHDay();const label=`${day}: ${stats.done}/${stats.total} habits${stats.perfect?', perfect day':''}`;html+=`<button type="button" class="rt-cell ${future?'future':''} ${day===rtHDay()?'today':''}" style="background:${rtHColor(stats.total?stats.done/stats.total:0)}" ${future?'disabled':''} data-rt-day="${day}" aria-label="${label}" title="${label}">${stats.perfect?rtSVG(RT_RANK_PATHS[5],''):''}</button>`;}html+='</div><div class="rt-hm-legend"><span>Less</span>'+[0,.25,.5,.75,1].map(n=>`<i style="background:${rtHColor(n)}"></i>`).join('')+'<span>More</span></div>';const cur=rtHDayStats(rtHDay()),selected=rtHabitSelection||rtHDay(),old=rtHDayStats(selected);html+=`<div class="rt-hm-total"><b>${cur.done} / ${cur.total}</b><span>done today</span></div><p class="rt-status">Brighter = more done · centered crown = perfect day</p><p class="rt-status">Outline = today. Future days are disabled.</p><div class="rt-hm-detail">${selected} · ${old.total?`${old.done}/${old.total} complete${old.perfect?' · perfect day':''}`:'No habits tracked yet'}<br>${rtHActive(selected).filter(h=>h.checks[selected]?.done).map(h=>rtEsc(h.name)).join(' · ')}</div>`;return html;}
-function rtHRender(){if(!rtHE('rtHabitRows'))return;rtHApplyFocus();rtHE('rtHabitsRank').innerHTML=isTeacherMode?'':rtRankCard();rtHE('rtHabitsHeatmap').innerHTML=isTeacherMode?'<p class="rt-empty">Personal habit data is not shared in observer mode.</p>':rtHHeatmap();const today=rtHDay(),rows=rtHActive(today),stats=rtHDayStats(today);rtHE('rtHabitsTodayLabel').textContent=`${stats.done}/${stats.total} complete`;rtHE('rtHabitRows').innerHTML=rows.length?rows.map(h=>{const done=!!h.checks[today]?.done;return `<div class="rt-row">${rtSVG(RT_HABIT_ICONS[h.icon])}<div class="rt-row-info"><div class="rt-row-name">${rtEsc(h.name)}</div><div class="rt-row-note">${rtHStreak(h)}-day streak${h.mode==='focus'?`<br>AUTO VIA FOCUS · ${Math.floor(rtHMinutes(today))}/${h.minutes}m`:''}</div></div><div class="rt-row-tools"><button class="rt-action ${done?'filled':''}" data-rt-check="${h.id}" ${h.mode==='focus'||isTeacherMode?'disabled':''} aria-label="${done?'Undo':'Check in'} ${rtEsc(h.name)}">${done?'✓ DONE':h.mode==='focus'?'AUTO':'+ LOG'}</button><button class="rt-action" data-rt-archive="${h.id}" aria-label="Archive ${rtEsc(h.name)}" title="Archive habit" ${isTeacherMode?'disabled':''}>×</button></div></div>`;}).join(''):'<p class="rt-empty">Your grid starts with your first habit.<br>Tap + ADD to choose a preset or create one.</p>';rtHE('rtHabitSync').textContent=rtHabitCloudFailed?'Saved on this device. Cloud sync failed; reconnect to retry.':currentUser?'Personal habits · account cloud sync enabled':'Saved on this device · offline habits stay separate from signed-in accounts.';rtHomeRender();}
+function rtHRender(){rtSyncHabitWidget();if(!rtHE('rtHabitRows'))return;rtHApplyFocus();rtHE('rtHabitsRank').innerHTML=isTeacherMode?'':rtRankCard();rtHE('rtHabitsHeatmap').innerHTML=isTeacherMode?'<p class="rt-empty">Personal habit data is not shared in observer mode.</p>':rtHHeatmap();const today=rtHDay(),rows=rtHActive(today),stats=rtHDayStats(today);rtHE('rtHabitsTodayLabel').textContent=`${stats.done}/${stats.total} complete`;rtHE('rtHabitRows').innerHTML=rows.length?rows.map(h=>{const done=!!h.checks[today]?.done;return `<div class="rt-row">${rtSVG(RT_HABIT_ICONS[h.icon])}<div class="rt-row-info"><div class="rt-row-name">${rtEsc(h.name)}</div><div class="rt-row-note">${rtHStreak(h)}-day streak${h.mode==='focus'?`<br>AUTO VIA FOCUS · ${Math.floor(rtHMinutes(today))}/${h.minutes}m`:''}</div></div><div class="rt-row-tools"><button class="rt-action ${done?'filled':''}" data-rt-check="${h.id}" ${h.mode==='focus'||isTeacherMode?'disabled':''} aria-label="${done?'Undo':'Check in'} ${rtEsc(h.name)}">${done?'✓ DONE':h.mode==='focus'?'AUTO':'+ LOG'}</button><button class="rt-action" data-rt-archive="${h.id}" aria-label="Archive ${rtEsc(h.name)}" title="Archive habit" ${isTeacherMode?'disabled':''}>×</button></div></div>`;}).join(''):'<p class="rt-empty">Your grid starts with your first habit.<br>Tap + ADD to choose a preset or create one.</p>';rtHE('rtHabitSync').textContent=rtHabitCloudFailed?'Saved on this device. Cloud sync failed; reconnect to retry.':currentUser?'Personal habits · account cloud sync enabled':'Saved on this device · offline habits stay separate from signed-in accounts.';rtHomeRender();}
 function rtHSuggest(name){const n=name.toLowerCase();if(/gym|workout|exercise|fitness/.test(n))return 'gym';if(/study|read|book|learn/.test(n))return 'book';if(/water|drink|hydrat/.test(n))return 'water';if(/money|sav|budget/.test(n))return 'money';if(/sleep|bed/.test(n))return 'moon';if(/sugar|food|eat|diet/.test(n))return 'food';if(/walk|run|step/.test(n))return 'walk';return 'check';}
 function rtHIconOptions(){rtHE('rtHabitIconOptions').innerHTML=Object.entries(RT_HABIT_ICONS).map(([id,path])=>`<button type="button" data-rt-icon="${id}" aria-label="${id} icon" aria-pressed="${id===rtHabitIcon}" class="${id===rtHabitIcon?'selected':''}">${rtSVG(path,'')}</button>`).join('');}
 function rtDialogOpen(id){rtLastDialogFocus=document.activeElement;rtHE(id).hidden=false;document.body.style.overflow='hidden';rtHE(id).querySelector('button,input')?.focus();}
@@ -2750,7 +2781,7 @@ rtHE('rtHabitAdd').onclick=rtHAddOpen;
 rtHE('rtHabitName').addEventListener('input',()=>{if(!rtHabitIconManual){rtHabitIcon=rtHSuggest(rtHE('rtHabitName').value);rtHIconOptions();}});
 rtHE('rtHabitMode').onchange=()=>rtHE('rtHabitGoalWrap').hidden=rtHE('rtHabitMode').value!=='focus';
 rtHE('rtHabitForm').addEventListener('submit',async e=>{e.preventDefault();if(isTeacherMode||!rtHabitScope)return;const name=rtHE('rtHabitName').value.trim(),mode=rtHE('rtHabitMode').value,minutes=Number(rtHE('rtHabitMinutes').value);if(!name||name.length>60||mode==='focus'&&(!Number.isInteger(minutes)||minutes<1||minutes>1440)){rtHE('rtHabitError').textContent='Enter a habit name and a focus goal between 1 and 1440 minutes.';return;}if(rtHActive().some(h=>h.name.toLowerCase()===name.toLowerCase())){rtHE('rtHabitError').textContent='You already track a habit with that name.';return;}const id=`h_${globalThis.crypto?.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2)}`;rtHabitData[id]={id,name,icon:rtHabitIcon,mode,minutes:mode==='focus'?minutes:240,createdDay:rtHDay(),createdAt:Date.now(),updatedAt:Date.now(),archivedDay:null,checks:{}};rtHApplyFocus();if(!rtHSave()){delete rtHabitData[id];return;}rtDialogClose('rtHabitModal');rtHRender();await rtHUpload();});
-document.addEventListener('click',async e=>{const target=e.target.closest('button');if(!target)return;const d=target.dataset;if(d.rtClose){rtDialogClose(d.rtClose);return;}if(d.rtPreset!==undefined){const v=RT_PRESETS[Number(d.rtPreset)];rtHE('rtHabitName').value=v[0];rtHabitIcon=v[1];rtHabitIconManual=false;rtHE('rtHabitMode').value=v[2];rtHE('rtHabitMinutes').value=v[3]||240;rtHE('rtHabitGoalWrap').hidden=v[2]!=='focus';rtHIconOptions();return;}if(d.rtIcon){rtHabitIcon=d.rtIcon;rtHabitIconManual=true;rtHIconOptions();return;}if(d.rtRanks!==undefined){rtRankOpen();return;}if(d.rtNav){rtGo(d.rtNav);return;}if(d.rtExam){rtGo('examsSection');if(v6Phone.matches){v6SelectedExam=d.rtExam;v6RenderMobile();}return;}if(d.rtDay){rtHabitSelection=d.rtDay;rtHRender();return;}if(d.rtCheck&&!isTeacherMode){const h=rtHabitData[d.rtCheck];if(!h||h.mode==='focus')return;const day=rtHDay(),old=h.checks[day];h.checks[day]={done:!old?.done,at:rtHStamp()};if(!rtHSave()){if(old)h.checks[day]=old;else delete h.checks[day];return;}rtHRender();await rtHUpload();return;}if(d.rtArchive&&!isTeacherMode){const h=rtHabitData[d.rtArchive];if(!h||!confirm(`Archive "${h.name}"? Past check-ins stay saved. Today will no longer include it.`))return;const oldArchive=h.archivedDay,oldUpdated=h.updatedAt;h.archivedDay=rtHDay();h.updatedAt=rtHStamp();if(!rtHSave()){h.archivedDay=oldArchive;h.updatedAt=oldUpdated;return;}rtHRender();await rtHUpload();}});
+document.addEventListener('click',async e=>{const target=e.target.closest('button');if(!target)return;const d=target.dataset;if(d.rtClose){rtDialogClose(d.rtClose);return;}if(d.rtPreset!==undefined){const v=RT_PRESETS[Number(d.rtPreset)];rtHE('rtHabitName').value=v[0];rtHabitIcon=v[1];rtHabitIconManual=false;rtHE('rtHabitMode').value=v[2];rtHE('rtHabitMinutes').value=v[3]||240;rtHE('rtHabitGoalWrap').hidden=v[2]!=='focus';rtHIconOptions();return;}if(d.rtIcon){rtHabitIcon=d.rtIcon;rtHabitIconManual=true;rtHIconOptions();return;}if(d.rtRanks!==undefined){rtRankOpen();return;}if(d.rtNav){rtGo(d.rtNav);return;}if(d.rtExam){rtGo('examsSection');if(v6Phone.matches){v6SelectedExam=d.rtExam;v6RenderMobile();}return;}if(d.rtDay){rtHabitSelection=d.rtDay;rtHRender();return;}if(d.rtCheck&&!isTeacherMode){const h=rtHabitData[d.rtCheck];if(!h||h.mode==='focus')return;const day=rtHDay(),old=h.checks[day];h.checks[day]={done:!old?.done,at:Math.max(rtHStamp(),(old?.at||0)+1)};if(!rtHSave()){if(old)h.checks[day]=old;else delete h.checks[day];return;}rtHRender();await rtHUpload();return;}if(d.rtArchive&&!isTeacherMode){const h=rtHabitData[d.rtArchive];if(!h||!confirm(`Archive "${h.name}"? Past check-ins stay saved. Today will no longer include it.`))return;const oldArchive=h.archivedDay,oldUpdated=h.updatedAt;h.archivedDay=rtHDay();h.updatedAt=rtHStamp();if(!rtHSave()){h.archivedDay=oldArchive;h.updatedAt=oldUpdated;return;}rtHRender();await rtHUpload();}});
 for(const id of ['rtHabitModal','rtRankModal'])rtHE(id).addEventListener('click',e=>{if(e.target===rtHE(id))rtDialogClose(id);});
 document.addEventListener('keydown',e=>{const modal=['rtHabitModal','rtRankModal'].map(rtHE).find(el=>!el.hidden);if(!modal)return;if(e.key==='Escape'){rtDialogClose(modal.id);return;}if(e.key==='Tab'){const els=[...modal.querySelectorAll('button,input,select,[tabindex="0"]')].filter(el=>!el.disabled&&el.getClientRects().length);const first=els[0],last=els.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
 window.addEventListener('online',()=>{rtHRefresh();});
@@ -2781,6 +2812,7 @@ rtHE('rtExamsAdd').onclick=()=>document.getElementById('openCommandCenter').clic
                     rtFocusScope = null; rtFocusSessions = {}; rtFocusRun = null; rtRenderHeatmap();
                     rtHabitScope=null;rtHabitData={};rtHRender();
                     try { if (window.AndroidWidget && window.AndroidWidget.clearCalendarEvents) window.AndroidWidget.clearCalendarEvents(); } catch (e) {}
+                    if(localStorage.getItem('offline_mode') !== 'true'){try{window.RTrackerHabits?.postMessage(JSON.stringify({type:'clear'}));}catch(e){}}
                     if(localStorage.getItem('offline_mode') === 'true') openApp('offline');
                     else { authScreen.classList.remove('hidden'); appContainer.classList.remove('visible'); finishSessionCheck(); }
                 }
