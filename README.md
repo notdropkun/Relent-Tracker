@@ -1,256 +1,207 @@
+<!-- Optional hero artwork: uncomment after adding the real image.
+<p align="center"><img src="docs/screenshots/hero.png" alt="Relent Tracker on the web and Android, with its focus widget" width="100%"></p>
+-->
+
 <div align="center">
 
-# 📚 STUDY DASHBOARD
+# RELENT TRACKER
 
-**A personal command center for studying, productivity & everyday chaos.**
+### Your exams. Your effort. Your next move.
 
-<br>
+A study workspace built by a student, for the days when everything is due at once.
 
-<a href="https://study-dashboard-rose-psi.vercel.app">
-  <img src="https://img.shields.io/badge/🚀%20LIVE%20DEMO-ENTER%20DASHBOARD-8b5cf6?style=for-the-badge" alt="Live Demo">
-</a>
-<a href="https://github.com/notdropkun/Relent-Tracker/releases">
-  <img src="https://img.shields.io/badge/ANDROID%20APP-DOWNLOAD-22c55e?style=for-the-badge" alt="Android App">
-</a>
-<a href="https://github.com/notdropkun/Relent-Tracker">
-  <img src="https://img.shields.io/github/last-commit/notdropkun/Relent-Tracker?style=for-the-badge&label=LAST%20UPDATE&color=111827" alt="Last Commit">
-</a>
-<img src="https://img.shields.io/badge/STATUS-ACTIVE-f59e0b?style=for-the-badge" alt="Status">
+**Plan the syllabus. Put in the focus sessions. See what changes.**
 
-<br><br>
+[Open the dashboard](https://study-dashboard-rose-psi.vercel.app) · [Get the Android app](https://github.com/notdropkun/Relent-Tracker/releases) · [See what's new](https://github.com/notdropkun/Relent-Tracker/releases/tag/v1.2.0)
 
-HTML · JavaScript · PWA · Vercel · Android
+![Web + Android](https://img.shields.io/badge/Web_%2B_Android-27D8E8?style=flat-square&labelColor=101319)
+![Latest release](https://img.shields.io/github/v/release/notdropkun/Relent-Tracker?style=flat-square&color=8b5cf6&labelColor=101319)
+![License](https://img.shields.io/github/license/notdropkun/Relent-Tracker?style=flat-square&color=27D8E8&labelColor=101319)
+![Last commit](https://img.shields.io/github/last-commit/notdropkun/Relent-Tracker?style=flat-square&color=8b5cf6&labelColor=101319)
+
+**Exam countdowns · Focus heatmap · Revision plans · Marks · Android widgets**
 
 </div>
 
-## 📲 Get the Android App
+---
 
-Relent Tracker is also a real Android app - a lightweight wrapper around this same dashboard, with home screen widgets.
+## ⚡ Built around studying, not just checking boxes
 
-### Option 1 - Obtainium (recommended, auto-updates)
+Relent Tracker started as my own study dashboard. I'm a Class 12 student building it around board prep and entrance-exam revision, then making it useful for other students too.
 
-1. Install **Obtainium** from its [GitHub page](https://github.com/ImranR98/Obtainium) or F-Droid.
-2. In Obtainium, tap **Add App** and paste this link:
+The idea is simple: keep the exam, its syllabus, today's work and your progress in the same place. The web app and Android app share the same workspace, with Google sign-in for sync or an offline mode when you don't want an account.
 
-   ```
-   https://github.com/notdropkun/Relent-Tracker
-   ```
+[Features](#-one-workspace-from-plan-to-progress) · [Screenshots](#-inside-the-app) · [Android](#-take-it-to-your-home-screen) · [Data](#-your-data-without-the-small-print) · [Source](#-under-the-hood)
 
-3. Tap **Add** - Obtainium installs the app and notifies you whenever a new release drops.
+## ✨ One workspace, from plan to progress
 
-### Option 2 - Direct APK
+### 📚 Know what's coming
 
-Grab the latest `RTracker` APK from [**Releases**](https://github.com/notdropkun/Relent-Tracker/releases) and open it on your phone.
+- Add exams with dates, marks and a live countdown.
+- Break the syllabus into subjects, categories and topics.
+- Tick off topics and track completion without losing sight of the deadline.
+- Keep exams, calendar events and everyday to-dos together.
 
-**Requires Android 7.0 or newer.**
+### 🗓️ Turn the syllabus into a plan
 
-<details>
-<summary>🔏 Verify your download (optional)</summary>
+The revision scheduler works backwards from an upcoming exam with an exact date.
 
-Release signing certificate SHA-256 fingerprint:
+Choose unfinished topics, estimate the time they need, set a daily study limit and reserve final review days. Preview the dated plan before saving it to To-do. If the work won't fit, the scheduler tells you instead of pretending it will.
 
-```
-CF:00:EA:AB:E7:AA:7F:F7:CE:9A:FB:3A:EA:D8:74:0D:83:9B:74:8A:D2:39:51:4A:89:B9:06:E4:83:08:67:53
-```
+Completing a revision task doesn't silently tick off your syllabus. Those are separate decisions.
 
-Each release also lists the SHA-256 of its APK. You can verify these with AppVerifier or Obtainium.
+### ⏱️ Make the work visible
 
-</details>
+- Run Pomodoro focus sessions and track completed sessions.
+- See day-by-day activity in a GitHub-style focus heatmap.
+- Switch between a recent 13-week view and a year view; tap a day for session details.
+- Put the focus grid on your Android home screen and tap it to open Focus.
 
-## 📸 Screenshots
+The heatmap starts recording daily activity with completed sessions. It doesn't invent a history from old totals.
 
-Real Android app screenshots in the Ultraviolet theme.
+### 📈 Track marks, not guesses
 
-| Dashboard | Focus timer | Settings & updates |
-| --- | --- | --- |
-| <img src="screenshots/dashboard.jpg" alt="Exam countdown dashboard" width="240"> | <img src="screenshots/focus.jpg" alt="Pomodoro focus timer" width="240"> | <img src="screenshots/settings.jpg" alt="Android update check in Settings" width="240"> |
+Log a school exam, mock or other test with its subject, date and score. See subject-wise trends, percentages and the underlying score history. Add a note or link a result to an exam.
 
-| Calendar month | Calendar events | Login |
-| --- | --- | --- |
-| <img src="screenshots/calendar-month.jpg" alt="Calendar month with event markers" width="240"> | <img src="screenshots/calendar-events.jpg" alt="Selected day's exam and practical entries" width="240"> | <img src="screenshots/login.jpg" alt="Google login or offline mode" width="240"> |
+Scores stay separate from syllabus completion. Percentages help compare tests with different totals, but different test difficulty still matters.
 
+### 🎨 Pick your atmosphere
 
-## 🧠 What is this?
+**Ice terminal. Blood neon. Ultraviolet.** Plus more themes and hidden character-inspired extras.
 
-Study Dashboard is a personal web app built around one idea:
+The dashboard's terminal-style details, line icons, voice/audio extras and Android widget themes make it feel like your own workspace.
 
-**Put the useful stuff in one place, make it feel good to use, and keep improving it.**
+## 📸 Inside the app
 
-Instead of building a generic productivity template, this project is treated like a constantly evolving personal workspace - with custom UI, app-style behaviour, PWA support, a native Android app, and a collection of custom audio/voice assets.
-
-It's small enough to experiment with and flexible enough to keep growing.
-
-## ✅ What you can do with it
-
-- 🎯 Track exams with live countdowns
-- 📖 Follow your syllabus with per-topic progress
-- ✅ Manage tasks & to-dos
-- 📅 See your Google Calendar events on the dashboard
-- ⏱️ Run focus sessions (Pomodoro) with session counts
-- 🎨 Switch between five neon themes (+ hidden ones to find)
-- 📱 Pin home screen widgets from the Android app
-- ☁️ Sync with Google login, or stay fully offline
-
-## ✨ Highlights
+Real Android captures in the Ultraviolet theme. No invented screens.
 
 <table>
 <tr>
-<td width="50%">
-
-### 📖 Study-first
-
-A dashboard designed around the everyday student workflow.
-
-</td>
-<td width="50%">
-
-### 📱 App-like
-
-A PWA on the web and a native wrapper on Android, so it behaves like an installed app.
-
-</td>
-</tr>
-<tr>
-<td>
-
-### 🔊 Custom Voice System
-
-Includes a collection of character-inspired voice/audio assets for a more interactive experience.
-
-</td>
-<td>
-
-### ⚡ Lightweight
-
-Built primarily with HTML and JavaScript, keeping the project straightforward and easy to iterate on.
-
-</td>
+<td align="center" width="33%"><img src="screenshots/dashboard.jpg" alt="Dashboard with exams and countdowns" width="230"><br><b>The big picture</b><br><sub>Exams, countdowns and syllabus progress.</sub></td>
+<td align="center" width="33%"><img src="screenshots/focus.jpg" alt="Focus timer in the Android app" width="230"><br><b>One session at a time</b><br><sub>A timer for the work in front of you.</sub></td>
+<td align="center" width="33%"><img src="screenshots/calendar-month.jpg" alt="Calendar month with event markers" width="230"><br><b>See the month</b><br><sub>Study deadlines in context.</sub></td>
 </tr>
 </table>
 
-## 🎧 Voice & Audio
+<!-- New artwork slots. Add real images before uncommenting these rows.
+<table>
+<tr>
+<td width="33%"><img src="docs/screenshots/01-focus.png" alt="Focus timer and daily activity heatmap" width="100%"></td>
+<td width="33%"><img src="docs/screenshots/02-revision.png" alt="Revision plan preview with dated study tasks" width="100%"></td>
+<td width="33%"><img src="docs/screenshots/03-marks.png" alt="Marks tracker showing a subject trend and score history" width="100%"></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/04-widgets.png" alt="Real Android focus, calendar and exam widgets" width="100%"></td>
+<td><img src="docs/screenshots/05-themes.png" alt="The same dashboard in Ice terminal, Blood neon and Ultraviolet" width="100%"></td>
+<td><img src="docs/screenshots/06-workspace.png" alt="Relent Tracker on web and Android" width="100%"></td>
+</tr>
+</table>
+-->
 
-One of the fun parts of the project is its custom audio collection.
+## 📱 Take it to your home screen
 
-Current assets include voices inspired by:
+The Android app, **RTracker**, wraps the web dashboard in a native Kotlin shell and adds home-screen widgets and an in-app update check.
 
-**JARVIS · TETO · MIKU · PIKACHU · BEN 10**
-
-These files are part of the dashboard's audio/voice experience.
-
-> Note: The repository contains the audio assets themselves; the exact way each sound is used can evolve as the project changes.
-
-## 📱 Progressive Web App
-
-The project includes the core files needed for a Progressive Web App:
-
-- `manifest.json`
-- `sw.js`
-- `icon-192.png`
-- `icon-512.png`
-
-That gives the project a more app-like foundation and leaves room for offline behaviour, installation, caching, and other PWA improvements.
-
-## 🤖 The Android App
-
-The Android app is a lightweight native wrapper around this same dashboard. This repository holds the website source; Android builds are published on this repo's [Releases](https://github.com/notdropkun/Relent-Tracker/releases) page, so the code and the downloads live in one place.
-
-Log in with the same Google account on the app and the website and your data stays in sync between them.
-
-## 🔐 Your Data
-
-- With Google login, your exams, syllabus progress, tasks, calendar events and focus counts sync between the app and the website.
-- Prefer not to log in? Offline mode keeps everything on your device.
-- Theme and timer settings live on your device only.
-- Observer links share a read-only snapshot with whoever you give the link to.
-
-## 🛠️ Built With
-
-<div align="center">
-
-| Technology | Role |
+| Widget | What it puts in reach |
 | --- | --- |
-| 🧱 HTML5 | Structure & UI |
-| ⚡ JavaScript | Interactions & logic |
-| 📱 PWA APIs | Installable / app-like behaviour |
-| 🤖 Android | Native wrapper app |
-| ▲ Vercel | Deployment |
+| Exam | Your next exam, with syllabus details in the larger layout |
+| Calendar | A month view with exam and event markers |
+| Focus | A 15-week activity grid, theme sync and a shortcut into Focus |
 
-</div>
+Log in once in the app to connect your widgets to your account. Use the same Google account on the web and Android for your synced workspace.
 
-## 📂 Repository
+### Download and install
 
+1. Open [GitHub Releases](https://github.com/notdropkun/Relent-Tracker/releases).
+2. Download the `RTracker` APK from the release you want.
+3. Open the file on Android and allow installation from that source if Android asks.
+
+**Current featured release:** [v1.2.0](https://github.com/notdropkun/Relent-Tracker/releases/tag/v1.2.0), with the new focus widget.
+
+**Android 7.0 or newer.** Keep Android System WebView updated.
+
+### Updates, without starting over
+
+Use **Settings → Android App → Check for updates** inside RTracker. The in-app updater checks GitHub releases. Website features are deployed separately, so not every web change needs a new APK.
+
+**Install new APKs over the existing app. Don't uninstall first:** uninstalling can remove local app and widget data.
+
+Prefer an external update manager? Add `https://github.com/notdropkun/Relent-Tracker` in [Obtainium](https://github.com/ImranR98/Obtainium).
+
+<details>
+<summary>🔏 Verify an APK</summary>
+
+Release notes can include the APK's SHA-256 hash. Compare the downloaded file with the hash for that exact release.
+
+The currently documented release signing certificate SHA-256 fingerprint is:
+
+```text
+CF:00:EA:AB:E7:AA:7F:F7:CE:9A:FB:3A:EA:D8:74:0D:83:9B:74:8A:D2:39:51:4A:89:B9:06:E4:83:08:67:53
 ```
-study-dashboard/
-│
-├── 🎵 audio / voice assets
-├── 🖼️ image & visual assets
-├── 📱 PWA icons
-├── ⚙️ sw.js
-├── 🧾 manifest.json
-├── 🌐 index.html
-└── 📖 README.md
+
+</details>
+
+## 🌐 Or just open the website
+
+[Launch Relent Tracker](https://study-dashboard-rose-psi.vercel.app).
+
+The web app includes a PWA manifest and service worker for installation and cached offline use. Online features such as sign-in, cloud sync and fetching updates still need a connection.
+
+## 🔐 Your data, without the small print
+
+- **Offline mode:** your workspace is stored on your device. Clearing site/app storage or uninstalling can remove local data.
+- **Google sign-in:** Firebase Authentication handles login; Firestore stores synced study data for use across devices.
+- **Marks:** saved locally and synced to your signed-in account; the marks view is excluded from observer mode.
+- **Observer links:** let someone view a read-only snapshot. Share one only with people you want to see that information.
+- **Widgets:** exam details are mirrored into a separate Firestore widget record. Don't treat the widget mirror as a place for confidential information.
+
+This isn't an account-free, cloud-free app when you choose sync. Offline mode and cloud sync are different choices.
+
+## 🛠️ Under the hood
+
+| Layer | Built with |
+| --- | --- |
+| Web interface | HTML, CSS and JavaScript |
+| Sign-in and sync | Firebase Authentication and Firestore |
+| Installable web app | Web app manifest and service worker |
+| Hosting | Vercel |
+| Android shell and widgets | Kotlin / Android |
+| APK distribution and update source | GitHub Releases |
+
+This repository contains the **website source and Android release downloads**. The native Android source isn't in this repository at present.
+
+```text
+Relent-Tracker/
+├── index.html        # Dashboard, styles and app logic
+├── manifest.json     # PWA configuration
+├── sw.js             # Service worker
+├── assets/           # Audio, icons and other app assets
+├── screenshots/      # Real Android screenshots
+├── .well-known/      # App/site association files
+├── SECURITY.md
+└── LICENSE
 ```
 
-The repository is intentionally simple so new experiments and features can be added without a complicated build setup.
+The web project has no bundled frontend build step. To explore a local copy, serve the repository with a local HTTP server. Cloud sign-in and sync need your own Firebase setup and authorized domains; a fork isn't automatically a separate backend.
 
-## 🌐 Try It
+## 🧑‍💻 Built between study sessions
 
-[↗ Open the live dashboard](https://study-dashboard-rose-psi.vercel.app)
+I'm Advaay. Relent Tracker is the workspace I wanted while studying, and an excuse to keep learning by shipping things I actually use.
 
-No setup. No build command. Just open it.
-
-## 🗺️ What's Next?
-
-This project is meant to keep evolving.
-
-Possible directions include:
-
-- More study utilities
-- Better dashboard customization
-- More polished mobile experience
-- Expanded voice interactions
-- More PWA functionality
-- UI/UX improvements
-- Additional productivity features
-
-This roadmap is intentionally flexible - this project is also a playground for trying new ideas.
-
-## 🧑‍💻 About the Builder
-
-<div align="center">
-
-**Advaay**
-
-Student · Developer · Tech Enthusiast
-
-*Tech. Old tech. New tech. Gaming. Music. Building random ideas at unreasonable hours.*
-
-</div>
-
-## 📌 Project Status
-
-🟢 **Active**
-
-The dashboard is still being worked on, refined, and experimented with.
-Expect the UI, features, and structure to change over time.
+It's still growing. Found a bug? Describe what happened, what you expected and whether you were on the website or Android app. Remove private study data and account details from screenshots before posting.
 
 ## 📄 License
 
-Released under the MIT License - do whatever you want, just keep the copyright notice.
+[MIT](LICENSE). Keep the copyright and license notice when reusing the code.
+
+---
 
 <div align="center">
 
-## ⭐ Like the project?
+**Less juggling. More studying.**
 
-Give the repository a star if you find it useful or just think it's cool.
+[Open the dashboard](https://study-dashboard-rose-psi.vercel.app) · [Download RTracker](https://github.com/notdropkun/Relent-Tracker/releases)
 
-<br>
-
-*Made with curiosity, caffeine & too many ideas.*
-
-<br>
-
-© Advaay
+Built by Advaay. Still studying. Still shipping.
 
 </div>
