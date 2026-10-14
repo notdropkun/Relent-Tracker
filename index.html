@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relent Tracker</title>
+    <meta name="description" content="Track exams, build daily habits, and stay focused with Relent Tracker.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Relent Tracker">
+    <meta property="og:title" content="Relent Tracker">
+    <meta property="og:description" content="Track exams, build daily habits, and stay focused with Relent Tracker.">
+    <meta property="og:url" content="https://study-dashboard-rose-psi.vercel.app/">
+    <meta name="twitter:card" content="summary">
     
     <!-- Clean Terminal Logo/Favicon generated natively -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%230a0a0c'/><text x='15' y='65' font-family='monospace' font-size='50' fill='%2322d3ee' font-weight='bold'>&gt;_</text></svg>">
@@ -579,11 +586,11 @@ body,#appContainer{background-image:none!important}.grid-bg{display:none!importa
     <div id="appContainer">
         <nav>
             <div class="nav-content">
-                <div class="brand"><h1>Relent<span>_</span>Tracker</h1></div>
+                <div class="brand" id="rtBrandHome" role="link" tabindex="0" aria-label="Go to Home" title="Home" style="cursor:pointer"><h1>Relent<span>_</span>Tracker</h1></div>
                 <div class="nav-actions">
-                    <button class="btn" id="openCommandCenter" title="Add Data">
+                    <button class="btn" id="openCommandCenter" title="Add / Import Exams">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> 
-                        <span class="hide-mobile">Add Data</span>
+                        <span class="hide-mobile">Add / Import Exams</span>
                     </button>
                     <!-- Workspace control faders -->
                     <button class="icon-btn-settings" id="btnGlobalSettings" title="Workspace Settings" aria-label="Workspace Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h6m4 0h8M3 12h12m4 0h2M3 18h2m4 0h12"/><path d="M11 3v1m0 4v1m6 0v1m0 4v1M7 15v1m0 4v1"/><rect x="9" y="4" width="4" height="4" rx="1"/><rect x="15" y="10" width="4" height="4" rx="1"/><rect x="5" y="16" width="4" height="4" rx="1"/></svg>
@@ -1158,6 +1165,33 @@ body,#appContainer{background-image:none!important}.grid-bg{display:none!importa
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
+        // Honest sync-failure feedback with a retry button (separate from the normal toast).
+        function rtShowSyncFail(message, retryFn) {
+            let t = document.getElementById('rtSyncFail');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'rtSyncFail';
+                t.setAttribute('role', 'alert');
+                t.style.cssText = 'position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:100000;box-sizing:border-box;max-width:calc(100vw - 32px);background:#0e0e11;border:1px solid var(--accent-danger,#ff3355);border-radius:var(--radius,4px);color:var(--accent-danger,#ff3355);padding:12px 16px;font-family:var(--font-mono,monospace);font-size:13px;line-height:1.6;display:flex;gap:12px;align-items:center;flex-wrap:wrap;';
+                document.body.appendChild(t);
+            }
+            t.innerHTML = '';
+            const msg = document.createElement('span');
+            msg.textContent = `> ${message}`;
+            const retry = document.createElement('button');
+            retry.type = 'button'; retry.textContent = '[ RETRY ]';
+            retry.style.cssText = 'background:transparent;border:1px solid currentColor;color:inherit;font:inherit;padding:4px 10px;cursor:pointer;';
+            const close = document.createElement('button');
+            close.type = 'button'; close.textContent = '[ X ]'; close.setAttribute('aria-label', 'Dismiss');
+            close.style.cssText = retry.style.cssText;
+            close.onclick = () => t.remove();
+            retry.onclick = async () => {
+                retry.disabled = true; retry.textContent = '[ RETRYING... ]';
+                try { await retryFn(); } catch (e) { console.error('Retry failed', e); rtShowSyncFail(message, retryFn); }
+            };
+            t.append(msg, retry, close);
+        }
+
         let activePersona = 'default';
 
         function initPersona(name) {
@@ -1314,7 +1348,7 @@ body,#appContainer{background-image:none!important}.grid-bg{display:none!importa
             autoPatchLegacyIds();
 
             if (currentSyllabusData.length === 0) {
-                container.innerHTML = `<div class="empty-state"><h3>[ NO LEDGERS FOUND ]</h3><p>Inject data using the Add Data protocol above.</p></div>`;
+                container.innerHTML = `<div class="empty-state"><h3>[ NO LEDGERS FOUND ]</h3><p>Use the + Add / Import Exams button above to add your exams.</p></div>`;
                 updateMetrics(); return;
             }
 
@@ -1995,7 +2029,8 @@ function rtMRender() {}
             }
 
             const token = sessionStorage.getItem('gcal_token');
-            if (token) {
+            const pushGcal = async () => {
+                if (!token) return true;
                 try {
                     let payload = { summary: title, description: description };
                     
@@ -2026,11 +2061,15 @@ function rtMRender() {}
                         body: JSON.stringify(payload)
                     });
                     const data = await res.json();
+                    if (!res.ok || data.error) throw new Error((data.error && data.error.message) || `HTTP ${res.status}`);
                     if (data.id) gcalId = data.id;
+                    return true;
                 } catch (err) {
                     console.error("GCal Push Error", err);
+                    return false;
                 }
-            }
+            };
+            const gcalOk = await pushGcal();
 
             const evObj = { id: id || `cal-${Date.now()}`, title, description, date, allDay, startTime, endTime, gcalId, calendarId: selectedCalendarId };
 
@@ -2044,7 +2083,20 @@ function rtMRender() {}
             await syncData(true);
             renderCalendar();
             calEventModal.classList.remove('active');
-            showToast("Event Saved");
+            if (gcalOk && window.rtCloudOk !== false) {
+                showToast("Event Saved");
+            } else {
+                const what = (!gcalOk && window.rtCloudOk === false) ? 'cloud + Google Calendar sync failed'
+                    : (!gcalOk ? 'Google Calendar sync failed' : 'cloud sync failed');
+                const retrySync = async () => {
+                    let ok = true;
+                    if (!gcalOk) { ok = await pushGcal(); evObj.gcalId = gcalId; }
+                    await syncData(true);
+                    if (ok && window.rtCloudOk !== false) { document.getElementById('rtSyncFail')?.remove(); showToast("Event Saved"); }
+                    else rtShowSyncFail('Still not synced. Saved locally.', retrySync);
+                };
+                rtShowSyncFail(`Saved locally, ${what}.`, retrySync);
+            }
         });
 
         document.getElementById('btnDeleteCalEvent').addEventListener('click', async () => {
@@ -2431,6 +2483,7 @@ function rtMRender() {}
             
             let customName = localStorage.getItem('custom_user_name') || "";
 
+            window.rtCloudOk = true;
             if (currentUser && isFirebaseConfigured) {
                 try {
                     await setDoc(doc(db, "users", currentUser.uid), {
@@ -2438,7 +2491,7 @@ function rtMRender() {}
                         pomoStats: pomoStats, customName: customName,
                         calendarEvents: calendarEvents
                     }, { merge: true });
-                } catch (e) { console.error("Cloud Save Error", e); }
+                } catch (e) { console.error("Cloud Save Error", e); window.rtCloudOk = false; }
                 mirrorExamsToWidget(currentUser.uid);
             }
             
@@ -2678,7 +2731,7 @@ function rtMRender() {}
             const lead=upcoming[0];
             const others=currentSyllabusData.filter(ex=>ex!==lead).sort((a,b)=>(v6Days(a)??Infinity)-(v6Days(b)??Infinity));
             const home=document.getElementById('v6MobileHome');
-            home.innerHTML=`<div class="v6-path">workspace / <span>exams</span></div>${lead?v6ExamPanel(lead,true):'<div class="v6-file"><div class="v6-filebar">□ next-exam</div><div class="v6-content"><div class="v6-name">No upcoming exams</div><div class="v6-meta">Use Add Data above to add an exam.</div></div></div>'}${others.length?'<div class="v6-sectionhead">Other exams</div>':''}${others.map(ex=>`<button class="v6-examrow" data-v6-exam="${v6Escape(ex.id)}"><span><b>${v6Escape(ex.name)}</b><small>${v6Escape(v6DateLabel(ex.date))} / ${v6Escape(ex.marks||'N/A')} MARKS</small></span><strong>${v6Days(ex)===null?'↗':v6Days(ex)<0?'PAST':String(v6Days(ex)).padStart(2,'0')}<small>${v6Days(ex)!==null&&v6Days(ex)>=0?'DAYS LEFT ↗':'OPEN ↗'}</small></strong></button>`).join('')}<div class="v6-sectionhead">&gt; Your workspace</div><div class="v6-tools"><button data-v6-target="habitsSection">Habits<small>Daily consistency</small></button><button data-v6-target="pomodoroSection">Focus<small>Pomodoro timer</small></button></div>`;
+            home.innerHTML=`<div class="v6-path">workspace / <span>exams</span></div>${lead?v6ExamPanel(lead,true):'<div class="v6-file"><div class="v6-filebar">□ next-exam</div><div class="v6-content"><div class="v6-name">No upcoming exams</div><div class="v6-meta">Use + ADD / IMPORT EXAMS in the Exams tab to add an exam.</div></div></div>'}${others.length?'<div class="v6-sectionhead">Other exams</div>':''}${others.map(ex=>`<button class="v6-examrow" data-v6-exam="${v6Escape(ex.id)}"><span><b>${v6Escape(ex.name)}</b><small>${v6Escape(v6DateLabel(ex.date))} / ${v6Escape(ex.marks||'N/A')} MARKS</small></span><strong>${v6Days(ex)===null?'↗':v6Days(ex)<0?'PAST':String(v6Days(ex)).padStart(2,'0')}<small>${v6Days(ex)!==null&&v6Days(ex)>=0?'DAYS LEFT ↗':'OPEN ↗'}</small></strong></button>`).join('')}<div class="v6-sectionhead">&gt; Your workspace</div><div class="v6-tools"><button data-v6-target="habitsSection">Habits<small>Daily consistency</small></button><button data-v6-target="pomodoroSection">Focus<small>Pomodoro timer</small></button></div>`;
             const ex=currentSyllabusData.find(ex=>String(ex.id)===v6SelectedExam);
             if(!ex) v6SelectedExam=null;
             document.getElementById('examsSection').classList.toggle('v6-detail',!!ex);
@@ -2789,6 +2842,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('storage',e=>{if(e.key===`rt_habits_${rtHabitScope}`){rtHabitData=rtHMerge(rtHabitData,rtHClean(safeParse(e.key,{})));rtHRender();}});
 setInterval(()=>{if(rtHabitScope&&!isTeacherMode){if(rtHApplyFocus())rtHUpload();rtHRender();}},60000);
 
+{const b=document.getElementById('rtBrandHome');if(b){const go=()=>rtGo('homeSection');b.addEventListener('click',go);b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});}}
 rtHE('rtExamsAdd').onclick=()=>document.getElementById('openCommandCenter').click();
 
         if(isFirebaseConfigured && auth) {
