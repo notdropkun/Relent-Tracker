@@ -590,6 +590,13 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
 .rt-home-count small,.rt-mini-value small{letter-spacing:.04em!important}
 .toast{pointer-events:none;max-width:calc(100vw - 28px);overflow-wrap:anywhere;white-space:normal}
 #rtParserPreview{font:12px/1.9 var(--font-main);white-space:pre-wrap;overflow-wrap:anywhere;max-height:330px;overflow:auto;margin-bottom:14px}
+</style><style id="rtVisibleMotion">/* Visible motion, without glow, continuous idle loops or layout shifts. */
+.rt-timer-digit,.rt-timer-colon{display:inline-block;min-width:.6em;text-align:center}.rt-timer-colon{min-width:.45em}
+.rt-panel,.rt-preset-card,.exam-card,.rt-cloud-login{transition:transform .32s cubic-bezier(.2,.75,.25,1),border-color .25s,background .25s!important}
+@media(hover:hover) and (pointer:fine){.rt-panel:hover,.rt-preset-card:hover{transform:translateY(-5px);border-color:color-mix(in srgb,var(--accent-secondary) 55%,var(--border-color))}.exam-card:hover{transform:translateY(-3px)}.rt-cloud-login:hover{transform:translateY(-2px)}.taskbar-btn:hover{transform:translateX(-4px)}}
+.btn:active,.taskbar-btn:active,.rt-preset-card:active{transform:scale(.94)}
+#commandModal .tab-btn{transition:background .28s,color .28s,transform .28s!important}.rt-progress span,.v6-bar i,.rt-hours-track i{transition:width .85s cubic-bezier(.2,.75,.25,1)!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rt-panel:hover,.rt-preset-card:hover,.exam-card:hover,.rt-cloud-login:hover,.taskbar-btn:hover,.btn:active,.taskbar-btn:active,.rt-preset-card:active{transform:none!important}}
 </style></head>
 <body>
 
@@ -1009,6 +1016,7 @@ Functions, calculus, probability..."></textarea><div class="rt-editor-footer"><s
 
 
     <script type="module">
+const rtMotionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, addDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -1628,7 +1636,7 @@ function rtMRender() {}
         let pomoTimer,pomoTargetEndTime=0;
         let pomoTimeLeft=pomoSettings.focus*60;
         const displayPomo=document.getElementById('timerDisplay'),btnPomoStart=document.getElementById('btnTimerStart'),btnPomoGiveUp=document.getElementById('btnTimerGiveUp'),btnPomoReset=document.getElementById('btnTimerReset');
-        function updatePomoDisplay(){const m=Math.floor(pomoTimeLeft/60).toString().padStart(2,'0'),s=(pomoTimeLeft%60).toString().padStart(2,'0');displayPomo.textContent=`${m}:${s}`;document.title=pomoTargetEndTime?`(${m}:${s}) ${document.querySelector('.pomo-mode-btn.active').dataset.mode==='focus'?'Focus':'Break'} - Relent Tracker`:'Relent Tracker';}
+        function updatePomoDisplay(){const m=Math.floor(pomoTimeLeft/60).toString().padStart(2,'0'),s=(pomoTimeLeft%60).toString().padStart(2,'0');rtTimerDigits(`${m}:${s}`);document.title=pomoTargetEndTime?`(${m}:${s}) ${document.querySelector('.pomo-mode-btn.active').dataset.mode==='focus'?'Focus':'Break'} - Relent Tracker`:'Relent Tracker';}
         function rtClearTimerStorage(){localStorage.removeItem('pomoTargetEndTime');localStorage.removeItem('rt_pomo_run');}
         function resetTimerUI(){clearInterval(pomoTimer);pomoTargetEndTime=0;rtFocusRun=null;rtClearTimerStorage();btnPomoStart.style.display='flex';btnPomoReset.style.display='flex';btnPomoGiveUp.style.display='none';document.getElementById('rtFocusTopic').disabled=isTeacherMode;document.getElementById('rtFocusCustom').disabled=isTeacherMode;pomoTimeLeft=pomoSettings[document.querySelector('.pomo-mode-btn.active').dataset.mode]*60;updatePomoDisplay();}
         function rtPersistTimer(){localStorage.setItem('pomoTargetEndTime',String(pomoTargetEndTime));localStorage.setItem('rt_pomo_run',JSON.stringify({...rtFocusRun,targetEndTime:pomoTargetEndTime}));}
@@ -2863,6 +2871,20 @@ document.getElementById('rtAiSignIn').addEventListener('click',()=>document.getE
 const rtSyllabusEditor=document.getElementById('rtParseText');rtSyllabusEditor.addEventListener('input',()=>document.getElementById('rtSyllabusCount').textContent=`${rtSyllabusEditor.value.length.toLocaleString()} / 24,000`);
 const rtModalTabs=[...document.querySelectorAll('#commandModal .tab-btn')];document.querySelector('#commandModal .modal-tabs').setAttribute('role','tablist');document.querySelector('#commandModal .modal-tabs').setAttribute('aria-label','Add exam method');
 rtModalTabs.forEach((tab,i)=>{tab.id=`rtMethodTab${i}`;tab.setAttribute('role','tab');tab.setAttribute('aria-controls',tab.dataset.target);const panel=document.getElementById(tab.dataset.target);panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',tab.id);tab.addEventListener('click',()=>{rtModalTabs.forEach(t=>{const active=t===tab;t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;});document.querySelector('#commandModal .modal-content').scrollTop=0;});tab.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?rtModalTabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+rtModalTabs.length)%rtModalTabs.length;rtModalTabs[next].click();rtModalTabs[next].focus();});tab.setAttribute('aria-selected',String(i===0));tab.tabIndex=i===0?0:-1;});
+// Motion is presentation only. Never changes timer, XP, data or navigation state.
+
+function rtMotionPlay(el,frames,options){if(!el||rtMotionPreference.matches||typeof el.animate!=='function')return;el.getAnimations().filter(a=>a.id==='rt-interface-motion').forEach(a=>a.cancel());const animation=el.animate(frames,{duration:580,easing:'cubic-bezier(.2,.75,.25,1)',...options});animation.id='rt-interface-motion';}
+function rtMotionSection(target){if(rtMotionPreference.matches||!document.getElementById('sessionSplash')?.classList.contains('hidden')&&getComputedStyle(document.getElementById('sessionSplash')).display!=='none')return;const section=document.getElementById(target);if(!section||section.classList.contains('hidden-section'))return;const candidates=target==='homeSection'?[...section.querySelectorAll('.rt-summary-grid>.rt-panel,#rtHomePersonal>.rt-panel,#rtHomePersonal .rt-mini-grid>.rt-panel,#rtRevisionCard')]:target==='pomodoroSection'?[...section.querySelectorAll('.pomo-card,#rtHeatmap')]:[...section.querySelectorAll('.rt-head,.hero-title,.card-panel,.v6-file,.exam-card-wrapper,.rt-habit-row')].filter(e=>e.offsetWidth&&e.offsetHeight).slice(0,8);if(!candidates.length)candidates.push(section);candidates.forEach((el,i)=>rtMotionPlay(el,[{opacity:0,transform:'translateY(28px) scale(.975)'},{opacity:1,transform:'translateY(0) scale(1)'}],{delay:i*85,duration:650}));}
+function rtMotionActive(){const target=document.querySelector('.taskbar-btn.active')?.dataset.target;if(target)requestAnimationFrame(()=>rtMotionSection(target));}
+function rtTimerDigits(text){const el=document.getElementById('timerDisplay');if(!el)return;if(!el.querySelector('.rt-timer-digit')||el.textContent.length!==text.length){el.replaceChildren(...[...text].map(char=>{const span=document.createElement('span');span.className=char===':'?'rt-timer-colon':'rt-timer-digit';span.textContent=char;return span;}));return;}[...el.children].forEach((span,i)=>{if(span.textContent===text[i])return;span.textContent=text[i];rtMotionPlay(span,[{opacity:.2,transform:'translateY(12px) scale(.94)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:360,easing:'cubic-bezier(.16,1,.3,1)'});});}
+// Initial entrances wait for the real startup overlay to finish.
+const rtSplash=document.getElementById('sessionSplash');
+if(rtSplash){const observer=new MutationObserver(()=>{if(rtSplash.classList.contains('hidden')||getComputedStyle(rtSplash).display==='none'){rtMotionActive();}});observer.observe(rtSplash,{attributes:true,attributeFilter:['class','style']});}
+document.querySelectorAll('.taskbar-btn').forEach(btn=>btn.addEventListener('click',()=>{rtMotionActive();rtMotionPlay(btn,[{transform:'scale(.89)'},{transform:'scale(1.06)',offset:.65},{transform:'scale(1)'}],{duration:340});}));
+['commandModal','editModal','globalSettingsModal','calEventModal'].forEach(id=>{const modal=document.getElementById(id);if(!modal)return;new MutationObserver(()=>{if(modal.classList.contains('active'))rtMotionPlay(modal.querySelector('.modal-content'),[{opacity:0,transform:'translateY(32px) scale(.95)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:580});}).observe(modal,{attributes:true,attributeFilter:['class']});});
+document.querySelectorAll('#commandModal .tab-btn').forEach(tab=>tab.addEventListener('click',()=>rtMotionPlay(document.getElementById(tab.dataset.target),[{opacity:0,transform:'translateX(18px)'},{opacity:1,transform:'translateX(0)'}],{duration:420})));
+rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document.getAnimations().filter(a=>a.id==='rt-interface-motion').forEach(a=>a.cancel());});
+
         if(isFirebaseConfigured && auth) {
             getRedirectResult(auth).then((result) => {
                 if (!result) return;
