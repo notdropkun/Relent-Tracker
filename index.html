@@ -636,6 +636,44 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
 .rt-friends-join{text-align:center;padding:8px 0}
 @media(max-width:600px){#sessionSplash{align-items:center;justify-content:center}#sessionSplash .rt-terminal{width:fit-content;max-width:100%}}
 </style>
+<style id="rtSquadChapterStyles">
+#squadSection{padding-bottom:120px;max-width:1200px;min-width:0}
+.rt-board-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-color)}
+.rt-board-row.you{background:color-mix(in srgb,var(--accent-primary) 8%,transparent);border-left:3px solid var(--accent-primary);padding-left:9px}
+.rt-board-pos{font:600 13px var(--font-mono);color:var(--text-muted);width:24px;flex-shrink:0}
+.rt-board-badge{display:inline-flex;width:30px;height:30px;flex-shrink:0;align-items:center;justify-content:center}
+.rt-board-badge img,.rt-board-badge svg{width:100%;height:100%;object-fit:contain}
+.rt-board-badge .rt-rank-badge{display:inline-flex;width:30px;height:30px}
+.rt-board-who{flex:1;min-width:0}
+.rt-board-name{font:600 15px var(--font-premium);color:var(--text-main)}
+.rt-board-name small{font:9px var(--font-mono);color:#61cc9c}
+.rt-board-sub{display:block;font:9px var(--font-mono);color:var(--text-muted);margin-top:2px}
+.rt-board-sub .rt-board-rank{color:var(--accent-primary);letter-spacing:1px}
+.rt-board-min{font:600 15px var(--font-mono);color:var(--accent-secondary);flex-shrink:0;text-align:right}
+.rt-board-min small{display:block;font-size:8px;color:var(--text-muted)}
+.rt-rankshare{margin:14px 0;padding:12px;border:1px dashed var(--border-color);border-radius:8px}
+.rt-rankshare label{display:flex;gap:10px;align-items:center;font:12px var(--font-mono);color:var(--text-main);cursor:pointer;min-height:44px}
+.rt-rankshare small{display:block;font:9px/1.6 var(--font-mono);color:var(--text-muted);margin-top:6px}
+.rt-chapter-open{position:absolute;top:6px;right:6px;border:1px solid var(--border-color);background:var(--surface-color);color:var(--accent-primary);border-radius:6px;min-width:44px;min-height:44px;font:16px var(--font-mono);cursor:pointer;z-index:2}
+.topic-item{position:relative}
+.rt-topic-control{padding-right:56px}
+#chapterSection{padding-bottom:120px}.teacher-mode-active #chapterSection{display:none!important}.rt-lec-label-text{flex:1 1 160px;min-width:0;font:13px var(--font-mono);color:var(--text-main);line-height:1.45;overflow-wrap:anywhere;padding:6px 0}
+.rt-chapter-path{font:10px var(--font-mono);color:var(--text-muted);margin-bottom:14px;overflow-wrap:anywhere}
+.rt-chapter-note{width:100%;min-height:90px;font:14px/1.6 var(--font-mono);color:var(--text-main);background:var(--surface-color);border:1px solid var(--border-color);border-radius:8px;padding:12px}
+.rt-chapter-actions{display:flex;gap:8px;margin-top:10px}
+.rt-lec-row{display:flex;align-items:center;gap:8px;border:1px solid var(--border-color);border-left:3px solid var(--accent-primary);border-radius:8px;padding:9px 10px;margin-top:8px;flex-wrap:wrap}
+.rt-lec-tag{font:600 9px var(--font-mono);color:var(--bg-color);background:var(--accent-primary);border-radius:3px;padding:2px 5px;flex-shrink:0}
+.rt-lec-label{flex:1;min-width:110px;background:var(--bg-color);border:1px solid var(--border-color);border-radius:5px;color:var(--text-main);font:13px var(--font-mono);padding:8px;min-height:44px}
+.rt-lec-pct{font:10px var(--font-mono);color:var(--accent-secondary);flex-shrink:0}
+.rt-lec-row .rt-action{padding:8px 10px;min-height:44px}
+.rt-lec-add{display:flex;gap:8px;margin-top:10px}
+.rt-lec-add input{flex:1;min-width:0}
+#rtPlayerBox{margin-bottom:12px}
+#rtPlayerBox iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;background:#000}
+#rtPlayerHint a{color:var(--accent-primary)}
+@media(max-width:600px){.side-taskbar{grid-template-columns:repeat(6,1fr)}}
+.teacher-mode-active #squadSection,.teacher-mode-active [data-target="squadSection"]{display:none!important}
+</style>
 </head>
 <body>
 
@@ -706,6 +744,7 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
             <button class="taskbar-btn" aria-label="Habits" data-target="habitsSection" data-mobile-label="Habits" data-tooltip="> HABITS"><svg class="rt-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 7 2 2 4-4m3 2h9M3 15l2 2 4-4m3 2h9"/></svg></button>
             <button class="taskbar-btn" aria-label="Focus" data-target="pomodoroSection" data-mobile-label="Focus" data-tooltip="> FOCUS_PROTOCOL"><svg class="rt-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M9 2h6m-3 4v7l3 2"/></svg></button>
 <button class="taskbar-btn" aria-label="Exams" data-target="examsSection" data-mobile-label="Exams" data-tooltip="> EXAMS"><svg class="rt-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M6 16l5-5 4 2 6-8"/></svg></button>
+<button class="taskbar-btn" aria-label="Squad" data-target="squadSection" data-mobile-label="Squad" data-tooltip="> SQUAD"><svg class="rt-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
         </div>
 
         <!-- 1. WORK_TYPE_SHI SECTION -->
@@ -838,28 +877,7 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
                     </div>
                 </div>
             </div>
-            <div style="display: flex; justify-content: center;">
-                <section class="rt-panel rt-friends" id="rtFriendsPanel" aria-label="Compare focus time with friends" hidden>
-                    <div class="rt-bar-label"><span>&#9634; focus.squad</span><span id="rtFriendsLive">PRIVATE</span></div>
-                    <div id="rtFriendsSignedOut"><p class="rt-help">Sign in with Google to compare focus time with friends.</p></div>
-                    <div id="rtFriendsJoin" hidden>
-                        <p class="rt-help">Off by default. Join to get a friend code and share your name, today's completed focus minutes, and whether your timer is running - with friends you both accept, and nothing else. Leave anytime.</p>
-                        <div class="rt-friends-join"><button class="rt-action filled" id="rtFriendJoinBtn" type="button">JOIN FOCUS SQUAD</button></div>
-                        <p class="rt-help" style="font-size:10px">Shared with accepted friends only: your display name, today's completed minutes, and whether your timer is running. Never shared: email, subjects, topics, exam list, history beyond today.</p>
-                    </div>
-                    <div id="rtFriendsBody" hidden>
-                        <div class="rt-friend-code"><span>YOUR CODE</span><code id="rtMyCode">...</code><button class="rt-action" id="rtCopyCode" type="button">COPY</button></div>
-                        <form id="rtFriendForm" class="rt-friend-form"><input class="rt-field" id="rtFriendCode" placeholder="Paste a friend's code" autocomplete="off" maxlength="64"><button class="rt-action filled" type="submit">ADD</button></form>
-                        <p class="rt-form-error" id="rtFriendError" role="alert"></p>
-                        <div id="rtFriendRequests"></div>
-                        <div class="rt-friends-section" id="rtFriendsListHead" hidden>FRIENDS &#183; TODAY</div>
-                        <div id="rtFriendsList"></div>
-                        <p class="rt-status" id="rtFriendsStatus"></p>
-                        <p class="rt-help" style="font-size:10px">A friend request shows your name only - friends see minutes and timer status after you accept, never before. Minutes count completed sessions only, same as your heatmap.</p>
-                        <button class="rt-action" id="rtFriendLeaveBtn" type="button" style="margin-top:10px">LEAVE SQUAD</button>
-                    </div>
-                </section>
-            </div>
+            
             <section class="rt-heatmap card-panel" aria-label="Focus activity heatmap" id="rtHeatmap">
                 <div class="rt-hm-bar"><span>□ focus.heatmap</span><span id="rtHmRangeLabel">13 WEEKS</span></div>
                 <div class="rt-hm-controls"><button class="btn btn-outline active" id="rtHmRecent" type="button">13 weeks</button><button class="btn btn-outline" id="rtHmYear" type="button">Year</button><select class="form-control" id="rtHmYearSelect" aria-label="Focus activity year"></select></div>
@@ -868,6 +886,29 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
                 <div class="rt-hm-legend"><span>0m</span><i style="opacity:.06"></i><i style="opacity:.22"></i><i style="opacity:.42"></i><i style="opacity:.67"></i><i></i><span>120m+</span></div>
             </section>
         </div>
+
+                <div class="container hidden-section" id="squadSection"><div class="rt-head"><div><h2 class="rt-title">&gt; SQUAD</h2><p class="rt-subtitle">Friends. Today's focus. Ranks reset daily.</p></div></div><div style="display: flex; justify-content: center;">
+                <section class="rt-panel rt-friends" id="rtFriendsPanel" aria-label="Compare focus time with friends" hidden>
+                    <div class="rt-bar-label"><span>&#9634; focus.squad</span><span id="rtFriendsLive">PRIVATE</span></div>
+                    <div id="rtFriendsSignedOut"><p class="rt-help">Sign in with Google to compare focus time with friends.</p></div>
+                    <div id="rtFriendsJoin" hidden>
+                        <p class="rt-help">Off by default. Join to get a friend code and share your name, today's completed focus minutes, and whether your timer is running - with friends you both accept, and nothing else. Leave anytime.</p>
+                        <div class="rt-friends-join"><button class="rt-action filled" id="rtFriendJoinBtn" type="button">JOIN FOCUS SQUAD</button></div>
+                        <p class="rt-help" style="font-size:10px">Shared with accepted friends only: your display name, today's completed minutes, and whether your timer is running. Never shared: email, subjects, topics, exam list, history beyond today. Rank badge sharing is optional and off by default.</p>
+                    </div>
+                    <div id="rtFriendsBody" hidden>
+                        <div class="rt-friend-code"><span>YOUR CODE</span><code id="rtMyCode">...</code><button class="rt-action" id="rtCopyCode" type="button">COPY</button></div>
+                        <form id="rtFriendForm" class="rt-friend-form"><input class="rt-field" id="rtFriendCode" placeholder="Paste a friend's code" autocomplete="off" maxlength="64"><button class="rt-action filled" type="submit">ADD</button></form>
+                        <p class="rt-form-error" id="rtFriendError" role="alert"></p>
+                        <div id="rtFriendRequests"></div>
+                        <div class="rt-friends-section" id="rtFriendsListHead" hidden>SQUAD LEADERBOARD &#183; TODAY</div>
+                        <div id="rtFriendsList"></div>
+                        <p class="rt-status" id="rtFriendsStatus"></p>
+                        <div class="rt-rankshare"><label><input type="checkbox" id="rtRankShare"> SHARE MY RANK BADGE WITH ACCEPTED FRIENDS</label><small>Off by default. Shares only the badge, never XP or habits.</small></div><p class="rt-help" style="font-size:10px">A friend request shows your name only - friends see minutes and timer status after you accept, never before. Minutes count completed sessions only, same as your heatmap.</p>
+                        <button class="rt-action" id="rtFriendLeaveBtn" type="button" style="margin-top:10px">LEAVE SQUAD</button>
+                    </div>
+                </section>
+            </div></div>
 
         <footer class="app-footer">:: engineered by advaay ::</footer>
     </div>
@@ -1056,8 +1097,11 @@ Functions, calculus, probability..."></textarea><div class="rt-editor-footer"><s
 
     <div id="toastAlert" class="toast">Action Successful!</div>
 
+<div class="container hidden-section" id="chapterSection"><div class="rt-head"><div><button type="button" class="rt-action" id="rtChapterBack" aria-label="Back to topics">&lt; BACK</button><h2 class="rt-title" id="rtChapterTitle" style="margin-top:10px">&gt; CHAPTER</h2><p class="rt-subtitle" id="rtChapterPath"></p></div></div><section class="rt-panel" style="max-width:640px;margin:0 auto;padding:18px" aria-label="Chapter notes and lectures"><div id="rtChapterBody"></div></section></div>
 <div class="rt-drawer" id="rtHabitModal" hidden><section class="rt-dialog" role="dialog" aria-modal="true" aria-labelledby="rtHabitModalTitle"><header><h2 id="rtHabitModalTitle">&gt; NEW HABIT</h2><button class="rt-action" data-rt-close="rtHabitModal" aria-label="Close add habit">×</button></header><p class="rt-subtitle">Pick a preset or make it your own.</p><div class="rt-preset-grid" id="rtHabitPresets"></div><form id="rtHabitForm"><label class="rt-field-label" for="rtHabitName">HABIT NAME</label><input class="rt-field" id="rtHabitName" maxlength="60" required placeholder="Study 4h"><label class="rt-field-label">SUGGESTED ICON / TAP TO OVERRIDE</label><div class="rt-icon-options" id="rtHabitIconOptions"></div><label class="rt-field-label" for="rtHabitMode">CHECK-IN METHOD</label><select class="rt-field" id="rtHabitMode"><option value="manual">Manual daily check-in</option><option value="focus">Auto via completed focus sessions</option></select><div id="rtHabitGoalWrap" hidden><label class="rt-field-label" for="rtHabitMinutes">DAILY FOCUS TARGET / MINUTES</label><input class="rt-field" id="rtHabitMinutes" type="number" min="1" max="1440" step="1" value="240"><p class="rt-subtitle">Only completed focus sessions count, not breaks or aborted timers.</p></div><p class="rt-subtitle">Repeats every day. Starts today. No backfilled check-ins.</p><div class="rt-form-error" id="rtHabitError" role="alert"></div><button class="rt-action filled" type="submit" style="width:100%">+ CREATE HABIT</button></form></section></div>
 <div class="rt-drawer" id="rtRankModal" hidden><section class="rt-dialog" role="dialog" aria-modal="true" aria-labelledby="rtRankTitle"><header><h2 id="rtRankTitle">&gt; YOUR RANK LADDER</h2><button class="rt-action" data-rt-close="rtRankModal" aria-label="Close ranks">×</button></header><div id="rtRankDetails"></div></section></div>
+
+<div class="rt-drawer" id="rtPlayerModal" hidden><section class="rt-dialog" role="dialog" aria-modal="true" aria-labelledby="rtPlayerTitle"><header><h2 id="rtPlayerTitle">&gt; LECTURE</h2><button class="rt-action" id="rtPlayerClose" aria-label="Close player">×</button></header><div id="rtPlayerBox"></div><p class="rt-help" id="rtPlayerHint" style="font-size:10px"></p><p class="rt-status" id="rtPlayerStatus" role="status"></p></section></div>
 
 
     <script type="module">
@@ -1066,7 +1110,7 @@ window.rtInAndroidApp=!!(window.AndroidWidget||window.RTrackerHabits)||/; wv\)/i
 let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=false,rtExamRemoveTimer=null;let rtArchiveConfirmId='',rtArchiveConfirmTimer=null;
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, runTransaction, onSnapshot, query, where, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, runTransaction, onSnapshot, query, where, updateDoc, deleteDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const ADMIN_EMAILS = ["dropadvaay@gmail.com", "advaay1981@gmail.com"];
 
@@ -1371,7 +1415,7 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
         // ==========================================
         // TASKBAR NAVIGATION ROUTING
         // ==========================================
-        const sections = ['homeSection','examsSection','calendarSection','habitsSection','pomodoroSection'];
+        const sections = ['homeSection','examsSection','calendarSection','habitsSection','pomodoroSection','squadSection','chapterSection'];
         document.querySelectorAll('.taskbar-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.taskbar-btn').forEach(b => b.classList.remove('active'));
@@ -1385,6 +1429,7 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
                         if (sec === 'calendarSection') renderCalendar();
                         if (sec === 'habitsSection') {rtHRender();rtHRefresh();}
                         if (sec === 'homeSection') rtHomeRender();
+                        if (sec === 'squadSection') rtFriendsRender();
                         
                     } else {
                         document.getElementById(sec).classList.add('hidden-section');
@@ -2873,7 +2918,7 @@ function rtSubjectColor(name){if(Object.hasOwn(subjectColors,name))return subjec
 function rtMergeMastery(a,b){const out={...a};for(const [uid,m]of Object.entries(b||{}))if(m&&Number.isInteger(m.state)&&m.state>=0&&m.state<=3&&(!out[uid]||Number(m.updatedAt)>=Number(out[uid].updatedAt)))out[uid]=m;return out;}
 function rtMasterySyncCompleted(){for(const [uid,m]of Object.entries(rtTopicMastery)){completedTasksArray=completedTasksArray.filter(x=>x!==uid);if(m.state>=2)completedTasksArray.push(uid);}completedTasksArray=[...new Set(completedTasksArray)];localStorage.setItem('rt_topic_mastery',JSON.stringify(rtTopicMastery));}
 function rtTopicMinutes(uid){return Object.values(rtFocusSessions).filter(s=>s.topicUid===uid).reduce((n,s)=>n+s.minutes,0);}
-function rtTopicHtml(ex,sub,cat,topic){const uid=rtTopicUid(ex,sub,cat,topic),rec=rtTopicMastery[uid],has=(!!rec&&(rec.state>0||rec.s===true))||(!rec&&completedTasksArray.includes(uid)),m=rtMastery(uid),minutes=rtTopicMinutes(uid);return `<div class="topic-item" style="display:block"><input hidden tabindex="-1" aria-hidden="true" type="checkbox" data-uid="${uid}" ${m.state>=2?'checked':''} disabled><button type="button" class="rt-topic-control" data-topic-cycle="${uid}" data-mastery="${has?m.state:'x'}" ${isTeacherMode?'disabled':''} aria-label="${v6Escape(topic)}, ${has?RT_MASTERY[m.state]:'Not started'}. ${isTeacherMode?'':`Tap to advance`}" title="Tap to cycle Started → Covered → Needs revision → Mastered"><span class="rt-topic-line"><span>${v6Escape(topic)}</span><span class="rt-mastery-chip${has?'':' rt-mastery-blank'}">${has?RT_MASTERY[m.state]:'—'}</span></span><small>${has?`${Math.round(RT_WEIGHTS[m.state]*100)}% mastery`:'tap to mark started'}${minutes?` · ${Math.round(minutes)}m focused`:''}${m.reviewAt?` · Review ${v6Escape(m.reviewAt)}`:''}</small></button></div>`;}
+function rtTopicHtml(ex,sub,cat,topic){const uid=rtTopicUid(ex,sub,cat,topic),rec=rtTopicMastery[uid],has=(!!rec&&(rec.state>0||rec.s===true))||(!rec&&completedTasksArray.includes(uid)),m=rtMastery(uid),minutes=rtTopicMinutes(uid),x=rtChapterExtras[uid],xh=x?((x.note?' · note':'')+(x.lectures&&x.lectures.length?' · '+x.lectures.length+' lecture'+(x.lectures.length>1?'s':''):'')):'';return `<div class="topic-item" style="display:block"><input hidden tabindex="-1" aria-hidden="true" type="checkbox" data-uid="${uid}" ${m.state>=2?'checked':''} disabled><button type="button" class="rt-topic-control" data-topic-cycle="${uid}" data-mastery="${has?m.state:'x'}" ${isTeacherMode?'disabled':''} aria-label="${v6Escape(topic)}, ${has?RT_MASTERY[m.state]:'Not started'}. ${isTeacherMode?'':`Tap to advance`}" title="Tap to cycle Started → Covered → Needs revision → Mastered"><span class="rt-topic-line"><span>${v6Escape(topic)}</span><span class="rt-mastery-chip${has?'':' rt-mastery-blank'}">${has?RT_MASTERY[m.state]:'—'}</span></span><small>${has?`${Math.round(RT_WEIGHTS[m.state]*100)}% mastery`:'tap to mark started'}${minutes?` · ${Math.round(minutes)}m focused`:''}${m.reviewAt?` · Review ${v6Escape(m.reviewAt)}`:''}${xh}</small></button>${isTeacherMode?'':'<button type="button" class="rt-chapter-open" data-chapter-open="'+uid+'" title="Notes & lectures" aria-label="Open notes and lectures">›</button>'}</div>`;}
 function rtRefreshProduct(){rtRenderFocusPicker();rtRenderSubjectHours();rtRenderReviews();}
 function rtRenderFocusPicker(){const el=document.getElementById('rtFocusTopic');if(!el)return;const selected=el.value;el.innerHTML='<option value="">No linked exam topic</option>'+rtTopicIndex(true).filter(t=>!completedTasksArray.includes(t.uid)).map(t=>`<option value="${t.uid}">${v6Escape(t.subject)} · ${v6Escape(t.topic)} (${v6Escape(t.exam)})</option>`).join('');if([...el.options].some(o=>o.value===selected))el.value=selected;el.disabled=!!pomoTargetEndTime||isTeacherMode;rtSetFocusLocked(el.disabled);}
 function rtRenderSubjectHours(){const el=document.getElementById('rtSubjectHours');if(!el)return;el.hidden=isTeacherMode;const totals={};Object.values(rtFocusSessions).forEach(s=>{const subject=s.subject||'General Focus';totals[subject]=(totals[subject]||0)+s.minutes;});const entries=Object.entries(totals).sort((a,b)=>b[1]-a[1]),max=Math.max(1,...entries.map(x=>x[1]));el.innerHTML='<h3>Focus by subject</h3><p class="rt-help">All completed sessions. Unlinked history stays in General Focus.</p>'+(entries.length?entries.map(([name,min])=>`<div class="rt-hours-row"><div><span>${v6Escape(name)}</span><span>${(min/60).toFixed(1)}h</span></div><div class="rt-hours-track"><i style="width:${min/max*100}%;background:${rtSubjectColor(name)};box-shadow:0 0 8px ${rtSubjectColor(name)}"></i></div></div>`).join(''):'<p class="rt-help">Finish a focus session to start your breakdown.</p>');}
@@ -2963,11 +3008,34 @@ rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document
         function rtSquadToday(){return rtLocalDay(new Date());}
         function rtSquadMinutes(){const k=rtSquadToday();return Object.values(rtFocusSessions).filter(s=>s.day===k).reduce((n,s)=>n+s.minutes,0);}
         function rtSquadJoined(){return !!currentUser&&localStorage.getItem('rt_squad_joined_'+currentUser.uid)==='1';}
-        async function rtSquadSync(){if(!currentUser||!db||isTeacherMode||!rtSquadJoined())return;const focusing=!!(pomoTargetEndTime&&rtFocusRun&&rtFocusRun.mode==='focus');try{await setDoc(doc(db,'focus_squad',currentUser.uid),{name:currentUser.displayName||'Student',today:rtSquadToday(),todayMinutes:rtSquadMinutes(),focusing,updatedAt:new Date().toISOString()},{merge:true});}catch(e){const st=document.getElementById('rtFriendsStatus');if(st)st.textContent='Could not sync your focus time. Check connection and Firestore rules.';}}
+        async function rtSquadSync(){if(!currentUser||!db||isTeacherMode||!rtSquadJoined())return;const focusing=!!(pomoTargetEndTime&&rtFocusRun&&rtFocusRun.mode==='focus');try{const rtP={name:currentUser.displayName||'Student',today:rtSquadToday(),todayMinutes:rtSquadMinutes(),focusing,updatedAt:new Date().toISOString()};if(localStorage.getItem('rt_squad_rankshare_'+currentUser.uid)==='1'){rtP.rank=rtHRank().i;}else{rtP.rank=deleteField();}await setDoc(doc(db,'focus_squad',currentUser.uid),rtP,{merge:true});rtSquadBoardRender();}catch(e){const st=document.getElementById('rtFriendsStatus');if(st)st.textContent='Could not sync your focus time. Check connection and Firestore rules.';}}
         function rtSquadUnwatch(){while(rtSquad.unsub.length)rtSquad.unsub.pop()();while(rtSquad.outUnsub.length)rtSquad.outUnsub.pop()();if(rtSquad.reqUnsub){rtSquad.reqUnsub();rtSquad.reqUnsub=null;}}
-        function rtSquadWatchFriends(uids){rtSquad.friends=uids;while(rtSquad.unsub.length)rtSquad.unsub.pop()();const list=document.getElementById('rtFriendsList'),head=document.getElementById('rtFriendsListHead');if(!list)return;list.replaceChildren();head.hidden=!uids.length;if(!uids.length){list.innerHTML='<p class="rt-help">No friends yet. Share your code and add theirs.</p>';return;}
-            uids.forEach(uid=>{const row=document.createElement('div');row.className='rt-friend-row';row.innerHTML='<span class="rt-friend-name">...</span><span class="rt-friend-min">--</span>';list.append(row);
-            rtSquad.unsub.push(onSnapshot(doc(db,'focus_squad',uid),s=>{if(!s.exists()){row.querySelector('.rt-friend-name').textContent='(left the squad)';row.querySelector('.rt-friend-min').textContent='';return;}const d=s.data();const mins=d.today===rtSquadToday()?(d.todayMinutes||0):0;row.querySelector('.rt-friend-name').innerHTML=`${v6Escape(d.name||'Friend')}${d.focusing?'<small>&#9679; FOCUSING NOW</small>':''}`;row.querySelector('.rt-friend-min').innerHTML=`${mins} min<small>completed today</small>`;},async()=>{row.querySelector('.rt-friend-name').textContent='(removed you)';row.querySelector('.rt-friend-min').textContent='';if(currentUser){const mine=rtSquad.friends.filter(f=>f!==uid);try{await setDoc(doc(db,'focus_squad',currentUser.uid),{friends:mine},{merge:true});}catch(e){}}}));});}
+        function rtSquadWatchFriends(uids){rtSquad.friends=uids;rtSquad.live=rtSquad.live||{};for(const k of Object.keys(rtSquad.live))if(!uids.includes(k))delete rtSquad.live[k];while(rtSquad.unsub.length)rtSquad.unsub.pop()();const list=document.getElementById('rtFriendsList');if(!list)return;
+            if(!uids.length){rtSquadBoardRender();return;}
+            uids.forEach(uid=>{
+            rtSquad.unsub.push(onSnapshot(doc(db,'focus_squad',uid),s=>{if(!s.exists()){rtSquad.live[uid]={name:'(left the squad)',mins:0,focusing:false,left:true,rank:null};}else{const d=s.data();rtSquad.live[uid]={name:d.name||'Friend',mins:d.today===rtSquadToday()?(d.todayMinutes||0):0,focusing:!!d.focusing,left:false,rank:Number.isInteger(d.rank)&&d.rank>=0&&d.rank<RT_RANK_NAMES.length?d.rank:null};}rtSquadBoardRender();},()=>{rtSquad.live[uid]={name:'(unavailable)',mins:0,focusing:false,left:true,rank:null};rtSquadBoardRender();}));});
+            rtSquadBoardRender();}
+        function rtSquadBoardRender(){const list=document.getElementById('rtFriendsList');if(!list)return;const head=document.getElementById('rtFriendsListHead');
+            const rs=document.getElementById('rtRankShare');if(rs&&currentUser)rs.checked=localStorage.getItem('rt_squad_rankshare_'+currentUser.uid)==='1';
+            const rows=Object.entries(rtSquad.live||{}).map(([uid,d])=>({uid,you:false,name:d.name,mins:d.left?0:d.mins,focusing:d.focusing,left:d.left,rank:d.rank}));
+            if(currentUser&&rtSquadJoined())rows.push({uid:currentUser.uid,you:true,name:'YOU',mins:rtSquadMinutes(),focusing:!!(pomoTargetEndTime&&rtFocusRun&&rtFocusRun.mode==='focus'),left:false,rank:rtHRank().i});
+            rows.sort((a,b)=>((a.left?1:0)-(b.left?1:0))||b.mins-a.mins||String(a.name).localeCompare(String(b.name)));
+            if(head)head.hidden=!rows.length;
+            if(!rows.length){list.innerHTML='<p class="rt-help">No friends yet. Share your code and add theirs.</p>';return;}
+            const me=rows.find(r=>r.you),myMins=me?me.mins:0;
+            list.innerHTML=rows.map((r,i)=>{
+                const hasBadge=Number.isInteger(r.rank);
+                const badge=hasBadge?`<span class="rt-board-badge">${rtRankBadge(r.rank)}</span>`:'';
+                const bits=[];
+                if(hasBadge)bits.push(`<span class="rt-board-rank">${RT_RANK_NAMES[r.rank]}</span>`);
+                if(r.left)bits.push('left the squad');
+                else if(r.mins===0)bits.push('yet to start today');
+                else if(r.you&&i>0)bits.push(`${rows[i-1].mins-r.mins} min to #${i}`);
+                else if(r.you&&i===0&&rows.length>1)bits.push('leading today');
+                else if(!r.you&&me&&r.mins<myMins)bits.push(`${myMins-r.mins} min behind you`);
+                else if(!r.you&&me&&r.mins>myMins)bits.push(`${r.mins-myMins} min ahead of you`);
+                return `<div class="rt-board-row${r.you?' you':''}"><span class="rt-board-pos">${String(i+1).padStart(2,'0')}</span>${badge}<div class="rt-board-who"><span class="rt-board-name">${r.you?'YOU':v6Escape(r.name||'Friend')}${r.focusing&&!r.left?' <small>&#9679; FOCUSING NOW</small>':''}</span>${bits.length?`<span class="rt-board-sub">${bits.join(' · ')}</span>`:''}</div><span class="rt-board-min">${r.mins}<small>MIN</small></span></div>`;
+            }).join('');}
         function rtSquadWatchRequests(){const box=document.getElementById('rtFriendRequests');if(!box||!currentUser)return;if(rtSquad.reqUnsub)rtSquad.reqUnsub();
             rtSquad.reqUnsub=onSnapshot(query(collection(db,'focus_squad_requests'),where('to','==',currentUser.uid),where('status','==','pending')),snap=>{box.replaceChildren();snap.forEach(d=>{const r=d.data();const row=document.createElement('div');row.className='rt-friend-req';row.innerHTML=`<span><b>${v6Escape(r.fromName||'Someone')}</b> wants to compare focus time</span><span class="rt-req-btns"><button class="rt-action filled" type="button">ACCEPT</button><button class="rt-action" type="button">IGNORE</button></span>`;const[acc,ign]=row.querySelectorAll('button');
                 acc.addEventListener('click',async()=>{try{await updateDoc(doc(db,'focus_squad_requests',d.id),{status:'accepted'});const cur=[...new Set([...rtSquad.friends,r.from])];await setDoc(doc(db,'focus_squad',currentUser.uid),{friends:cur},{merge:true});rtSquadWatchFriends(cur);showToast('Friend added. You now see each other live.');}catch(e){showToast('Could not accept. Try again.');}});
@@ -2992,6 +3060,84 @@ rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document
             try{const existing=await getDoc(doc(db,'focus_squad_requests',`${currentUser.uid}_${code}`));if(existing.exists()){err.textContent='Request already sent. Wait for them to accept.';return;}}catch(e){}
             try{await setDoc(doc(db,'focus_squad_requests',`${currentUser.uid}_${code}`),{from:currentUser.uid,to:code,fromName:currentUser.displayName||'Student',status:'pending',sentAt:new Date().toISOString()});inp.value='';showToast('Request sent. They appear here once they accept.');}catch(e2){err.textContent='No squad member with that code. They must JOIN FOCUS SQUAD first.';}});
         document.getElementById('rtCopyCode')?.addEventListener('click',async()=>{if(!currentUser)return;try{await navigator.clipboard.writeText(currentUser.uid);showToast('Code copied. Send it to your friend.');}catch(e){showToast('Copy failed. Long-press the code to copy it.');}});
-    </script>
+    
+        // ===== Chapter pages: notes + lecture links + watched tracking =====
+        let rtChapterExtras=safeParse('rt_chapter_extras',{});
+        let rtChapterOpenUid=null;
+        function rtChapterCleanUrl(v){try{const u=new URL(String(v||'').trim().slice(0,500));if(u.protocol!=='https:'&&u.protocol!=='http:')return null;return u.href;}catch(e){return null;}}
+        function rtChapterYtId(url){const m=String(url||'').match(/(?:youtube\.com\/(?:watch\?[^#]*v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,20})/);return m?m[1]:null;}
+        function rtChapterDefaultLabel(url){if(rtChapterYtId(url))return 'Lecture (YouTube)';try{return new URL(url).hostname.replace(/^www\./,'');}catch(e){return 'Lecture';}}
+        function rtChapterData(uid,create){let x=rtChapterExtras[uid];if(!x&&create){x={note:'',lectures:[],updatedAt:0};rtChapterExtras[uid]=x;}return x;}
+        function rtChapterSaveLocal(){localStorage.setItem('rt_chapter_extras',JSON.stringify(rtChapterExtras));}
+        async function rtChapterSave(){rtChapterSaveLocal();if(!currentUser||!db||isTeacherMode)return;try{await setDoc(doc(db,'users',currentUser.uid),{chapterExtras:rtChapterExtras},{merge:true});}catch(e){console.warn('Chapter extras sync failed',e);}}
+        async function rtChapterCloudLoad(uid){try{const snap=await getDoc(doc(db,'users',uid));const remote=snap.exists()?snap.data().chapterExtras:null;let changed=false;
+            if(remote&&typeof remote==='object'){for(const [k,v] of Object.entries(remote)){if(!v||typeof v!=='object')continue;const local=rtChapterExtras[k];if(!local||Number(v.updatedAt||0)>Number(local.updatedAt||0)){rtChapterExtras[k]=v;changed=true;}}}
+            for(const k of Object.keys(rtChapterExtras)){if(!remote||!remote[k])changed=true;}
+            if(changed){rtChapterSaveLocal();await setDoc(doc(db,'users',uid),{chapterExtras:rtChapterExtras},{merge:true});}
+            if(rtChapterOpenUid)rtChapterRender();}catch(e){console.warn('Chapter extras load failed',e);}}
+        const rtOrigPullData=pullDataFromCloud;pullDataFromCloud=async function(uid){await rtOrigPullData(uid);await rtChapterCloudLoad(uid);};
+        function rtChapterFind(uid){for(const ex of currentSyllabusData||[])for(const sub of ex.subjects||[])for(const cat of sub.categories||[])for(const t of cat.topics||[])if(rtTopicUid(ex,sub,cat,t)===uid)return{exam:ex,sub,cat,topic:t};return null;}
+        function rtWatchAdd(w,s,e){w=Array.isArray(w)?w:[];s=Math.max(0,Math.min(s,e));e=Math.max(0,Math.max(s,e));if(e-s<=0.25)return w;const out=[];let ns=s,ne=e;for(const iv of w){const a=iv[0],b=iv[1];if(b<ns-0.5||a>ne+0.5)out.push([a,b]);else{ns=Math.min(ns,a);ne=Math.max(ne,b);}}out.push([ns,ne]);out.sort((p,q)=>p[0]-q[0]);return out.slice(-400);}
+        function rtWatchPct(w,dur){w=Array.isArray(w)?w:[];if(!dur||dur<=0)return 0;let c=0;for(const iv of w)c+=Math.max(0,iv[1]-iv[0]);return Math.max(0,Math.min(100,Math.round(c/dur*100)));}
+        function rtChapterRepaint(){rtRepaintTopics();if(v6Phone.matches&&typeof v6RenderMobile==='function')v6RenderMobile();}
+        let rtChapterReturnTo='examsSection',rtChapterEditing=null;
+        const rtAllSections=()=>['homeSection','examsSection','calendarSection','habitsSection','pomodoroSection','squadSection','chapterSection'];
+        function rtChapterOpen(uid){if(isTeacherMode)return;rtChapterOpenUid=uid;rtChapterEditing=null;const vis=rtAllSections().find(id=>{const el=document.getElementById(id);return el&&!el.classList.contains('hidden-section');});if(vis&&vis!=='chapterSection')rtChapterReturnTo=vis;rtAllSections().forEach(id=>document.getElementById(id)?.classList.add('hidden-section'));document.getElementById('chapterSection').classList.remove('hidden-section');rtChapterRender();window.scrollTo({top:0,behavior:'auto'});}
+        function rtChapterBack(){const ch=document.getElementById('chapterSection');if(ch.classList.contains('hidden-section'))return;rtChapterFlushNote();rtChapterSave().then(()=>rtChapterRepaint());rtChapterOpenUid=null;rtChapterEditing=null;const btn=document.querySelector('.taskbar-btn[data-target="'+rtChapterReturnTo+'"]');if(btn)btn.click();else{ch.classList.add('hidden-section');document.getElementById(rtChapterReturnTo)?.classList.remove('hidden-section');}}
+        document.getElementById('rtChapterBack')?.addEventListener('click',rtChapterBack);
+        document.addEventListener('click',e=>{const b=e.target.closest('.taskbar-btn');if(!b)return;const ch=document.getElementById('chapterSection');if(ch&&!ch.classList.contains('hidden-section')){rtChapterFlushNote();rtChapterSave().then(()=>rtChapterRepaint());}},true);
+        document.addEventListener('keydown',e=>{if(e.key==='Escape'){const ch=document.getElementById('chapterSection'),pm=document.getElementById('rtPlayerModal');if(ch&&!ch.classList.contains('hidden-section')&&pm&&pm.hidden)rtChapterBack();}});
+        function rtChapterRender(){const uid=rtChapterOpenUid,info=uid?rtChapterFind(uid):null,body=document.getElementById('rtChapterBody');if(!info||!body)return;
+            document.getElementById('rtChapterTitle').textContent='> '+info.topic;
+            const pEl=document.getElementById('rtChapterPath');if(pEl)pEl.textContent=info.exam.name+' / '+info.sub.name+' / '+info.cat.name;
+            const x=rtChapterData(uid,false)||{note:'',lectures:[]};
+            const lecHtml=(x.lectures||[]).map(lec=>{const pct=lec.yt?(lec.dur?`watched ~${rtWatchPct(lec.watched,lec.dur)}%`:'not started'):`${lec.pct||0}% watched`;
+                const nameHtml=rtChapterEditing===lec.id?`<input class="rt-lec-label" value="${v6Escape(lec.label)}" maxlength="80" aria-label="Lecture name">`:`<span class="rt-lec-label-text">${v6Escape(lec.label)}</span>`;
+                return `<div class="rt-lec-row" data-lec="${lec.id}"><span class="rt-lec-tag">LECTURE</span>${nameHtml}<span class="rt-lec-pct">${pct}</span><button type="button" class="rt-action rt-lec-open">OPEN</button>${lec.yt?'':'<button type="button" class="rt-action rt-lec-manual" title="Set how much you watched">SET %</button>'}<button type="button" class="rt-action rt-lec-edit" aria-label="Rename lecture">&#9998;</button><button type="button" class="rt-action rt-lec-del" aria-label="Remove lecture">×</button></div>`;}).join('');
+            body.innerHTML=`<label class="rt-field-label" for="rtChapterNote">YOUR NOTE · hints, tips, links</label><textarea class="rt-chapter-note" id="rtChapterNote" maxlength="2000" spellcheck="false" placeholder="Hints, links. A pasted link becomes a LECTURE row."></textarea><div class="rt-chapter-actions"><button type="button" class="rt-action filled" id="rtChapterSaveNote">SAVE NOTE</button></div><div class="rt-field-label" style="margin-top:20px">LECTURES</div><div id="rtChapterLecs">${lecHtml||'<p class="rt-help" style="font-size:10px">No lectures yet. Paste a link below or in your note.</p>'}</div><div class="rt-lec-add"><input class="rt-field" id="rtChapterLecUrl" placeholder="Paste a lecture link" autocomplete="off" maxlength="500"><button type="button" class="rt-action filled" id="rtChapterAddLec">ADD</button></div><p class="rt-help" style="font-size:10px;margin-top:10px">YouTube plays here and counts what plays. Other links: you set the %.</p>`;
+            document.getElementById('rtChapterNote').value=x.note||'';
+            if(rtChapterEditing){const inp=body.querySelector('.rt-lec-label');if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}}
+        function rtChapterFlushNote(){const ta=document.getElementById('rtChapterNote');if(!ta||!rtChapterOpenUid)return;const x=rtChapterData(rtChapterOpenUid,true);const val=ta.value.slice(0,2000);if(val===(x.note||''))return;x.note=val;x.updatedAt=Date.now();
+            const urls=val.match(/https?:\/\/[^\s<>"'`]+/g)||[];
+            urls.forEach(u=>{const clean=rtChapterCleanUrl(u);if(!clean)return;if(x.lectures.some(l=>l.url===clean))return;if(x.lectures.length>=10)return;x.lectures.push({id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2)),url:clean,label:rtChapterDefaultLabel(clean),yt:rtChapterYtId(clean),watched:[],lastPos:0,dur:0,pct:0,updatedAt:Date.now()});});}
+        document.addEventListener('click',e=>{
+            const openBtn=e.target.closest('[data-chapter-open]');if(openBtn){e.preventDefault();rtChapterOpen(openBtn.dataset.chapterOpen);return;}
+            if(e.target.closest('#rtChapterSaveNote')){rtChapterFlushNote();rtChapterSave();rtChapterRender();rtChapterRepaint();showToast('Note saved.');return;}
+            if(e.target.closest('#rtChapterAddLec')){const inp=document.getElementById('rtChapterLecUrl');const clean=rtChapterCleanUrl(inp?inp.value:'');if(!clean){showToast('That link does not look valid.');return;}const x=rtChapterData(rtChapterOpenUid,true);if(x.lectures.some(l=>l.url===clean)){showToast('Already added.');return;}if(x.lectures.length>=10){showToast('Up to 10 lectures per chapter.');return;}x.lectures.push({id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2)),url:clean,label:rtChapterDefaultLabel(clean),yt:rtChapterYtId(clean),watched:[],lastPos:0,dur:0,pct:0,updatedAt:Date.now()});x.updatedAt=Date.now();rtChapterSave();rtChapterRender();rtChapterRepaint();return;}
+            const row=e.target.closest('.rt-lec-row');if(!row)return;const x=rtChapterData(rtChapterOpenUid,false);if(!x)return;const lec=(x.lectures||[]).find(l=>l.id===row.dataset.lec);if(!lec)return;
+            if(e.target.closest('.rt-lec-open')){rtLectureOpen(lec);return;}
+            if(e.target.closest('.rt-lec-edit')){rtChapterEditing=lec.id;rtChapterRender();return;}
+            if(e.target.closest('.rt-lec-manual')){const steps=[0,25,50,75,100];const i=steps.indexOf(lec.pct||0);lec.pct=steps[(i+1)%steps.length];lec.updatedAt=Date.now();x.updatedAt=Date.now();rtChapterSave();rtChapterRender();return;}
+            if(e.target.closest('.rt-lec-del')){const btn=e.target.closest('.rt-lec-del');if(btn.textContent!=='SURE?'){btn.textContent='SURE?';setTimeout(()=>{if(btn.isConnected)btn.textContent='×';},3000);return;}x.lectures=x.lectures.filter(l=>l.id!==lec.id);x.updatedAt=Date.now();rtChapterSave();rtChapterRender();rtChapterRepaint();return;}
+        });
+        document.addEventListener('change',e=>{const lbl=e.target.closest('.rt-lec-label');if(!lbl)return;const row=lbl.closest('.rt-lec-row');const x=rtChapterData(rtChapterOpenUid,false);const lec=x&&row?(x.lectures||[]).find(l=>l.id===row.dataset.lec):null;if(!lec)return;lec.label=lbl.value.trim().slice(0,80)||rtChapterDefaultLabel(lec.url);lec.updatedAt=Date.now();x.updatedAt=Date.now();rtChapterSave();rtChapterEditing=null;rtChapterRender();});
+        document.addEventListener('focusout',e=>{const lbl=e.target.closest('.rt-lec-label');if(!lbl||!lbl.isConnected)return;const row=lbl.closest('.rt-lec-row');const x=rtChapterData(rtChapterOpenUid,false);const lec=x&&row?(x.lectures||[]).find(l=>l.id===row.dataset.lec):null;if(!lec)return;const v=lbl.value.trim().slice(0,80)||rtChapterDefaultLabel(lec.url);if(v!==lec.label){lec.label=v;lec.updatedAt=Date.now();x.updatedAt=Date.now();rtChapterSave();}rtChapterEditing=null;rtChapterRender();});
+        document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('rt-lec-label')){e.preventDefault();e.target.blur();}});
+        let rtYTReady=null,rtPlay=null;
+        function rtYTLoad(){if(rtYTReady)return rtYTReady;rtYTReady=new Promise((res,rej)=>{const prev=window.onYouTubeIframeAPIReady;window.onYouTubeIframeAPIReady=()=>{if(prev)prev();res();};const t=document.createElement('script');t.src='https://www.youtube.com/iframe_api';t.onerror=()=>rej(new Error('yt api load failed'));document.head.appendChild(t);});return rtYTReady;}
+        async function rtLectureOpen(lec){if(!lec)return;
+            if(!lec.yt){window.open(lec.url,'_blank','noopener');return;}
+            rtPlayerStop(true);
+            const st=document.getElementById('rtPlayerStatus'),hint=document.getElementById('rtPlayerHint');
+            hint.innerHTML=`Only time played here counts. <a href="${v6Escape(lec.url)}" target="_blank" rel="noopener">Open in YouTube &#8599;</a>`;
+            st.textContent='Loading player...';
+            rtDialogOpen('rtPlayerModal');
+            try{await rtYTLoad();}catch(e){st.textContent='Could not load the YouTube player. Use the link above.';return;}
+            document.getElementById('rtPlayerBox').innerHTML='<div id="rtYtHost"></div>';
+            rtPlay={lec,lastT:Math.max(0,Number(lec.lastPos)||0),timer:null,saveAt:0,player:null};
+            try{rtPlay.player=new YT.Player('rtYtHost',{videoId:lec.yt,playerVars:{start:Math.floor(rtPlay.lastT),rel:0},events:{
+                onReady:ev=>{st.textContent='';const f=ev.target.getIframe&&ev.target.getIframe();if(f){f.style.width='100%';f.style.height='auto';f.style.aspectRatio='16/9';f.style.borderRadius='8px';}},
+                onStateChange:ev=>{if(ev.data===2||ev.data===0)rtPlayFlush(ev.data===0);},
+                onError:()=>{st.textContent="This video can't play here. Use the YouTube link above.";}
+            }});}catch(e){st.textContent='Player failed to start. Use the link above.';return;}
+            rtPlay.timer=setInterval(rtPlayTick,2000);}
+        function rtPlayTick(){if(!rtPlay||!rtPlay.player||!rtPlay.player.getCurrentTime)return;const p=rtPlay.player;try{if(p.getPlayerState&&p.getPlayerState()!==1)return;const t=p.getCurrentTime();const dur=p.getDuration()||rtPlay.lec.dur||0;if(dur>0)rtPlay.lec.dur=dur;const lo=rtPlay.lastT;if(t>=lo&&(t-lo)<=3){rtPlay.lec.watched=rtWatchAdd(rtPlay.lec.watched,lo,t);}rtPlay.lastT=t;rtPlay.lec.lastPos=t;rtPlay.lec.updatedAt=Date.now();if(Date.now()-rtPlay.saveAt>15000){rtPlay.saveAt=Date.now();rtChapterSave();}}catch(e){}}
+        function rtPlayFlush(ended){if(!rtPlay)return;const lec=rtPlay.lec;try{if(rtPlay.player&&rtPlay.player.getCurrentTime){const t=rtPlay.player.getCurrentTime();const dur=rtPlay.player.getDuration()||lec.dur||0;if(dur>0)lec.dur=dur;const lo=rtPlay.lastT;if(t>=lo&&(t-lo)<=4)lec.watched=rtWatchAdd(lec.watched,lo,t);if(ended&&lec.dur>0)lec.watched=rtWatchAdd(lec.watched,t,lec.dur);lec.lastPos=ended?0:t;rtPlay.lastT=t;}}catch(e){}
+            lec.updatedAt=Date.now();rtChapterSave();if(rtChapterOpenUid)rtChapterRender();}
+        function rtPlayerStop(silent){if(rtPlay){if(rtPlay.timer)clearInterval(rtPlay.timer);if(!silent){try{rtPlay.player&&rtPlay.player.stopVideo&&rtPlay.player.stopVideo();}catch(e){}}rtPlay=null;}const box=document.getElementById('rtPlayerBox');if(box)box.innerHTML='';}
+        document.getElementById('rtPlayerClose')?.addEventListener('click',()=>{rtPlayFlush(false);rtPlayerStop(false);rtDialogClose('rtPlayerModal');});
+        const rtOrigDialogClose=rtDialogClose;rtDialogClose=function(id){if(id==='rtPlayerModal'){rtPlayFlush(false);rtPlayerStop(false);}rtOrigDialogClose(id);};
+        document.getElementById('rtRankShare')?.addEventListener('change',async e=>{if(!currentUser)return;localStorage.setItem('rt_squad_rankshare_'+currentUser.uid,e.target.checked?'1':'0');await rtSquadSync();showToast(e.target.checked?'Rank badge shared with accepted friends.':'Rank badge hidden from friends.');});
+</script>
 </body>
 </html>
