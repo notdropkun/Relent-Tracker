@@ -1427,9 +1427,10 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
                 const _cur=sections.map(id=>document.getElementById(id)).find(el=>el&&!el.classList.contains('hidden-section'));
                 sections.forEach(id=>{const o=document.getElementById(id);if(o&&o.classList.contains('rt-leaving')){o.classList.add('hidden-section');o.classList.remove('rt-leaving');o.style.position='';o.style.left='';o.style.top='';o.style.width='';o.style.zIndex='';}});
                 const _same=_cur&&_cur.id===target;
+                if(typeof rtEnterSeen==='undefined')window.rtEnterSeen=new Set();
                 sections.forEach(sec => {
                     if(sec === target) {
-                        const _el=document.getElementById(sec);_el.classList.remove('hidden-section');_el.classList.remove('rt-enter');void _el.offsetWidth;if(!_same)_el.classList.add('rt-enter');
+                        const _el=document.getElementById(sec);_el.classList.remove('hidden-section');_el.classList.remove('rt-enter');void _el.offsetWidth;if(!_same&&!window.rtEnterSeen.has(sec)){window.rtEnterSeen.add(sec);_el.classList.add('rt-enter');}
                         if (sec === 'calendarSection') renderCalendar();
                         if (sec === 'habitsSection') {rtHRender();rtHRefresh();}
                         if (sec === 'homeSection') rtHomeRender();
@@ -1437,14 +1438,7 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
                         if (sec === 'pomodoroSection') rtRenderFocusPresets();
                         
                     } else {
-                        const o=document.getElementById(sec);
-                        if(!o.classList.contains('hidden-section')&&!rtMotionPreference.matches){
-                            o.style.position='absolute';o.style.left=o.offsetLeft+'px';o.style.top=o.offsetTop+'px';o.style.width=o.offsetWidth+'px';o.style.zIndex='2';o.classList.add('rt-leaving');
-                            const _done=()=>{if(!o.classList.contains('rt-leaving'))return;o.classList.add('hidden-section');o.classList.remove('rt-leaving');o.style.position='';o.style.left='';o.style.top='';o.style.width='';o.style.zIndex='';};
-                            o.addEventListener('animationend',_done,{once:true});setTimeout(_done,420);
-                        } else {
-                            o.classList.add('hidden-section');
-                        }
+                        document.getElementById(sec).classList.add('hidden-section');
                     }
                 });
             });
@@ -3218,7 +3212,7 @@ function rtChapterData(uid,create){let x=rtChapterExtras[uid];if(!x&&create){x={
 .v6-detail .rt-topic-control{padding-right:52px}
 html{-webkit-tap-highlight-color:transparent}
 .side-taskbar .taskbar-btn{-webkit-user-select:none;user-select:none;touch-action:manipulation}
-body.theme-white-terminal .side-taskbar{box-shadow:0 12px 30px rgba(46,26,71,.16)!important}.rt-leaving{pointer-events:none!important;animation:rtLeave .22s cubic-bezier(.32,.72,0,1) both}@keyframes rtLeave{from{opacity:1}to{opacity:0}}#homeSection .rt-summary-grid>.rt-panel,#examsSection .v6-path+.v6-file,#pomodoroSection .pomo-card,#habitsSection #rtHabitsRank .rt-rank-button,#calendarSection .card-panel,#squadSection #rtFriendsPanel{box-shadow:0 0 22px color-mix(in srgb,var(--accent-primary) 27%,transparent),0 0 70px color-mix(in srgb,var(--accent-primary) 15.5%,transparent),0 24px 70px -18px color-mix(in srgb,var(--accent-primary) 37%,transparent)!important}
+body.theme-white-terminal .side-taskbar{box-shadow:0 12px 30px rgba(46,26,71,.16)!important}.rt-leaving{pointer-events:none!important;animation:rtLeave .22s cubic-bezier(.32,.72,0,1) both}@keyframes rtLeave{from{opacity:1}to{opacity:0}}#examsSection .v6-path+.v6-file,#pomodoroSection .pomo-card,#habitsSection #rtHabitsRank .rt-rank-button,#calendarSection .card-panel,#squadSection #rtFriendsPanel{box-shadow:0 0 22px color-mix(in srgb,var(--accent-primary) 27%,transparent),0 0 70px color-mix(in srgb,var(--accent-primary) 15.5%,transparent),0 24px 70px -18px color-mix(in srgb,var(--accent-primary) 37%,transparent)!important}
 .taskbar-btn{align-items:center}
 .rt-mastery-blank{display:none}
 .rt-chapter-open{font-size:0;display:flex;align-items:center;justify-content:center}
