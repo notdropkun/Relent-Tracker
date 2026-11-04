@@ -3234,6 +3234,16 @@ body.theme-white-terminal .side-taskbar{box-shadow:0 12px 30px rgba(46,26,71,.16
 .rt-xp-details .rt-xp-body p{font:11px/1.8 var(--font-mono);color:var(--text-muted);margin:0 0 12px;padding-left:24px;position:relative}
 .rt-xp-n{position:absolute;left:0;color:var(--accent-primary);font-weight:600}
 .rt-xp-details b{color:var(--accent-primary);font-weight:600}
+
+/* Rank artwork follows the selected terminal theme (mockups approved 4 Nov). Persona rules last so they win over base palettes. Black/White Terminal intentionally unfiltered. */
+body.default .rt-rank-art-dark,body.default .rt-rank-art-light{filter:hue-rotate(80deg)}
+body.theme-hot-pink .rt-rank-art-dark,body.theme-hot-pink .rt-rank-art-light{filter:hue-rotate(56deg)}
+body.theme-ice-terminal .rt-rank-art-dark,body.theme-ice-terminal .rt-rank-art-light{filter:hue-rotate(-85deg)}
+body.theme-silver-terminal .rt-rank-art-dark,body.theme-silver-terminal .rt-rank-art-light{filter:saturate(.12) brightness(1.12)}
+body.theme-miku .rt-rank-art-dark,body.theme-miku .rt-rank-art-light{filter:hue-rotate(-95deg)}
+body.theme-teto .rt-rank-art-dark,body.theme-teto .rt-rank-art-light{filter:hue-rotate(75deg)}
+body.theme-ben10 .rt-rank-art-dark,body.theme-ben10 .rt-rank-art-light{filter:hue-rotate(-150deg)}
+body.theme-pikachu .rt-rank-art-dark,body.theme-pikachu .rt-rank-art-light{filter:grayscale(1) sepia(1) saturate(4) hue-rotate(2deg)}
 </style>
 </body>
 </html>
