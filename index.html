@@ -676,6 +676,7 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
 </style>
 </head>
 <body>
+        <script>try{document.body.className=localStorage.getItem('app_theme')||'theme-ultraviolet'}catch(e){document.body.className='theme-ultraviolet'}</script>
 
     <div id="sessionSplash" role="status" aria-live="polite"><div class="rt-terminal"><div class="rt-terminal-pixel" id="sessionPixel" aria-hidden="true"></div><div class="rt-terminal-brand">RELENT_TRACKER</div><pre id="sessionLog"></pre><p id="sessionStatus">Starting...</p><a id="sessionRetry" href="" onclick="location.reload(); return false;">Retry loading</a></div></div>
     <script>
@@ -977,7 +978,7 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
                     <label>Terminal Theme</label>
                     <select id="themeSwitcher" class="form-control">
                         <option value="default">Blood neon</option><option value="theme-white-terminal">White terminal</option>
-                        <option value="theme-ultraviolet">Ultraviolet</option>
+                        <option value="theme-ultraviolet">Black Terminal</option>
                         <option value="theme-hot-pink">Hot pink</option>
                         <option value="theme-ice-terminal">Ice terminal</option>
                         <option value="theme-silver-terminal">Silver terminal</option>
@@ -1423,9 +1424,12 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
                 
                 const target = e.currentTarget.dataset.target;
                 if(v6Phone.matches && target==='examsSection'){v6SelectedExam=null;v6RenderMobile();}
+                const _cur=sections.map(id=>document.getElementById(id)).find(el=>el&&!el.classList.contains('hidden-section'));
+                sections.forEach(id=>{const o=document.getElementById(id);if(o&&o.classList.contains('rt-leaving')){o.classList.add('hidden-section');o.classList.remove('rt-leaving');o.style.position='';o.style.left='';o.style.top='';o.style.width='';o.style.zIndex='';}});
+                const _same=_cur&&_cur.id===target;
                 sections.forEach(sec => {
                     if(sec === target) {
-                        const _el=document.getElementById(sec);_el.classList.remove('hidden-section');_el.classList.remove('rt-enter');void _el.offsetWidth;_el.classList.add('rt-enter');
+                        const _el=document.getElementById(sec);_el.classList.remove('hidden-section');_el.classList.remove('rt-enter');void _el.offsetWidth;if(!_same)_el.classList.add('rt-enter');
                         if (sec === 'calendarSection') renderCalendar();
                         if (sec === 'habitsSection') {rtHRender();rtHRefresh();}
                         if (sec === 'homeSection') rtHomeRender();
@@ -1433,7 +1437,14 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
                         if (sec === 'pomodoroSection') rtRenderFocusPresets();
                         
                     } else {
-                        document.getElementById(sec).classList.add('hidden-section');
+                        const o=document.getElementById(sec);
+                        if(!o.classList.contains('hidden-section')&&!rtMotionPreference.matches){
+                            o.style.position='absolute';o.style.left=o.offsetLeft+'px';o.style.top=o.offsetTop+'px';o.style.width=o.offsetWidth+'px';o.style.zIndex='2';o.classList.add('rt-leaving');
+                            const _done=()=>{if(!o.classList.contains('rt-leaving'))return;o.classList.add('hidden-section');o.classList.remove('rt-leaving');o.style.position='';o.style.left='';o.style.top='';o.style.width='';o.style.zIndex='';};
+                            o.addEventListener('animationend',_done,{once:true});setTimeout(_done,420);
+                        } else {
+                            o.classList.add('hidden-section');
+                        }
                     }
                 });
             });
@@ -2970,7 +2981,7 @@ rtModalTabs.forEach((tab,i)=>{tab.id=`rtMethodTab${i}`;tab.setAttribute('role','
 function rtMotionPlay(el,frames,options){if(!el||rtMotionPreference.matches||typeof el.animate!=='function')return;el.getAnimations().filter(a=>a.id==='rt-interface-motion').forEach(a=>a.cancel());const animation=el.animate(frames,{duration:580,easing:'cubic-bezier(.2,.75,.25,1)',...options});animation.id='rt-interface-motion';}
 function rtMotionSection(target){if(rtMotionPreference.matches||!document.getElementById('sessionSplash')?.classList.contains('hidden')&&getComputedStyle(document.getElementById('sessionSplash')).display!=='none')return;const section=document.getElementById(target);if(!section||section.classList.contains('hidden-section'))return;const candidates=target==='homeSection'?[...section.querySelectorAll('.rt-summary-grid>.rt-panel,#rtHomePersonal>.rt-panel,#rtHomePersonal .rt-mini-grid>.rt-panel,#rtRevisionCard')]:target==='pomodoroSection'?[...section.querySelectorAll('.pomo-card,#rtHeatmap')]:[...section.querySelectorAll('.rt-head,.hero-title,.card-panel,.v6-file,.exam-card-wrapper,.rt-habit-row')].filter(e=>e.offsetWidth&&e.offsetHeight).slice(0,8);if(!candidates.length)candidates.push(section);candidates.forEach((el,i)=>rtMotionPlay(el,[{opacity:0,transform:'translateY(28px) scale(.975)'},{opacity:1,transform:'translateY(0) scale(1)'}],{delay:i*85,duration:650}));}
 function rtMotionActive(){const target=document.querySelector('.taskbar-btn.active')?.dataset.target;if(target)requestAnimationFrame(()=>rtMotionSection(target));}
-document.querySelectorAll('.taskbar-btn').forEach(btn=>btn.addEventListener('click',()=>rtMotionActive()));
+const rtMotionSeen=new Set();document.querySelectorAll('.taskbar-btn').forEach(btn=>btn.addEventListener('click',()=>{const _t=btn.dataset.target;if(rtMotionSeen.has(_t))return;rtMotionSeen.add(_t);rtMotionActive();}));
 function rtTimerDigits(text){const el=document.getElementById('timerDisplay');if(!el)return;if(!el.querySelector('.rt-timer-digit')||el.textContent.length!==text.length){el.replaceChildren(...[...text].map(char=>{const span=document.createElement('span');span.className=char===':'?'rt-timer-colon':'rt-timer-digit';span.textContent=char;return span;}));return;}[...el.children].forEach((span,i)=>{if(span.textContent===text[i])return;span.textContent=text[i];rtMotionPlay(span,[{opacity:.2,transform:'translateY(12px) scale(.94)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:360,easing:'cubic-bezier(.16,1,.3,1)'});});}
 // Initial entrances wait for the real startup overlay to finish.
 const rtSplash=document.getElementById('sessionSplash');
@@ -3164,7 +3175,7 @@ function rtChapterData(uid,create){let x=rtChapterExtras[uid];if(!x&&create){x={
 </script>
 <style id="rtOptOverlay">
 @media(max-width:600px){
-.side-taskbar{inset:auto 12px calc(12px + env(safe-area-inset-bottom)) 12px!important;width:auto!important;display:flex!important;gap:2px!important;padding:8px!important;background:#14141b!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:30px!important;box-shadow:0 14px 34px rgba(0,0,0,.6)!important;}
+.side-taskbar{inset:auto 12px calc(12px + env(safe-area-inset-bottom)) 12px!important;width:auto!important;display:flex!important;gap:2px!important;padding:8px!important;background:var(--surface-color)!important;border:1px solid var(--border-color)!important;border-radius:30px!important;box-shadow:0 14px 34px rgba(0,0,0,.55)!important;}
 .side-taskbar .taskbar-btn{flex:1;height:56px!important;border-radius:22px!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:3px!important;background:transparent!important;border:0!important}
 .side-taskbar .taskbar-btn .rt-nav-icon{width:21px;height:21px}
 .side-taskbar .taskbar-btn:after{font-size:9px!important;letter-spacing:.2px}
@@ -3207,6 +3218,7 @@ function rtChapterData(uid,create){let x=rtChapterExtras[uid];if(!x&&create){x={
 .v6-detail .rt-topic-control{padding-right:52px}
 html{-webkit-tap-highlight-color:transparent}
 .side-taskbar .taskbar-btn{-webkit-user-select:none;user-select:none;touch-action:manipulation}
+body.theme-white-terminal .side-taskbar{box-shadow:0 12px 30px rgba(46,26,71,.16)!important}.rt-leaving{pointer-events:none!important;animation:rtLeave .22s cubic-bezier(.32,.72,0,1) both}@keyframes rtLeave{from{opacity:1}to{opacity:0}}#homeSection .rt-summary-grid>.rt-panel,#examsSection .v6-path+.v6-file,#pomodoroSection .pomo-card,#habitsSection #rtHabitsRank .rt-rank-button,#calendarSection .card-panel,#squadSection #rtFriendsPanel{box-shadow:0 0 22px color-mix(in srgb,var(--accent-primary) 27%,transparent),0 0 70px color-mix(in srgb,var(--accent-primary) 15.5%,transparent),0 24px 70px -18px color-mix(in srgb,var(--accent-primary) 37%,transparent)!important}
 .taskbar-btn{align-items:center}
 .rt-mastery-blank{display:none}
 .rt-chapter-open{font-size:0;display:flex;align-items:center;justify-content:center}
