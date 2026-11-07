@@ -3522,5 +3522,143 @@ box-shadow:inset 0 1px 0 rgba(255,255,255,.30), inset 0 -6px 12px color-mix(in s
   readColor(); build(); sync();
 })();
 </script>
+<style id="rtTapFeedbackCss">
+/* Tap feedback: tick on complete, card edge light, progress moment. Visual only; no behaviour changes. */
+@keyframes rtTickDraw { to { stroke-dashoffset: 0; } }
+.rt-tick-svg{width:13px;height:13px;vertical-align:-2px;margin-right:2px}
+.rt-tick-svg path{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:22;stroke-dashoffset:22;animation:rtTickDraw .28s ease-out forwards}
+@keyframes rtEdgePanel{0%{border-color:var(--accent-primary);box-shadow:inset 0 2px 0 var(--accent-secondary),0 0 12px color-mix(in srgb,var(--accent-primary) 16%,transparent)}100%{border-color:var(--border-color);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--accent-secondary) 9%,transparent),0 0 12px color-mix(in srgb,var(--accent-primary) 7%,transparent)}}
+@keyframes rtEdgeRow{0%{border-color:var(--accent-primary);box-shadow:inset 0 2px 0 var(--accent-secondary)}100%{border-color:var(--border-color);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--accent-secondary) 7%,transparent)}}
+.rt-edge-panel{animation:rtEdgePanel .55s ease-out}
+.rt-edge-row{animation:rtEdgeRow .55s ease-out}
+@keyframes rtMoment{0%{filter:brightness(1.7)}100%{filter:none}}
+.rt-moment{animation:rtMoment .6s ease-out}
+@media(prefers-reduced-motion:reduce){.rt-tick-svg path,.rt-edge-panel,.rt-edge-row,.rt-moment{animation:none!important}}
+</style>
+<script>
+/* Tap feedback on real RT actions only: habit check-ins, topic mastery taps, and genuine progress changes. */
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function animOk(){ return !reduce.matches; }
+  function esc(s){ return (window.CSS && CSS.escape) ? CSS.escape(String(s)) : String(s).replace(/"/g, '\\"'); }
+
+  /* Card edge light: tap feedback on panels and habit rows. */
+  document.addEventListener('pointerdown', function(e){
+    if (!animOk()) return;
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var p = t.closest('.rt-panel');
+    var r = p ? null : t.closest('.rt-row');
+    var el = p || r;
+    if (!el) return;
+    var cls = p ? 'rt-edge-panel' : 'rt-edge-row';
+    el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+  }, {passive:true});
+
+  /* Tick on complete: record taps on real completion controls, decorate after the app re-renders. */
+  var pending = [];
+  var decoTimer = 0;
+  function scheduleDecorate(){
+    if (decoTimer) return;
+    decoTimer = setTimeout(function(){ decoTimer = 0; requestAnimationFrame(decorate); }, 60);
+  }
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var h = t.closest('[data-rt-check]');
+    if (h && !h.disabled) pending.push({kind:'h', id:h.getAttribute('data-rt-check'), was:h.classList.contains('filled'), t:Date.now(), done:false});
+    var tp = t.closest('[data-topic-cycle]');
+    if (tp && !tp.disabled) pending.push({kind:'t', id:tp.getAttribute('data-topic-cycle'), was:tp.getAttribute('data-mastery'), t:Date.now(), done:false});
+    if (pending.length > 12) pending.splice(0, pending.length - 12);
+    if (pending.length) scheduleDecorate();
+  }, true);
+
+  function decorate(){
+    if (!pending.length) return;
+    var now = Date.now();
+    pending.forEach(function(p){
+      if (p.done || now - p.t > 2000) { p.done = true; return; }
+      if (p.kind === 'h') {
+        var btn = document.querySelector('[data-rt-check="' + esc(p.id) + '"]');
+        if (btn && !p.was && btn.classList.contains('filled') && !btn.querySelector('.rt-tick-svg')) {
+          btn.innerHTML = '<svg class="rt-tick-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg> DONE';
+          var row = btn.closest('.rt-row');
+          if (row && animOk()) { row.classList.remove('rt-edge-row'); void row.offsetWidth; row.classList.add('rt-edge-row'); }
+          p.done = true;
+        }
+      } else {
+        var b = document.querySelector('[data-topic-cycle="' + esc(p.id) + '"]');
+        if (b) {
+          var m = b.getAttribute('data-mastery');
+          var prev = p.was === 'x' ? -1 : parseInt(p.was, 10);
+          var cur = m === 'x' ? -1 : parseInt(m, 10);
+          if (prev >= 0 && prev < 2 && cur >= 2) {
+            var chip = b.querySelector('.rt-mastery-chip');
+            if (chip && animOk()) { chip.classList.remove('rt-moment'); void chip.offsetWidth; chip.classList.add('rt-moment'); }
+          }
+          p.done = true;
+        }
+      }
+    });
+    pending = pending.filter(function(p){ return !p.done; });
+  }
+
+  /* Progress moment: the home progress bar and habits counter animate only on genuine increases. */
+  var lastExamPct = null, lastHabits = null, pctConfirm = 0;
+  function progressMoment(){
+    var home = document.getElementById('rtHomeContent');
+    if (!home) return;
+    var bar = home.querySelector('.rt-progress>span');
+    if (bar) {
+      var w = parseFloat(bar.style.width);
+      if (!isNaN(w)) {
+        if (lastExamPct === null) { lastExamPct = w; }
+        else if (w < lastExamPct) { lastExamPct = w; clearTimeout(pctConfirm); }
+        else if (w > lastExamPct) {
+          if (animOk()) {
+            var from = lastExamPct;
+            bar.style.transition = 'none'; bar.style.width = from + '%';
+            void bar.offsetWidth;
+            bar.style.transition = ''; bar.style.width = w + '%';
+            bar.classList.remove('rt-moment'); void bar.offsetWidth; bar.classList.add('rt-moment');
+          }
+          /* A later re-render can replace the bar; re-apply until the value settles, then accept it. */
+          clearTimeout(pctConfirm);
+          pctConfirm = setTimeout(function(){
+            var b = document.querySelector('#rtHomeContent .rt-progress>span');
+            var cw = b ? parseFloat(b.style.width) : NaN;
+            lastExamPct = !isNaN(cw) ? cw : w;
+          }, 1400);
+        }
+      }
+    }
+    var panels = home.querySelectorAll('.rt-mini-grid .rt-panel');
+    for (var i = 0; i < panels.length; i++) {
+      var label = panels[i].querySelector('.rt-bar-label');
+      if (!label || !/^habits today/i.test(label.textContent.trim())) continue;
+      var val = panels[i].querySelector('.rt-mini-value');
+      if (!val) break;
+      var m = val.textContent.match(/(\d+)\s*\/\s*(\d+)/);
+      if (m) {
+        var key = m[1] + '/' + m[2];
+        if (lastHabits !== null && key !== lastHabits && animOk()) {
+          var prevDone = parseInt(lastHabits.split('/')[0], 10);
+          if (parseInt(m[1], 10) > prevDone) { val.classList.remove('rt-moment'); void val.offsetWidth; val.classList.add('rt-moment'); }
+        }
+        lastHabits = key;
+      }
+      break;
+    }
+  }
+
+  var moTimer = 0;
+  new MutationObserver(function(){
+    if (pending.length) scheduleDecorate();
+    if (moTimer) return;
+    moTimer = setTimeout(function(){ moTimer = 0; progressMoment(); }, 300);
+  }).observe(document.body, {childList:true, subtree:true});
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', progressMoment); else progressMoment();
+})();
+</script>
 </body>
 </html>
