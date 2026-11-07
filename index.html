@@ -1194,7 +1194,7 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
         // ==========================================
         function playSynthTone(type, freq, dur) {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();try{if(ctx.resume)ctx.resume().catch(()=>{});}catch(e){}
                 const osc = ctx.createOscillator(); const gain = ctx.createGain();
                 osc.connect(gain); gain.connect(ctx.destination);
                 osc.type = type; osc.frequency.value = freq;
@@ -1206,7 +1206,7 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
 
         function playArpeggio(type, freqs) {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();try{if(ctx.resume)ctx.resume().catch(()=>{});}catch(e){}
                 const osc = ctx.createOscillator(); const gain = ctx.createGain();
                 osc.connect(gain); gain.connect(ctx.destination);
                 osc.type = type; let time = ctx.currentTime;
@@ -1219,7 +1219,7 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
 
         function playBootChime() {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();try{if(ctx.resume)ctx.resume().catch(()=>{});}catch(e){}
                 const osc = ctx.createOscillator(); const gain = ctx.createGain();
                 osc.connect(gain); gain.connect(ctx.destination);
                 osc.type = 'square';
@@ -1234,7 +1234,7 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
 
         function playErrorBuzz() {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();try{if(ctx.resume)ctx.resume().catch(()=>{});}catch(e){}
                 const osc = ctx.createOscillator(); const gain = ctx.createGain();
                 osc.connect(gain); gain.connect(ctx.destination);
                 osc.type = 'sawtooth';
@@ -1248,7 +1248,7 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
 
         function playSuccessChime() {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();try{if(ctx.resume)ctx.resume().catch(()=>{});}catch(e){}
                 const osc = ctx.createOscillator(); const gain = ctx.createGain();
                 osc.connect(gain); gain.connect(ctx.destination);
                 osc.type = 'sine';
@@ -1737,20 +1737,33 @@ function rtMRender() {}
         setPomoShort.value = pomoSettings.short;
         setPomoLong.value = pomoSettings.long;
 
+        if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}}
+        let rtWakeLock=null;
+        async function rtWakeAcquire(){if(!('wakeLock' in navigator))return;if(rtWakeLock)return;try{rtWakeLock=await navigator.wakeLock.request('screen');rtWakeLock.addEventListener('release',()=>{rtWakeLock=null;});}catch(e){rtWakeLock=null;}}
+        function rtWakeRelease(){const l=rtWakeLock;rtWakeLock=null;if(l)try{l.release();}catch(e){}}
+        document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&pomoTargetEndTime)rtWakeAcquire();});
+        function rtDoneNotify(run){
+            if(!('Notification' in window)||Notification.permission!=='granted')return;
+            const body=run.mode==='focus'?'Focus session complete. Time for a break.':'Break complete. Ready to focus?';
+            const tag=String(run.id||'timer-done');
+            const clearLater=()=>setTimeout(()=>{try{if('serviceWorker' in navigator)navigator.serviceWorker.ready.then(r=>r.getNotifications({tag})).then(ns=>ns.forEach(n=>n.close())).catch(()=>{});}catch(e){}try{if(window.__rtDoneNote)window.__rtDoneNote.close();}catch(e){}},18000);
+            const viaCtor=()=>{try{window.__rtDoneNote=new Notification('Relent Tracker',{body,tag});clearLater();}catch(e){}};
+            if('serviceWorker' in navigator){navigator.serviceWorker.ready.then(r=>r.showNotification('Relent Tracker',{body,tag})).then(clearLater).catch(viaCtor);}else viaCtor();
+        }
         let pomoTimer,pomoTargetEndTime=0;
         let pomoTimeLeft=pomoSettings.focus*60;
         const displayPomo=document.getElementById('timerDisplay'),btnPomoStart=document.getElementById('btnTimerStart'),btnPomoGiveUp=document.getElementById('btnTimerGiveUp'),btnPomoReset=document.getElementById('btnTimerReset');
         function updatePomoDisplay(){const m=Math.floor(pomoTimeLeft/60).toString().padStart(2,'0'),s=(pomoTimeLeft%60).toString().padStart(2,'0');rtTimerDigits(`${m}:${s}`);document.title=pomoTargetEndTime?`(${m}:${s}) ${document.querySelector('.pomo-mode-btn.active').dataset.mode==='focus'?'Focus':'Break'} - Relent Tracker`:'Relent Tracker';}
         function rtClearTimerStorage(){localStorage.removeItem('pomoTargetEndTime');localStorage.removeItem('rt_pomo_run');}
-        function resetTimerUI(){clearInterval(pomoTimer);pomoTargetEndTime=0;rtFocusRun=null;rtClearTimerStorage();btnPomoStart.style.display='flex';btnPomoReset.style.display='flex';btnPomoGiveUp.style.display='none';{const _ft=document.getElementById('rtFocusTopic');if(_ft)_ft.disabled=isTeacherMode;}rtSetFocusLocked(false);pomoTimeLeft=pomoSettings[document.querySelector('.pomo-mode-btn.active').dataset.mode]*60;updatePomoDisplay();}
+        function resetTimerUI(){clearInterval(pomoTimer);rtWakeRelease();pomoTargetEndTime=0;rtFocusRun=null;rtClearTimerStorage();btnPomoStart.style.display='flex';btnPomoReset.style.display='flex';btnPomoGiveUp.style.display='none';{const _ft=document.getElementById('rtFocusTopic');if(_ft)_ft.disabled=isTeacherMode;}rtSetFocusLocked(false);pomoTimeLeft=pomoSettings[document.querySelector('.pomo-mode-btn.active').dataset.mode]*60;updatePomoDisplay();}
         function rtPersistTimer(){localStorage.setItem('pomoTargetEndTime',String(pomoTargetEndTime));localStorage.setItem('rt_pomo_run',JSON.stringify({...rtFocusRun,targetEndTime:pomoTargetEndTime}));}
         function rtSetFocusLocked(locked){const off=!!locked||isTeacherMode;const inp=document.getElementById('rtFocusCustom');if(inp)inp.disabled=off;const wrap=document.getElementById('rtFocusPresets');if(wrap){wrap.classList.toggle('rt-locked',off);wrap.querySelectorAll('button').forEach(b=>b.disabled=off);}}
-        function rtPomoTick(){if(!pomoTargetEndTime)return;pomoTimeLeft=Math.max(0,Math.ceil((pomoTargetEndTime-Date.now())/1000));updatePomoDisplay();if(pomoTimeLeft>0)return;clearInterval(pomoTimer);const run=rtFocusRun;const key=`rt_pomo_finished_${run?.id}`;pomoTargetEndTime=0;rtClearTimerStorage();if(!run||localStorage.getItem(key)){resetTimerUI();return;}localStorage.setItem(key,'true');if(run.scope!==rtFocusScope){resetTimerUI();return;}playSysSound('success');pomoStats.completed++;rtRecordFocusCompletion();localStorage.setItem('pomo_stats',JSON.stringify(pomoStats));updatePomoStatsDisplay();syncData(true);rtRepaintTopics();showToast('Session complete. Good work.');if('Notification'in window&&Notification.permission==='granted'){try{new Notification('Relent Tracker',{body:run.mode==='focus'?'Focus session complete. Time for a break.':'Break complete. Ready to focus?',tag:run.id});}catch{}}resetTimerUI();}
-        function rtResumeTimer(){if(pomoTargetEndTime||isTeacherMode)return;const saved=safeParse('rt_pomo_run',null);if(!saved||saved.scope!==rtFocusScope||!Number.isFinite(saved.targetEndTime)||!['focus','short','long'].includes(saved.mode)||!Number.isFinite(saved.minutes)||saved.minutes<=0||saved.minutes>1440)return;rtFocusRun=saved;pomoTargetEndTime=saved.targetEndTime;document.querySelectorAll('.pomo-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===saved.mode));btnPomoStart.style.display='none';btnPomoReset.style.display='none';btnPomoGiveUp.style.display='flex';{const _ft=document.getElementById('rtFocusTopic');if(_ft){_ft.value=saved.topicUid||'';_ft.disabled=true;}}document.getElementById('rtFocusCustom').value=saved.topicLabel||rtFocusDefaultLabel;rtSetFocusLocked(true);rtPomoTick();if(pomoTargetEndTime)pomoTimer=setInterval(rtPomoTick,250);}
+        function rtPomoTick(){if(!pomoTargetEndTime)return;pomoTimeLeft=Math.max(0,Math.ceil((pomoTargetEndTime-Date.now())/1000));updatePomoDisplay();if(pomoTimeLeft>0)return;clearInterval(pomoTimer);const run=rtFocusRun;const key=`rt_pomo_finished_${run?.id}`;pomoTargetEndTime=0;rtClearTimerStorage();if(!run||localStorage.getItem(key)){resetTimerUI();return;}localStorage.setItem(key,'true');if(run.scope!==rtFocusScope){resetTimerUI();return;}playSysSound('success');pomoStats.completed++;rtRecordFocusCompletion();localStorage.setItem('pomo_stats',JSON.stringify(pomoStats));updatePomoStatsDisplay();syncData(true);rtRepaintTopics();showToast('Session complete. Good work.');rtDoneNotify(run);resetTimerUI();}
+        function rtResumeTimer(){if(pomoTargetEndTime||isTeacherMode)return;const saved=safeParse('rt_pomo_run',null);if(!saved||saved.scope!==rtFocusScope||!Number.isFinite(saved.targetEndTime)||!['focus','short','long'].includes(saved.mode)||!Number.isFinite(saved.minutes)||saved.minutes<=0||saved.minutes>1440)return;rtFocusRun=saved;pomoTargetEndTime=saved.targetEndTime;document.querySelectorAll('.pomo-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===saved.mode));btnPomoStart.style.display='none';btnPomoReset.style.display='none';btnPomoGiveUp.style.display='flex';{const _ft=document.getElementById('rtFocusTopic');if(_ft){_ft.value=saved.topicUid||'';_ft.disabled=true;}}document.getElementById('rtFocusCustom').value=saved.topicLabel||rtFocusDefaultLabel;rtSetFocusLocked(true);rtPomoTick();if(pomoTargetEndTime){rtWakeAcquire();pomoTimer=setInterval(rtPomoTick,250);}}
         btnPomoSettingsToggle.addEventListener('click',()=>pomoSettingsPanel.classList.toggle('hidden-section'));
         btnSavePomoSettings.addEventListener('click',()=>{for(const [name,el]of [['focus',setPomoFocus],['short',setPomoShort],['long',setPomoLong]])pomoSettings[name]=Math.max(1,Math.min(180,parseInt(el.value)||25));localStorage.setItem('pomo_settings',JSON.stringify(pomoSettings));resetTimerUI();pomoSettingsPanel.classList.add('hidden-section');showToast('Timer settings saved.');});
         document.querySelectorAll('.pomo-mode-btn').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.pomo-mode-btn').forEach(b=>b.classList.toggle('active',b===btn));resetTimerUI();}));
-        btnPomoStart.addEventListener('click',()=>{if(isTeacherMode||pomoTargetEndTime||!rtFocusScope)return;const mode=document.querySelector('.pomo-mode-btn.active').dataset.mode,_ftEl=document.getElementById('rtFocusTopic'),topic=_ftEl?rtTopicIndex(true).find(t=>t.uid===_ftEl.value):null;rtFocusRun={id:`fs_${crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2)}`,mode,minutes:pomoTimeLeft/60,scope:rtFocusScope,...(mode==='focus'&&document.getElementById('rtFocusCustom').value.trim()?{topicLabel:document.getElementById('rtFocusCustom').value.trim().slice(0,180)}:{}),...(mode==='focus'&&topic?{examId:topic.examId,subject:topic.subject,topicUid:topic.uid}:{})};pomoTargetEndTime=Date.now()+pomoTimeLeft*1000;rtPersistTimer();btnPomoStart.style.display='none';btnPomoReset.style.display='none';btnPomoGiveUp.style.display='flex';if(_ftEl)_ftEl.disabled=true;rtSetFocusLocked(true);rtSquadSync();if('Notification'in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});rtPomoTick();pomoTimer=setInterval(rtPomoTick,250);});
+        btnPomoStart.addEventListener('click',()=>{if(isTeacherMode||pomoTargetEndTime||!rtFocusScope)return;const mode=document.querySelector('.pomo-mode-btn.active').dataset.mode,_ftEl=document.getElementById('rtFocusTopic'),topic=_ftEl?rtTopicIndex(true).find(t=>t.uid===_ftEl.value):null;rtFocusRun={id:`fs_${crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2)}`,mode,minutes:pomoTimeLeft/60,scope:rtFocusScope,...(mode==='focus'&&document.getElementById('rtFocusCustom').value.trim()?{topicLabel:document.getElementById('rtFocusCustom').value.trim().slice(0,180)}:{}),...(mode==='focus'&&topic?{examId:topic.examId,subject:topic.subject,topicUid:topic.uid}:{})};pomoTargetEndTime=Date.now()+pomoTimeLeft*1000;rtPersistTimer();btnPomoStart.style.display='none';btnPomoReset.style.display='none';btnPomoGiveUp.style.display='flex';if(_ftEl)_ftEl.disabled=true;rtSetFocusLocked(true);rtSquadSync();rtWakeAcquire();if('Notification'in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});rtPomoTick();pomoTimer=setInterval(rtPomoTick,250);});
         btnPomoGiveUp.addEventListener('click',()=>{if(!pomoTargetEndTime)return;pomoStats.givenUp++;localStorage.setItem('pomo_stats',JSON.stringify(pomoStats));updatePomoStatsDisplay();resetTimerUI();rtSquadSync();syncData(true);showToast('Session stopped. Start again when you are ready.');});
         btnPomoReset.addEventListener('click',resetTimerUI);
         document.addEventListener('visibilitychange',()=>{if(!document.hidden)rtPomoTick();});window.addEventListener('pageshow',()=>rtPomoTick());window.addEventListener('focus',()=>rtPomoTick());
@@ -3660,5 +3673,6 @@ box-shadow:inset 0 1px 0 rgba(255,255,255,.30), inset 0 -6px 12px color-mix(in s
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', progressMoment); else progressMoment();
 })();
 </script>
+<style id="rtLandscapeNavFix">@media(min-width:601px){.nav-content{padding-right:120px}}</style>
 </body>
 </html>
