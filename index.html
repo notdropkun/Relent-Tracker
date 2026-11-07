@@ -3307,13 +3307,22 @@ box-shadow:inset 0 1px 0 rgba(255,255,255,.30), inset 0 -6px 12px color-mix(in s
   var phoneMq=window.matchMedia('(max-width:600px)');
   var reduceMq=window.matchMedia('(prefers-reduced-motion: reduce)');
   var pill=document.createElement('div'); pill.className='rt-dock-pill'; pill.setAttribute('aria-hidden','true'); dock.prepend(pill);
-  var mutedC=null, accentC=null;
-  function parseRGB(s){var m=String(s).match(/[\d.]+/g);return m?m.slice(0,3).map(Number):[169,152,189];}
+  var moreBtn=document.getElementById('rtMoreBtn');
+  var anim=null;
+  function parseRGB(s){
+    s=String(s).trim();
+    var m=s.match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i);
+    if(m)return [+m[1],+m[2],+m[3]];
+    var h=s.charAt(0)==='#'?s.slice(1):s;
+    if(/^[0-9a-fA-F]{3}$/.test(h))return [0,1,2].map(function(x){var c=h.charAt(x);return parseInt(c+c,16);});
+    if(/^[0-9a-fA-F]{6}$/.test(h))return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+    return [169,152,189];
+  }
   function colors(){
-    if(mutedC)return;
-    var btn=dock.querySelector('.taskbar-btn');
-    mutedC=btn?getComputedStyle(btn).color:'rgb(169,152,189)';
-    accentC=(getComputedStyle(document.body).getPropertyValue('--accent-primary')||'').trim()||'#A855F7';
+    var cs=getComputedStyle(document.body);
+    var mu=(cs.getPropertyValue('--text-muted')||'').trim();
+    var ac=(cs.getPropertyValue('--accent-primary')||'').trim();
+    return {m:parseRGB(mu||'rgb(169,152,189)'),a:parseRGB(ac||'#A855F7')};
   }
   function horiz(){return phoneMq.matches;}
   function rect(btn){
@@ -3324,29 +3333,38 @@ box-shadow:inset 0 1px 0 rgba(255,255,255,.30), inset 0 -6px 12px color-mix(in s
   function cur(){return {pos:parseFloat(pill.dataset.p||'0'),size:parseFloat(pill.dataset.s||'0')};}
   function applyPill(pos,size){
     pill.dataset.p=pos;pill.dataset.s=size;
-    if(horiz()){pill.style.width=size+'px';pill.style.transform='translateX('+pos+'px)';}
-    else{pill.style.height=size+'px';pill.style.transform='translateY('+pos+'px)';}
+    if(horiz()){pill.style.width=size+'px';pill.style.height='';pill.style.transform='translateX('+pos+'px)';}
+    else{pill.style.height=size+'px';pill.style.width='';pill.style.transform='translateY('+pos+'px)';}
+  }
+  function activeBtn(){
+    var b=dock.querySelector('.taskbar-btn.active');
+    if(b)return b;
+    if(moreBtn&&moreBtn.classList.contains('active'))return moreBtn;
+    return dock.querySelector('.taskbar-btn')||moreBtn;
   }
   function place(btn){
-    if(!btn)return; var t=rect(btn);
+    if(!btn)return;
+    if(anim){anim.cancel();anim=null;}
+    var t=rect(btn);
     applyPill(t.pos,t.size);
     ink(t.c,t.size);
   }
   function ink(c,size){
-    colors();
-    var btns=dock.querySelectorAll('.taskbar-btn');
-    var m=parseRGB(mutedC), a=parseRGB(accentC);
-    for(var i=0;i<btns.length;i++){
-      var el=btns[i], r=rect(el);
+    var cols=colors(),m=cols.m,a=cols.a;
+    var all=[].slice.call(dock.querySelectorAll('.taskbar-btn'));
+    if(moreBtn)all.push(moreBtn);
+    for(var i=0;i<all.length;i++){
+      var el=all[i], r=rect(el);
       var ovL=Math.max(c-size/2,r.c-r.size/2), ovR=Math.min(c+size/2,r.c+r.size/2);
       var ov=Math.max(0,Math.min(1,(ovR-ovL)/r.size));
       var k=1-Math.pow(1-ov,5);
       el.style.color='rgb('+m.map(function(v,j){return Math.round(v+(a[j]-v)*k);}).join(',')+')';
-      var svg=el.querySelector('svg'); if(svg) svg.style.filter=k>0.03?('drop-shadow(0 0 6px rgba(200,160,255,'+(0.55*k).toFixed(3)+'))'):'none';
+      var svg=el.querySelector('svg'); if(svg) svg.style.filter=k>0.03?('drop-shadow(0 0 6px rgba('+a.join(',')+','+(0.55*k).toFixed(3)+'))'):'none';
     }
   }
   function glide(btn){
     if(reduceMq.matches||typeof pill.animate!=='function'){place(btn);return;}
+    if(anim){anim.cancel();anim=null;}
     var from=cur(), to=rect(btn);
     var fromC=from.pos+from.size/2;
     if(Math.abs(to.c-fromC)<1){place(btn);return;}
@@ -3359,7 +3377,7 @@ box-shadow:inset 0 1px 0 rgba(255,255,255,.30), inset 0 -6px 12px color-mix(in s
     kf[0]={transform:axis+'('+from.pos+'px)'}; kf[0][dim]=from.size+'px';
     kf[1]={transform:axis+'('+midPos+'px)',offset:.5}; kf[1][dim]=midSize+'px';
     kf[2]={transform:axis+'('+to.pos+'px)'}; kf[2][dim]=to.size+'px';
-    pill.animate(kf,{duration:520,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
+    anim=pill.animate(kf,{duration:520,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
     applyPill(to.pos,to.size);
     var t0=performance.now();
     (function tick(){
@@ -3371,12 +3389,11 @@ box-shadow:inset 0 1px 0 rgba(255,255,255,.30), inset 0 -6px 12px color-mix(in s
   }
   var btns=dock.querySelectorAll('.taskbar-btn');
   for(var i=0;i<btns.length;i++) btns[i].addEventListener('click',function(){glide(this);});
-  function activeBtn(){return dock.querySelector('.taskbar-btn.active')||dock.querySelector('.taskbar-btn');}
+  document.querySelectorAll('#rtMoreSheet .taskbar-btn').forEach(function(b){b.addEventListener('click',function(){if(moreBtn)glide(moreBtn);});});
   window.addEventListener('resize',function(){applyPillReset();});
   function applyPillReset(){pill.style.transform='';pill.style.width='';pill.style.height='';place(activeBtn());}
   new MutationObserver(function(){
-    mutedC=null;accentC=null;
-    var c=cur(); ink(c.pos+c.size/2,c.size);
+    place(activeBtn());
   }).observe(document.body,{attributes:true,attributeFilter:['class']});
   function init(){place(activeBtn());}
   requestAnimationFrame(init);
