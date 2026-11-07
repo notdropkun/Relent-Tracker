@@ -482,7 +482,17 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
 body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .btn-primary:hover{background:rgba(var(--neon-rgb),.08)}
 @media(max-width:600px){body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .v6-file,body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .card-panel{background:var(--surface-color);box-shadow:0 0 12px rgba(var(--neon-rgb),.09)}body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .v6-count{ text-shadow:var(--glow-primary)}body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .v6-percent b{color:var(--accent-secondary)}body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .v6-filebar,body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .v6-panelbar{background:var(--surface-color)}}
 </style>
-<style id="rtFocusHeatmapStyle">
+<style id="rtAppearanceStyles">
+/* Appearance: Black/White mode + independent accent. Black accents reuse the existing theme classes; white mode gets per-accent overrides so primary, secondary and glow always match the chosen accent. */
+.rt-accent-swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--border-color);cursor:pointer;padding:0;flex-shrink:0}
+.rt-accent-swatch.active{box-shadow:0 0 0 2px var(--bg-color),0 0 0 4px var(--sw)}
+#rtModeBlack.rt-mode-active,#rtModeWhite.rt-mode-active{border-color:var(--accent-primary);color:var(--accent-primary);background:rgba(var(--neon-rgb),.1)}
+body.theme-white-terminal[data-accent="red"]:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu){--accent-primary:#D30B31!important;--accent-secondary:#A4475C!important;--neon-rgb:211,11,49!important}
+body.theme-white-terminal[data-accent="purple"]:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu){--accent-primary:#8c3ee8!important;--accent-secondary:#7B61C9!important;--neon-rgb:140,62,232!important}
+body.theme-white-terminal[data-accent="pink"]:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu){--accent-primary:#D63384!important;--accent-secondary:#B0578A!important;--neon-rgb:214,51,132!important}
+body.theme-white-terminal[data-accent="cyan"]:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu){--accent-primary:#0E8FA3!important;--accent-secondary:#4E8A96!important;--neon-rgb:14,143,163!important}
+body.theme-white-terminal[data-accent="silver"]:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu){--accent-primary:#4A5568!important;--accent-secondary:#7A8699!important;--neon-rgb:74,85,104!important}
+</style><style id="rtFocusHeatmapStyle">
 /* Focus heatmap: uses the existing palettes, including secret themes. */
 .rt-heatmap{margin-top:22px;max-width:100%;min-width:0;text-align:left}
 .rt-hm-bar{display:flex;justify-content:space-between;gap:10px;font:10px var(--font-mono);color:var(--accent-primary);border-bottom:1px solid var(--border-color);padding:12px 14px;margin:-15px -15px 16px;background:var(--surface-color)}
@@ -968,8 +978,20 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
             <div style="padding: 1.5rem;">
                 
                 <div class="form-group">
-                    <label>Terminal Theme</label>
-                    <select id="themeSwitcher" class="form-control">
+                    <label>Appearance</label>
+                    <div style="display:flex;gap:8px;margin:4px 0 16px">
+                        <button type="button" id="rtModeBlack" class="btn btn-outline" style="flex:1">Black</button>
+                        <button type="button" id="rtModeWhite" class="btn btn-outline" style="flex:1">White</button>
+                    </div>
+                    <label>Accent colour</label>
+                    <div id="rtAccentRow" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
+                        <button type="button" class="rt-accent-swatch" data-accent="red" title="Blood red" style="--sw:#F20D36;background:#F20D36"></button>
+                        <button type="button" class="rt-accent-swatch" data-accent="purple" title="Ultraviolet" style="--sw:#A855F7;background:#A855F7"></button>
+                        <button type="button" class="rt-accent-swatch" data-accent="pink" title="Hot pink" style="--sw:#FF3B9D;background:#FF3B9D"></button>
+                        <button type="button" class="rt-accent-swatch" data-accent="cyan" title="Ice cyan" style="--sw:#27D8E8;background:#27D8E8"></button>
+                        <button type="button" class="rt-accent-swatch" data-accent="silver" title="Silver" style="--sw:#F1F5FC;background:#F1F5FC"></button>
+                    </div>
+                    <select id="themeSwitcher" class="form-control" style="display:none" aria-hidden="true" tabindex="-1">
                         <option value="default">Blood neon</option><option value="theme-white-terminal">White terminal</option>
                         <option value="theme-ultraviolet">Black Terminal</option>
                         <option value="theme-hot-pink">Hot pink</option>
@@ -2352,6 +2374,25 @@ function rtMRender() {}
             localStorage.setItem('app_theme', selectedTheme);
         });
 
+        /* Appearance: Black/White mode + independent accent colour. The hidden #themeSwitcher stays the persistence engine (app_theme); the accent rides along as app_accent + body[data-accent] for white mode. */
+        const rtAccentMap={red:'default',purple:'theme-ultraviolet',pink:'theme-hot-pink',cyan:'theme-ice-terminal',silver:'theme-silver-terminal'};
+        const rtAccentRow=document.getElementById('rtAccentRow');
+        const rtModeBlack=document.getElementById('rtModeBlack');
+        const rtModeWhite=document.getElementById('rtModeWhite');
+        function rtSavedAccent(){const a=localStorage.getItem('app_accent');return a&&rtAccentMap[a]?a:null;}
+        function rtCurrentMode(){return document.body.classList.contains('theme-white-terminal')?'white':'black';}
+        function rtAccentFromTheme(t){for(const k in rtAccentMap){if(rtAccentMap[k]===t)return k;}return rtSavedAccent()||'purple';}
+        function rtRefreshAppearanceUI(accent){const mode=rtCurrentMode();if(rtModeBlack)rtModeBlack.classList.toggle('rt-mode-active',mode==='black');if(rtModeWhite)rtModeWhite.classList.toggle('rt-mode-active',mode==='white');if(rtAccentRow)[...rtAccentRow.children].forEach(b=>b.classList.toggle('active',b.dataset.accent===accent));}
+        function rtApplyAppearance(mode,accent){if(activePersona!=='default')return;const target=mode==='white'?'theme-white-terminal':rtAccentMap[accent];themeSelect.value=target;themeSelect.dispatchEvent(new Event('change'));if(mode==='white'){document.body.dataset.accent=accent;}else{delete document.body.dataset.accent;}localStorage.setItem('app_accent',accent);rtRefreshAppearanceUI(accent);}
+        if(rtModeBlack&&rtModeWhite&&rtAccentRow){
+            rtModeBlack.addEventListener('click',()=>rtApplyAppearance('black',rtAccentFromTheme(readSavedTheme())));
+            rtModeWhite.addEventListener('click',()=>rtApplyAppearance('white',rtAccentFromTheme(readSavedTheme())));
+            [...rtAccentRow.children].forEach(b=>b.addEventListener('click',()=>rtApplyAppearance(rtCurrentMode(),b.dataset.accent)));
+            const rtInitAccent=rtAccentFromTheme(savedTheme);
+            if(savedTheme==='theme-white-terminal'){document.body.dataset.accent=rtInitAccent;}
+            rtRefreshAppearanceUI(rtInitAccent);
+        }
+
         document.getElementById('btnGenerateShareLink').addEventListener('click', async () => {
             if (!currentUser && !isOfflineMode) { showToast("Auth required for link generation."); return; }
             if (!db) { showToast("Database offline."); return; }
@@ -2936,7 +2977,7 @@ wrap.appendChild(more);wrap.appendChild(extras);
 rtSetFocusLocked(!!pomoTargetEndTime);}
 function rtRenderFocusPicker(){const el=document.getElementById('rtFocusTopic');if(!el)return;const selected=el.value;el.innerHTML='<option value="">No linked exam topic</option>'+rtTopicIndex(true).filter(t=>!completedTasksArray.includes(t.uid)).map(t=>`<option value="${t.uid}">${v6Escape(t.subject)} · ${v6Escape(t.topic)} (${v6Escape(t.exam)})</option>`).join('');if([...el.options].some(o=>o.value===selected))el.value=selected;el.disabled=!!pomoTargetEndTime||isTeacherMode;rtSetFocusLocked(el.disabled);}
 function rtRenderSubjectHours(){const el=document.getElementById('rtSubjectHours');if(!el)return;el.hidden=isTeacherMode;const totals={};Object.values(rtFocusSessions).forEach(s=>{const subject=s.subject||'General Focus';totals[subject]=(totals[subject]||0)+s.minutes;});const entries=Object.entries(totals).sort((a,b)=>b[1]-a[1]),max=Math.max(1,...entries.map(x=>x[1]));el.innerHTML='<h3>Focus by subject</h3><p class="rt-help">All completed sessions. Unlinked history stays in General Focus.</p>'+(entries.length?entries.map(([name,min])=>`<div class="rt-hours-row"><div><span>${v6Escape(name)}</span><span>${(min/60).toFixed(1)}h</span></div><div class="rt-hours-track"><i style="width:${min/max*100}%;background:${rtSubjectColor(name)};box-shadow:0 0 8px ${rtSubjectColor(name)}"></i></div></div>`).join(''):'<p class="rt-help">Finish a focus session to start your breakdown.</p>');}
-function rtRenderReviews(){const el=document.getElementById('rtHomeContent');if(!el)return;el.querySelector('#rtRevisionCard')?.remove();el.querySelector('#rtDemoBanner')?.remove();if(isTeacherMode)return;const today=rtLocalDay(new Date()),due=rtTopicIndex(true).filter(t=>{const m=rtMastery(t.uid);return m.reviewAt&&m.reviewAt<=today&&m.state>=2;});// Revision card removed from homepage; reviewAt data retained.if(!currentUser&&currentSyllabusData.some(e=>e.demo))el.insertAdjacentHTML('beforeend','<div class="rt-demo-note" id="rtDemoBanner"><span>Sample exam · Try topics and focus. Add your own exams when ready.</span><button data-remove-demo>Remove sample</button></div>');}
+function rtRenderReviews(){const el=document.getElementById('rtHomeContent');if(!el)return;el.querySelector('#rtRevisionCard')?.remove();el.querySelector('#rtDemoBanner')?.remove();if(isTeacherMode)return;const today=rtLocalDay(new Date()),due=rtTopicIndex(true).filter(t=>{const m=rtMastery(t.uid);return m.reviewAt&&m.reviewAt<=today&&m.state>=2;});/* Revision card removed from homepage; reviewAt data retained. */if(!currentUser&&currentSyllabusData.some(e=>e.demo))el.insertAdjacentHTML('beforeend','<div class="rt-demo-note" id="rtDemoBanner"><span>Sample exam · Try topics and focus. Add your own exams when ready.</span><button data-remove-demo>Remove sample</button></div>');}
 function rtRepaintTopics(){const expanded=[...document.querySelectorAll('.exam-card.expanded')].map(el=>el.querySelector('[data-exam-id]')?.dataset.examId);renderDashboardStructure();document.querySelectorAll('.exam-card').forEach(el=>{if(expanded.includes(el.querySelector('[data-exam-id]')?.dataset.examId))el.classList.add('expanded');});}
 document.addEventListener('click',async e=>{const cycle=e.target.closest('[data-topic-cycle]'),review=e.target.closest('[data-review-topic]');if(cycle||review){if(isTeacherMode)return;e.preventDefault();const uid=(cycle||review).dataset[cycle?'topicCycle':'reviewTopic'],prev=rtMastery(uid),state=cycle?(((rtTopicMastery[uid]&&(rtTopicMastery[uid].state>0||rtTopicMastery[uid].s===true))||(!rtTopicMastery[uid]&&completedTasksArray.includes(uid)))?(prev.state+1)%4:0):prev.state,now=Date.now(),next={state,updatedAt:now,s:true};if(state>=2){const d=new Date();d.setDate(d.getDate()+(state===2?3:14));next.reviewAt=rtLocalDay(d);next.revisedAt=new Date(now).toISOString();}rtTopicMastery[uid]=next;rtMasterySyncCompleted();rtRepaintTopics();await syncData(true);return;}if(e.target.closest('[data-remove-demo]')){if(isTeacherMode)return;currentSyllabusData=currentSyllabusData.filter(ex=>!ex.demo);await syncData();}const preset=e.target.closest('[data-exam-preset]');if(preset&&!isTeacherMode){const p=RT_EXAM_PRESETS[Number(preset.dataset.examPreset)],date=document.getElementById('rtPresetDate').value;if(!rtDayDate(date)){showToast('Choose your exam date first.');return;}const ex={id:rtNewExamId(),name:p.name,date,marks:'-',subjects:structuredClone(p.subjects)};currentSyllabusData.push(ex);await syncData();cmdModal.classList.remove('active');showToast('Starter outline added. Edit it to match your syllabus.');}});
 function rtNewExamId(){return `exam-${crypto.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2)}`;}
