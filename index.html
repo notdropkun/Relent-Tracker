@@ -549,6 +549,11 @@ body,#appContainer{background-image:none!important}.grid-bg{display:none!importa
 @keyframes rtReveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes rtCursor{50%{opacity:0}}@keyframes rtPixelPulse{50%{opacity:.55}}
 @media(max-width:600px){.rt-summary-grid{grid-template-columns:1fr;grid-template-rows:auto}#homeSection .rt-summary-grid>.rt-panel,#rtHomePersonal>.rt-rank-button,#rtHomePersonal>.rt-mini-grid{grid-column:auto;grid-row:auto}.rt-terminal pre{font-size:11px}.rt-habit-grid{gap:3px}.rt-hm-months{font-size:8px}.rt-mini-grid{gap:10px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+<style id="rtDotBgStyle">
+/* Reactive dot background: desktop pointer only; replaces the static grid-bg dots. Colour follows the active accent. */
+#rtDots{position:fixed;inset:0;z-index:-1;pointer-events:none;display:none}
+@media(pointer:fine){#rtDots{display:block}}
 </style><style id="rtRankSystemStyle">/* Rank presentation only. Original Home, navigation and data flows stay intact. */
 .rt-rank-identity{display:flex;align-items:center;gap:18px;min-width:0}.rt-rank-copy{display:flex;flex-direction:column;gap:7px;min-width:0}.rt-rank-kicker{font:9px var(--font-mono);letter-spacing:1.5px;color:var(--text-muted)}.rt-rank-copy .rt-rank-name{font-size:clamp(18px,2vw,26px);display:block;overflow-wrap:anywhere}.rt-rank-copy .rt-xp{font-size:10px;color:var(--text-muted)}
 .rt-rank-badge{display:grid;place-items:center;position:relative;width:96px;height:104px;flex-shrink:0}.rt-rank-badge img,.rt-rank-fallback{grid-area:1/1;width:100%;height:100%;object-fit:contain}.rt-rank-fallback{display:grid;place-items:center}.rt-rank-badge .rt-rank-fallback svg{width:60px;height:60px;color:var(--accent-secondary);filter:drop-shadow(0 0 10px color-mix(in srgb,var(--accent-secondary) 20%,transparent))}.rt-rank-badge:has(img) .rt-rank-fallback{display:none}.rt-rank-art-light{display:none}
@@ -719,6 +724,7 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
     </script>
     <noscript><style>#sessionSplash {display:none} #authScreen {visibility:visible !important}</style></noscript>
     <div class="grid-bg"></div>
+    <canvas id="rtDots" aria-hidden="true"></canvas>
 
     <div id="authScreen">
         <div class="auth-card card-panel">
@@ -3434,6 +3440,86 @@ box-shadow:inset 0 1px 0 rgba(255,255,255,.30), inset 0 -6px 12px color-mix(in s
   sheet.querySelectorAll('.taskbar-btn').forEach(function(b){b.addEventListener('click',function(){moreBtn.classList.add('active');sheet.hidden=true;});});
   document.querySelectorAll('.side-taskbar .taskbar-btn').forEach(function(b){b.addEventListener('click',function(){moreBtn.classList.remove('active');sheet.hidden=true;});});
   if(location.hash==='#more'){sheet.hidden=false;moreBtn.classList.add('active');}
+})();
+</script>
+
+<script>
+/* Reactive dot background: push-away around the mouse, quiet everywhere else. */
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var fine = window.matchMedia('(pointer: fine)');
+  var canvas = document.getElementById('rtDots');
+  if (!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext('2d');
+  var dots = [], W = 0, H = 0, raf = 0, running = false;
+  var mouse = {x:-9999, y:-9999};
+  var SPACING = 26, BASE_R = 1.1, RADIUS = 150, MAX_PUSH = 13, EASE = 0.14;
+  var BASE_A = 0.10, NEAR_A = 0.38;
+  var R = 196, G = 161, B = 239;
+
+  function readColor(){
+    var v = '';
+    try { v = getComputedStyle(document.body).getPropertyValue('--accent-secondary').trim(); } catch(e){}
+    var m = v && v.match(/#([0-9a-f]{6})/i);
+    if (m){ R = parseInt(m[1].substr(0,2),16); G = parseInt(m[1].substr(2,2),16); B = parseInt(m[1].substr(4,2),16); return; }
+    m = v && v.match(/rgba?\((\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+    if (m){ R = +m[1]; G = +m[2]; B = +m[3]; }
+  }
+
+  function build(){
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+    canvas.style.width = W+'px'; canvas.style.height = H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    dots = [];
+    for (var y = SPACING/2; y < H+SPACING; y += SPACING)
+      for (var x = SPACING/2; x < W+SPACING; x += SPACING)
+        dots.push({hx:x, hy:y, ox:0, oy:0, glow:0});
+  }
+
+  function drawStatic(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = 'rgba('+R+','+G+','+B+','+BASE_A+')';
+    for (var i=0;i<dots.length;i++){ var d=dots[i]; ctx.beginPath(); ctx.arc(d.hx,d.hy,BASE_R,0,6.2832); ctx.fill(); }
+  }
+
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for (var i=0;i<dots.length;i++){
+      var d=dots[i], tx=0, ty=0, tg=0;
+      var dx=d.hx-mouse.x, dy=d.hy-mouse.y;
+      var dist=Math.sqrt(dx*dx+dy*dy);
+      if (dist<RADIUS && dist>0.01){
+        var f=1-dist/RADIUS; f=f*f*(3-2*f);
+        tx=(dx/dist)*f*MAX_PUSH; ty=(dy/dist)*f*MAX_PUSH; tg=f;
+      }
+      d.ox+=(tx-d.ox)*EASE; d.oy+=(ty-d.oy)*EASE; d.glow+=(tg-d.glow)*EASE;
+      var a=BASE_A+(NEAR_A-BASE_A)*d.glow;
+      ctx.beginPath(); ctx.arc(d.hx+d.ox, d.hy+d.oy, BASE_R+0.5*d.glow, 0, 6.2832);
+      ctx.fillStyle='rgba('+R+','+G+','+B+','+a.toFixed(3)+')'; ctx.fill();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+
+  function start(){ if (!running && fine.matches && !reduce.matches){ running=true; raf=requestAnimationFrame(frame); } }
+  function sync(){
+    if (!fine.matches){ if (running){ running=false; cancelAnimationFrame(raf); } ctx.clearRect(0,0,W,H); return; }
+    if (reduce.matches){ if (running){ running=false; cancelAnimationFrame(raf); } drawStatic(); return; }
+    start();
+  }
+
+  var resizeT;
+  window.addEventListener('resize', function(){ clearTimeout(resizeT); resizeT=setTimeout(function(){ build(); if (!running) drawStatic(); },150); });
+  window.addEventListener('mousemove', function(e){ mouse.x=e.clientX; mouse.y=e.clientY; });
+  document.addEventListener('mouseleave', function(){ mouse.x=-9999; mouse.y=-9999; });
+  try {
+    new MutationObserver(function(){ readColor(); if (!running) drawStatic(); }).observe(document.body, {attributes:true, attributeFilter:['class','data-accent']});
+  } catch(e){}
+  if (reduce.addEventListener) reduce.addEventListener('change', sync);
+  if (fine.addEventListener) fine.addEventListener('change', sync);
+
+  readColor(); build(); sync();
 })();
 </script>
 </body>
