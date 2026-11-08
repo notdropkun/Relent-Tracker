@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/hero.png" alt="Relent Tracker dashboard">
+  <img src="docs/screenshots/showcase-01-home.png" alt="Relent Tracker home dashboard - feature card">
 </p>
 
 <p align="center"><strong>Exam countdowns · Habits + XP ranks · Focus timer · Squad · Android widgets</strong></p>
@@ -80,15 +80,19 @@ The dashboard's terminal-style details, line icons and Android widget themes mak
 Real captures from the web app. No invented screens.
 
 <p align="center">
-  <img src="docs/screenshots/02-home-mobile.png" alt="Home on phone" width="270">
-  <img src="docs/screenshots/03-focus-mobile.png" alt="Focus timer on phone" width="270">
-  <img src="docs/screenshots/04-habits-mobile.png" alt="Habits and rank on phone" width="270">
+  <img src="docs/screenshots/showcase-02-home-mobile.png" alt="Home on phone - feature card">
 </p>
 <p align="center">
-  <img src="docs/screenshots/05-exams-desktop.png" alt="Exams and syllabus on desktop">
+  <img src="docs/screenshots/showcase-03-focus.png" alt="Focus timer on phone - feature card">
 </p>
 <p align="center">
-  <img src="docs/screenshots/06-appearance.png" alt="Appearance settings - black or white mode with accent colours">
+  <img src="docs/screenshots/showcase-04-habits.png" alt="Habits and rank on phone - feature card">
+</p>
+<p align="center">
+  <img src="docs/screenshots/showcase-05-exams.png" alt="Exams and syllabus on desktop - feature card">
+</p>
+<p align="center">
+  <img src="docs/screenshots/showcase-06-appearance.png" alt="Appearance settings - feature card">
 </p>
 
 ## 📱 Take it to your home screen
