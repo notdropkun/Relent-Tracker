@@ -1,32 +1,34 @@
-<p align="center"><img src="docs/screenshots/hero.png" alt="Relent Tracker on the web and Android, with its focus widget" width="100%"></p>
-
-<div align="center">
-
-<img src="docs/screenshots/brand-mark.png" alt="RTracker terminal-prompt app logo" width="72">
-
-# RELENT TRACKER
-
-### Your exams. Your effort. Your next move.
-
-A study workspace built by a student, for the days when everything is due at once.
-
-**Plan the syllabus. Put in the focus sessions. See what changes.**
-
-[Open the dashboard](https://study-dashboard-rose-psi.vercel.app) · [Get the Android app](https://github.com/notdropkun/Relent-Tracker/releases) · [See what's new](https://github.com/notdropkun/Relent-Tracker/releases/tag/v1.2.0)
-
-![Web + Android](https://img.shields.io/badge/Web_%2B_Android-27D8E8?style=flat-square&labelColor=101319)
-![Latest release](https://img.shields.io/github/v/release/notdropkun/Relent-Tracker?style=flat-square&color=8b5cf6&labelColor=101319)
-![License](https://img.shields.io/github/license/notdropkun/Relent-Tracker?style=flat-square&color=27D8E8&labelColor=101319)
-![Last commit](https://img.shields.io/github/last-commit/notdropkun/Relent-Tracker?style=flat-square&color=8b5cf6&labelColor=101319)
-
-<p>
-<a href="https://study-dashboard-rose-psi.vercel.app"><img src="https://img.shields.io/badge/OPEN_THE-WEB_DASHBOARD-27D8E8?style=for-the-badge&labelColor=101319" alt="Open the web dashboard"></a>
-<a href="https://github.com/notdropkun/Relent-Tracker/releases"><img src="https://img.shields.io/badge/DOWNLOAD-ANDROID_APK-a650f5?style=for-the-badge&labelColor=101319" alt="Download Android APK from GitHub Releases"></a>
+<p align="center">
+  <img src="docs/screenshots/brand-mark.png" alt="Relent Tracker logo" width="96">
 </p>
 
-**Exam countdowns · Focus heatmap · Revision plans · Marks · Android widgets**
+<h1 align="center">RELENT TRACKER</h1>
 
-</div>
+<h3 align="center">Your exams. Your habits. Your next move.</h3>
+
+<p align="center">
+  A study workspace built by a student, for the days when everything is due at once.<br>
+  <strong>Plan the syllabus. Put in the focus sessions. Watch the rank climb.</strong>
+</p>
+
+<p align="center">
+  <a href="https://study-dashboard-rose-psi.vercel.app">Open the dashboard</a> ·
+  <a href="https://github.com/notdropkun/Relent-Tracker/releases">Get the Android app</a> ·
+  <a href="https://github.com/notdropkun/Relent-Tracker/releases/tag/v1.3.1">See what's new</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Web_%2B_Android-27D8E8?style=flat-square&labelColor=101319" alt="Web + Android">
+  <img src="https://img.shields.io/github/v/release/notdropkun/Relent-Tracker?style=flat-square&color=8b5cf6&labelColor=101319" alt="Latest release">
+  <img src="https://img.shields.io/github/license/notdropkun/Relent-Tracker?style=flat-square&color=27D8E8&labelColor=101319" alt="License">
+  <img src="https://img.shields.io/github/last-commit/notdropkun/Relent-Tracker?style=flat-square&color=8b5cf6&labelColor=101319" alt="Last commit">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/hero.png" alt="Relent Tracker dashboard">
+</p>
+
+<p align="center"><strong>Exam countdowns · Habits + XP ranks · Focus timer · Squad · Android widgets</strong></p>
 
 ---
 
@@ -34,7 +36,7 @@ A study workspace built by a student, for the days when everything is due at onc
 
 Relent Tracker started as my own study dashboard. I'm a Class 12 student building it around board prep and entrance-exam revision, then making it useful for other students too.
 
-The idea is simple: keep the exam, its syllabus, today's work and your progress in the same place. The web app and Android app share the same workspace, with Google sign-in for sync or an offline mode when you don't want an account.
+The idea is simple: keep the exam, its syllabus, today's habits and your focus time in the same place. The web app and Android app share the same workspace, with Google sign-in for sync or an offline mode when you don't want an account.
 
 [Features](#-one-workspace-from-plan-to-progress) · [Screenshots](#-inside-the-app) · [Android](#-take-it-to-your-home-screen) · [Data](#-your-data-without-the-small-print) · [Source](#-under-the-hood)
 
@@ -42,56 +44,52 @@ The idea is simple: keep the exam, its syllabus, today's work and your progress 
 
 ### 📚 Know what's coming
 
-- Add exams with dates, marks and a live countdown.
+- Add exams with dates and a live countdown.
 - Break the syllabus into subjects, categories and topics.
-- Tick off topics and track completion without losing sight of the deadline.
-- Keep exams, calendar events and everyday to-dos together.
+- Each chapter is a card: track its state from not started to covered, keep notes and your starred lecture links with watched progress.
+- Start fast with premade subject presets, import an outline, or let the AI planner turn pasted syllabus text into a structured plan.
+- Pull your Google Calendar events into the same timeline.
 
-### 🗓️ Turn the syllabus into a plan
+### ✅ Small actions, repeated daily
 
-The revision scheduler works backwards from an upcoming exam with an exact date.
-
-Choose unfinished topics, estimate the time they need, set a daily study limit and reserve final review days. Preview the dated plan before saving it to To-do. If the work won't fit, the scheduler tells you instead of pretending it will.
-
-Completing a revision task doesn't silently tick off your syllabus. Those are separate decisions.
+- Build habits and check in every day.
+- Watch the consistency heatmap fill in; a crown marks a perfect day.
+- Earn XP from habits and completed focus sessions and climb the rank ladder, from Recruit to Relentless, with its own badge artwork.
+- The rules are in the app under "Learn your rank" - no hidden math.
 
 ### ⏱️ Make the work visible
 
-- Run Pomodoro focus sessions and track completed sessions.
-- See day-by-day activity in a GitHub-style focus heatmap.
-- Switch between a recent 13-week view and a year view; tap a day for session details.
-- Put the focus grid on your Android home screen and tap it to open Focus.
+- Run Pomodoro focus sessions with short and long breaks.
+- Name what you're focusing on - it's locked in while the timer runs, so the session means something.
+- Finished sessions earn XP and count toward your day and your Squad standing.
 
-The heatmap starts recording daily activity with completed sessions. It doesn't invent a history from old totals.
+### 🏆 Squad up, privately
 
-### 📈 Track marks, not guesses
-
-Log a school exam, mock or other test with its subject, date and score. See subject-wise trends, percentages and the underlying score history. Add a note or link a result to an exam.
-
-Scores stay separate from syllabus completion. Percentages help compare tests with different totals, but different test difficulty still matters.
+- Add friends with a code and compare today's completed focus minutes on a daily leaderboard.
+- You choose who joins. The Squad record a friend sees contains your display name, your daily focus minutes and whether a timer is running.
+- The board is today only; it resets every day. Your XP rank is separate and keeps climbing.
 
 ### 🎨 Pick your atmosphere
 
-**Ice terminal. Blood neon. Ultraviolet.** Plus more themes and hidden character-inspired extras.
+Black or white mode, five accent colours, and a dock that floats over it all. Plus a few hidden themes for the ones who go looking.
 
-The dashboard's terminal-style details, line icons, voice/audio extras and Android widget themes make it feel like your own workspace.
+The dashboard's terminal-style details, line icons and Android widget themes make it feel like your own workspace.
 
 ## 📸 Inside the app
 
-Real captures from the web, Android app and home-screen widgets. No invented screens.
+Real captures from the web app. No invented screens.
 
-<table>
-<tr>
-<td width="33%"><img src="docs/screenshots/01-focus.png" alt="Focus timer and daily activity heatmap" width="100%"></td>
-<td width="33%"><img src="docs/screenshots/02-revision.png" alt="Revision scheduler setup with a daily study limit and final review days" width="100%"></td>
-<td width="33%"><img src="docs/screenshots/03-marks.png" alt="Marks tracker showing a subject trend and score history" width="100%"></td>
-</tr>
-<tr>
-<td><img src="docs/screenshots/04-widgets.png" alt="Real Android focus, calendar and exam widgets" width="100%"></td>
-<td><img src="docs/screenshots/05-themes.png" alt="The same dashboard in Ice terminal, Blood neon and Ultraviolet" width="100%"></td>
-<td><img src="docs/screenshots/06-workspace.png" alt="Relent Tracker on web and Android" width="100%"></td>
-</tr>
-</table>
+<p align="center">
+  <img src="docs/screenshots/02-home-mobile.png" alt="Home on phone" width="270">
+  <img src="docs/screenshots/03-focus-mobile.png" alt="Focus timer on phone" width="270">
+  <img src="docs/screenshots/04-habits-mobile.png" alt="Habits and rank on phone" width="270">
+</p>
+<p align="center">
+  <img src="docs/screenshots/05-exams-desktop.png" alt="Exams and syllabus on desktop">
+</p>
+<p align="center">
+  <img src="docs/screenshots/06-appearance.png" alt="Appearance settings - black or white mode with accent colours">
+</p>
 
 ## 📱 Take it to your home screen
 
@@ -102,6 +100,7 @@ The Android app, **RTracker**, wraps the web dashboard in a native Kotlin shell 
 | Exam | Your next exam, with syllabus details in the larger layout |
 | Calendar | A month view with exam and event markers |
 | Focus | A 15-week activity grid, theme sync and a shortcut into Focus |
+| Habits | Your rank and pinned habits; stretch it for the full daily checklist and tap to check in |
 
 Log in once in the app to connect your widgets to your account. Use the same Google account on the web and Android for your synced workspace.
 
@@ -111,28 +110,38 @@ Log in once in the app to connect your widgets to your account. Use the same Goo
 2. Download the `RTracker` APK from the release you want.
 3. Open the file on Android and allow installation from that source if Android asks.
 
-**Current featured release:** [v1.2.0](https://github.com/notdropkun/Relent-Tracker/releases/tag/v1.2.0), with the new focus widget.
+**Current featured release:** v1.3.1, with auto-refreshing widgets.
 
-**Android 7.0 or newer.** Keep Android System WebView updated.
+**A note on updating from v1.3.0 or older:** v1.3.1 is signed with a new key, so Android won't offer it as an update over those versions. Don't uninstall before you're ready - a fresh install removes local app and widget data.
+
+**Android 7.0 or newer** (verified from the published APK). Keep Android System WebView updated.
 
 ### Updates, without starting over
 
 Use **Settings → Android App → Check for updates** inside RTracker. The in-app updater checks GitHub releases. Website features are deployed separately, so not every web change needs a new APK.
 
-**Install new APKs over the existing app. Don't uninstall first:** uninstalling can remove local app and widget data.
+**Install new APKs over the existing app as long as they're signed with the same key.** If Android refuses an update install, stop there - the signing keys differ, and uninstalling removes local app and widget data. Check the release notes before going further.
 
 Prefer an external update manager? Add `https://github.com/notdropkun/Relent-Tracker` in [Obtainium](https://github.com/ImranR98/Obtainium).
 
 <details>
 <summary>🔏 Verify an APK</summary>
 
-Release notes can include the APK's SHA-256 hash. Compare the downloaded file with the hash for that exact release.
+<br>
 
-The currently documented release signing certificate SHA-256 fingerprint is:
+The v1.3.1 APK's SHA-256 hash is:
 
 ```text
-CF:00:EA:AB:E7:AA:7F:F7:CE:9A:FB:3A:EA:D8:74:0D:83:9B:74:8A:D2:39:51:4A:89:B9:06:E4:83:08:67:53
+8c16ec344094e0cec51e7970972e37d89105cbf7bfe082e9da45a06607303b0d
 ```
+
+The v1.3.1 signing certificate SHA-256 fingerprint is:
+
+```text
+D2:5A:81:C7:D7:53:C3:39:98:0F:7E:DF:F4:CE:BB:67:0E:7F:D2:1F:AD:74:32:B2:7B:E5:C5:BB:89:B0:89:B9
+```
+
+Both verified against the published v1.3.1 APK itself. Releases up to v1.3.0 were signed with a different certificate (`CF:00:EA:AB…`), since replaced - which is why they can't update in place to v1.3.1.
 
 </details>
 
@@ -146,8 +155,8 @@ The web app includes a PWA manifest and service worker for installation. Online 
 
 - **Offline mode:** your workspace is stored on your device. Clearing site/app storage or uninstalling can remove local data.
 - **Google sign-in:** Firebase Authentication handles login; Firestore stores synced study data for use across devices.
-- **Marks:** saved locally and synced to your signed-in account; the marks view is excluded from observer mode.
 - **Observer links:** let someone view a read-only snapshot. Share one only with people you want to see that information.
+- **Squad and friends:** off until you opt in. What gets shared is your display name, your daily focus minutes and your timer status.
 - **Widgets:** exam details are mirrored into a separate Firestore widget record. Don't treat the widget mirror as a place for confidential information.
 
 This isn't an account-free, cloud-free app when you choose sync. Offline mode and cloud sync are different choices.
@@ -158,6 +167,7 @@ This isn't an account-free, cloud-free app when you choose sync. Offline mode an
 | --- | --- |
 | Web interface | HTML, CSS and JavaScript |
 | Sign-in and sync | Firebase Authentication and Firestore |
+| AI syllabus import | Vercel serverless function (bring-your-own provider key via env vars) |
 | Installable web app | Web app manifest and service worker |
 | Hosting | Vercel |
 | Android shell and widgets | Kotlin / Android |
@@ -170,8 +180,9 @@ Relent-Tracker/
 ├── index.html        # Dashboard, styles and app logic
 ├── manifest.json     # PWA configuration
 ├── sw.js             # Service worker
+├── api/              # Serverless functions (AI syllabus import)
 ├── assets/           # Audio, icons and other app assets
-├── docs/screenshots/ # README hero, logo and promo posters
+├── docs/screenshots/ # README hero, logo and promo captures
 ├── .well-known/      # App/site association files
 ├── SECURITY.md
 └── LICENSE
@@ -191,12 +202,15 @@ It's still growing. Found a bug? Describe what happened, what you expected and w
 
 ---
 
-<div align="center">
+<p align="center">
+  <img src="docs/screenshots/brand-mark.png" alt="" width="48">
+</p>
 
-**Less juggling. More studying.**
+<p align="center"><strong>Less juggling. More studying.</strong></p>
 
-[Open the dashboard](https://study-dashboard-rose-psi.vercel.app) · [Download RTracker](https://github.com/notdropkun/Relent-Tracker/releases)
+<p align="center">
+  <a href="https://study-dashboard-rose-psi.vercel.app">Open the dashboard</a> ·
+  <a href="https://github.com/notdropkun/Relent-Tracker/releases">Download RTracker</a>
+</p>
 
-Built by Advaay. Still studying. Still shipping.
-
-</div>
+<p align="center">Built by Advaay. Still studying. Still shipping.</p>
