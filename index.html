@@ -107,6 +107,35 @@
         .auth-card { max-width: 450px; width: 90%; text-align: center; }
         .auth-card h2 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-main); }
         .auth-card p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2rem; }
+        /* --- auth redesign: split headings, panes, scramble mask, otp --- */
+        @font-face{font-family:'Old London';src:url('assets/fonts/OldLondon.ttf') format('truetype');font-display:swap}
+        #authScreen{overflow-y:auto;padding:24px 16px;box-sizing:border-box;background:var(--bg-color)}
+        #authScreen .auth-card{margin:auto;z-index:1;border-radius:22px;border:1px solid rgba(255,255,255,.07);box-shadow:0 10px 28px rgba(0,0,0,.38)}
+        .auth-glow{position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.16) 0%,rgba(168,85,247,.05) 45%,transparent 70%);pointer-events:none;z-index:0}
+        .rt-auth-pane{display:none}
+        .rt-auth-pane.active{display:block}
+        .rt-split{margin-bottom:1rem}
+        .rt-split .goth{font-family:'Old London',serif;font-weight:400;font-size:2.35rem;text-shadow:2px 0 0 rgba(168,85,247,.55),-2px 1px 0 rgba(94,234,212,.30),0 0 16px rgba(168,85,247,.35)}
+        .rt-split .norm{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1.8rem;letter-spacing:.01em}
+        .rt-split .cur{color:var(--accent-primary);font-family:var(--font-mono);animation:rtCursor 1s step-end infinite;font-size:1.7rem}
+        @media(prefers-reduced-motion:reduce){.rt-split .cur{animation:none}}
+        .rt-stack{display:flex;flex-direction:column;gap:12px;margin-top:1.75rem}
+        .btn-filled{background:var(--accent-primary);border:1px solid var(--accent-primary);color:#0B0614;box-shadow:0 0 20px rgba(168,85,247,.45);text-shadow:none}
+        .btn-filled:hover{box-shadow:0 0 28px rgba(168,85,247,.6)}
+        .rt-auth-fields{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;text-align:left}
+        .rt-auth-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--text-muted);font:10px var(--font-mono);letter-spacing:2px;text-transform:uppercase}
+        .rt-auth-divider:before,.rt-auth-divider:after{content:'';flex:1;height:1px;background:var(--border-color)}
+        .rt-auth-link{background:none;border:0;color:var(--accent-secondary);font:11px var(--font-mono);cursor:pointer;text-decoration:none;padding:0}
+        .rt-auth-link:hover{color:var(--accent-primary)}
+        .rt-auth-swap{margin-top:18px;font:12px var(--font-mono);color:var(--text-muted)}
+        .rt-auth-status{min-height:1.2em;margin-top:10px;font:12px var(--font-mono);color:var(--accent-secondary)}
+        .rt-mask-wrap{position:relative}
+        .rt-mask-view{position:absolute;inset:0;display:flex;align-items:center;padding:0 .8rem;pointer-events:none;font-family:var(--font-mono);overflow:hidden;white-space:pre;color:var(--text-main)}
+        .rt-mask-real.rt-masked{color:transparent;caret-color:var(--accent-primary)}
+        .rt-guest-modal{position:fixed;inset:0;z-index:10000;background:rgba(5,5,5,.82);display:flex;align-items:center;justify-content:center;padding:16px}
+        .rt-guest-modal[hidden]{display:none!important}
+        .rt-guest-card{max-width:420px;text-align:center;border-radius:22px}
+        .rt-guest-card p{color:var(--text-muted);font-size:.85rem;margin-bottom:.5rem}
         @media(max-width:600px){#authScreen{padding:16px;box-sizing:border-box;width:100%;overflow-x:hidden}#authScreen .auth-card{box-sizing:border-box;width:100%;max-width:100%;min-width:0;padding:1.25rem}#authScreen .auth-card h2{font-size:2rem;overflow-wrap:anywhere}#authScreen .auth-card p{overflow-wrap:anywhere;margin-bottom:1.5rem}#authScreen .auth-card .btn{box-sizing:border-box;max-width:100%;white-space:normal;text-align:center}}
         .engineered-text { font-size: 0.75rem; color: var(--text-muted); margin-top: 2rem; letter-spacing: 2px; }
         
@@ -727,12 +756,68 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
     <canvas id="rtDots" aria-hidden="true"></canvas>
 
     <div id="authScreen">
+        <div class="auth-glow"></div>
         <div class="auth-card card-panel">
-            <h2>SYS.<span class="accent-text">LOGIN</span></h2>
-            <p>Authenticate to sync protocols or bypass to local storage.</p>
-            <button id="btnMainGoogleLogin" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">[ Authenticate via Google ]</button>
-            <button id="btnOfflineMode" class="btn btn-outline" style="width: 100%;">[ Local Override ]</button>
+            <div class="rt-auth-pane active" id="rtPaneEntry">
+                <h2 class="rt-split"><span class="goth">Relent</span><span class="norm accent-text">_Tracker</span><span class="cur">_</span></h2>
+                <div class="rt-stack">
+                    <button id="btnGoLogin" class="btn btn-filled" style="width:100%" type="button">[ Log in ]</button>
+                    <button id="btnGoSignup" class="btn btn-outline" style="width:100%" type="button">[ Sign up ]</button>
+                </div>
+            </div>
+            <div class="rt-auth-pane" id="rtPaneLogin">
+                <h2 class="rt-split"><span class="goth">Before.</span><span class="norm accent-text">Login</span><span class="cur">_</span></h2>
+                <div class="rt-auth-fields">
+                    <input class="form-control" id="rtLoginEmail" type="email" placeholder="email" autocomplete="email">
+                    <div class="rt-mask-wrap">
+                        <input class="form-control rt-mask-real" id="rtLoginPass" type="password" placeholder="password" autocomplete="current-password">
+                        <div class="rt-mask-view" aria-hidden="true"></div>
+                    </div>
+                </div>
+                <button id="btnEmailLogin" class="btn btn-filled" style="width:100%" type="button">[ Log in ]</button>
+                <div class="rt-auth-divider">or</div>
+                <button id="btnMainGoogleLogin" class="btn btn-outline" style="width:100%" type="button">[ Continue with Google ]</button>
+                <p class="rt-auth-swap"><a class="rt-auth-link" id="rtForgotLink" href="#">forgot password?</a> &nbsp;&middot;&nbsp; <a class="rt-auth-link" id="rtToSignup" href="#">create an account</a></p>
+            </div>
+            <div class="rt-auth-pane" id="rtPaneSignup">
+                <h2 class="rt-split"><span class="goth">After.</span><span class="norm accent-text">Login</span><span class="cur">_</span></h2>
+                <div class="rt-auth-fields">
+                    <input class="form-control" id="rtSignupEmail" type="email" placeholder="email" autocomplete="email">
+                    <div class="rt-mask-wrap">
+                        <input class="form-control rt-mask-real" id="rtSignupPass" type="password" placeholder="password (6+ characters)" autocomplete="new-password">
+                        <div class="rt-mask-view" aria-hidden="true"></div>
+                    </div>
+                    <div class="rt-mask-wrap">
+                        <input class="form-control rt-mask-real" id="rtSignupPass2" type="password" placeholder="confirm password" autocomplete="new-password">
+                        <div class="rt-mask-view" aria-hidden="true"></div>
+                    </div>
+                </div>
+                <button id="btnEmailSignup" class="btn btn-filled" style="width:100%" type="button">[ Create account ]</button>
+                <div class="rt-auth-divider">or</div>
+                <button id="btnGoogleSignup" class="btn btn-outline" style="width:100%" type="button">[ Continue with Google ]</button>
+                <p class="rt-auth-swap">Already have an account? <a class="rt-auth-link" id="rtToLogin" href="#">log in</a></p>
+            </div>
+            <div class="rt-auth-pane" id="rtPaneOtp">
+                <h2 class="rt-split"><span class="goth">Check.</span><span class="norm accent-text">Inbox</span><span class="cur">_</span></h2>
+                <p style="margin-bottom:1rem">Enter the 6-digit code sent to <b id="rtOtpEmail"></b>. It expires in 10 minutes.</p>
+                <div class="rt-auth-fields">
+                    <input class="form-control" id="rtOtpCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" maxlength="6" style="text-align:center;letter-spacing:.4em">
+                </div>
+                <button id="btnVerifyOtp" class="btn btn-filled" style="width:100%" type="button">[ Verify ]</button>
+                <p class="rt-auth-swap"><a class="rt-auth-link" id="rtOtpResend" href="#">resend code</a> &nbsp;&middot;&nbsp; <a class="rt-auth-link" id="rtOtpBack" href="#">back</a></p>
+            </div>
             <p class="engineered-text">engineered by <span class="advaay-glow">advaay</span></p>
+            <p class="rt-auth-status" id="rtAuthStatus" role="status"></p>
+        </div>
+    </div>
+    <div class="rt-guest-modal" id="rtGuestModal" hidden>
+        <div class="rt-guest-card card-panel">
+            <h3 style="margin-bottom:.75rem">Import device data?</h3>
+            <p>This device has a local workspace (exams, habits, focus time). Import it into your account, or discard it and use only what is in the cloud.</p>
+            <div class="rt-stack">
+                <button class="btn btn-filled" id="rtGuestImport" type="button">[ Import my data ]</button>
+                <button class="btn btn-outline" id="rtGuestDiscard" type="button">[ Discard it ]</button>
+            </div>
         </div>
     </div>
 
@@ -1131,7 +1216,7 @@ const rtMotionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
 window.rtInAndroidApp=!!(window.AndroidWidget||window.RTrackerHabits)||/; wv\)/i.test(navigator.userAgent);if(window.rtInAndroidApp)document.documentElement.classList.add('rt-inapp');
 let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=false,rtExamRemoveTimer=null;let rtArchiveConfirmId='',rtArchiveConfirmTimer=null;
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, addDoc, runTransaction, onSnapshot, query, where, updateDoc, deleteDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const ADMIN_EMAILS = ["dropadvaay@gmail.com", "advaay1981@gmail.com"];
@@ -2763,7 +2848,7 @@ function rtMRender() {}
                     mirrorExamsToWidget(uid);
                 }
                 if(!userDoc.exists())rtTopicMastery=rtPendingGuest?.mastery||safeParse(`rt_mastery_user_${uid}`,{});
-                const migratedGuest=rtPendingGuest;if(rtPendingGuest){const g=rtPendingGuest;currentSyllabusData=rtMergeExams(currentSyllabusData,g.exams);completedTasksArray=[...new Set([...completedTasksArray,...g.completed])];rtTopicMastery=rtMergeMastery(rtTopicMastery,g.mastery);rtHabitData=rtHMerge(rtHabitData,g.habits);rtHSave();rtFocusSessions={...rtCleanSessions(g.focus),...rtFocusSessions};rtSaveFocusLocal();calendarEvents=[...new Map([...calendarEvents,...g.calendar].map(x=>[String(x.id),x])).values()];pomoStats={completed:Math.max(pomoStats.completed||0,g.stats.completed||0),givenUp:Math.max(pomoStats.givenUp||0,g.stats.givenUp||0)};if(g.timer){g.timer.scope=`user_${uid}`;localStorage.setItem('rt_pomo_run',JSON.stringify(g.timer));rtFocusRun={...g.timer,scope:`user_${uid}`};}rtPendingGuest=null;}
+                let migratedGuest=null;if(rtPendingGuest){const g=rtPendingGuest;if(await rtAskGuestImport()){migratedGuest=g;currentSyllabusData=rtMergeExams(currentSyllabusData,g.exams);completedTasksArray=[...new Set([...completedTasksArray,...g.completed])];rtTopicMastery=rtMergeMastery(rtTopicMastery,g.mastery);rtHabitData=rtHMerge(rtHabitData,g.habits);rtHSave();rtFocusSessions={...rtCleanSessions(g.focus),...rtFocusSessions};rtSaveFocusLocal();calendarEvents=[...new Map([...calendarEvents,...g.calendar].map(x=>[String(x.id),x])).values()];pomoStats={completed:Math.max(pomoStats.completed||0,g.stats.completed||0),givenUp:Math.max(pomoStats.givenUp||0,g.stats.givenUp||0)};if(g.timer){g.timer.scope=`user_${uid}`;localStorage.setItem('rt_pomo_run',JSON.stringify(g.timer));rtFocusRun={...g.timer,scope:`user_${uid}`};}}rtPendingGuest=null;}
                 rtCloudLoading=false;rtMasterySyncCompleted();localStorage.setItem(`rt_mastery_user_${uid}`,JSON.stringify(rtTopicMastery));await syncData();if(migratedGuest&&window.rtCloudOk){localStorage.setItem('rt_guest_migrated_backup',JSON.stringify(migratedGuest));localStorage.setItem('rt_guest_workspace',JSON.stringify({exams:[],completed:[],mastery:{},calendar:[],stats:{completed:0,givenUp:0}}));localStorage.setItem('rt_habits_offline','{}');localStorage.setItem('rt_focus_sessions_offline','{}');}rtHUpload();rtUploadFocusHistory(uid);
             } catch(e){rtCloudLoading=true;window.rtCloudOk=false;rtShowSyncFail('Cloud load did not finish. Your local work is safe; retry before making cloud changes.',()=>pullDataFromCloud(uid));}
         }
@@ -2776,7 +2861,7 @@ function rtMRender() {}
             window.rtTerminal.complete(currentUser?'Signed-in session ready':isOfflineMode?'Local workspace ready':'Login ready');
         }
         function sessionCheckFailed(error) {
-            console.warn('Session check did not finish', error);openApp('offline');
+            console.warn('Session check did not finish', error);rtShowAuth('Could not check your session. Check your connection and reload.');
         }
         function openApp(mode) {
             if(!isTeacherMode)rtBootRun(mode);authScreen.classList.add('hidden'); appContainer.classList.add('visible'); updateGreeting(); finishSessionCheck();
@@ -2792,10 +2877,111 @@ function rtMRender() {}
             }
         }
 
-        document.getElementById('btnOfflineMode').addEventListener('click', () => {
-            const audioOffline = new Audio('./assets/audio/jarvis-offline.mp3'); audioOffline.load(); playBootChime(); 
-            audioOffline.play().catch(e => console.log("Audio block:", e)); openApp('offline');
+        // ===== Auth redesign: entry / login / signup panes, scramble mask, email OTP =====
+        const rtAuthPanes={entry:'rtPaneEntry',login:'rtPaneLogin',signup:'rtPaneSignup',otp:'rtPaneOtp'};
+        function rtAuthStatus(msg,isErr){const el=document.getElementById('rtAuthStatus');if(!el)return;el.textContent=msg||'';el.style.color=isErr?'var(--accent-danger)':'var(--accent-secondary)';}
+        function rtShowPane(name){Object.values(rtAuthPanes).forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});const pane=document.getElementById(rtAuthPanes[name]);if(pane)pane.classList.add('active');rtAuthStatus('');}
+        function rtShowAuth(statusMsg){document.getElementById('appContainer').classList.remove('visible');authScreen.classList.remove('hidden');rtShowPane('entry');if(statusMsg)rtAuthStatus(statusMsg,true);}
+        document.getElementById('btnGoLogin').addEventListener('click',()=>rtShowPane('login'));
+        document.getElementById('btnGoSignup').addEventListener('click',()=>rtShowPane('signup'));
+        document.getElementById('rtToSignup').addEventListener('click',e=>{e.preventDefault();rtShowPane('signup');});
+        document.getElementById('rtToLogin').addEventListener('click',e=>{e.preventDefault();rtShowPane('login');});
+        document.getElementById('btnGoogleSignup').addEventListener('click',()=>document.getElementById('btnMainGoogleLogin').click());
+
+        // Scramble password mask (original fast re-roll, text nodes only). Reduced motion: native bullets.
+        const RT_GLYPHS='ABCDEFGHKMNPQRSTUVWXYZ#$%&*+=?~^';
+        const rtMaskReduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+        function rtMaskInit(inputId){
+            const input=document.getElementById(inputId);if(!input)return;
+            const view=input.closest('.rt-mask-wrap').querySelector('.rt-mask-view');
+            if(rtMaskReduced.matches){view.remove();return;}
+            input.classList.add('rt-masked');
+            const draw=()=>{view.replaceChildren(...[...input.value].map(()=>{const s=document.createElement('span');s.textContent=RT_GLYPHS[Math.floor(Math.random()*RT_GLYPHS.length)];return s;}));};
+            let iv=null;
+            const start=()=>{draw();if(!iv)iv=setInterval(()=>{if(input.value)draw();},100);};
+            const stop=()=>{clearInterval(iv);iv=null;};
+            input.addEventListener('input',start);
+            input.addEventListener('focus',start);
+            input.addEventListener('blur',stop);
+        }
+        ['rtLoginPass','rtSignupPass','rtSignupPass2'].forEach(rtMaskInit);
+
+        // Email/password + OTP wiring (endpoints deploy with the provider toggle, same bundle).
+        let rtOtpCtx=null;
+        async function rtRequestOtp(email){
+            const token=await auth.currentUser.getIdToken();
+            const res=await fetch('/api/request-otp',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({email})});
+            let data;try{data=await res.json();}catch{data={};}
+            if(!res.ok)throw new Error(data.error||'Could not send the code. Try later.');
+            return data;
+        }
+        async function rtStartOtp(email){
+            rtAuthStatus('Sending the code...');
+            const data=await rtRequestOtp(email);
+            rtOtpCtx={email,challengeId:data.challengeId};
+            document.getElementById('rtOtpEmail').textContent=email;
+            document.getElementById('rtOtpCode').value='';
+            rtShowPane('otp');
+        }
+        document.getElementById('btnEmailLogin').addEventListener('click',async()=>{
+            if(!isFirebaseConfigured||!auth){rtAuthStatus('Sign-in is temporarily unavailable.',true);return;}
+            const email=document.getElementById('rtLoginEmail').value.trim(),pass=document.getElementById('rtLoginPass').value;
+            if(!email||!pass){rtAuthStatus('Enter your email and password.',true);return;}
+            try{
+                await signInWithEmailAndPassword(auth,email,pass);
+                try{await rtStartOtp(email);}catch(otpErr){await signOut(auth).catch(()=>{});throw otpErr;}
+            }catch(err){
+                if(err&&err.code==='auth/invalid-credential')rtAuthStatus('Wrong email or password.',true);
+                else rtAuthStatus((err&&err.message)||'Could not log in.',true);
+            }
         });
+        document.getElementById('btnEmailSignup').addEventListener('click',async()=>{
+            if(!isFirebaseConfigured||!auth){rtAuthStatus('Sign-up is temporarily unavailable.',true);return;}
+            const email=document.getElementById('rtSignupEmail').value.trim(),p1=document.getElementById('rtSignupPass').value,p2=document.getElementById('rtSignupPass2').value;
+            if(!email||p1.length<6){rtAuthStatus('Enter your email and a password of 6+ characters.',true);return;}
+            if(p1!==p2){rtAuthStatus('Passwords do not match.',true);return;}
+            try{
+                await createUserWithEmailAndPassword(auth,email,p1);
+                try{await rtStartOtp(email);}catch(otpErr){await signOut(auth).catch(()=>{});throw otpErr;}
+            }catch(err){
+                if(err&&err.code==='auth/email-already-in-use')rtAuthStatus('That email already has an account. Log in instead.',true);
+                else rtAuthStatus((err&&err.message)||'Could not create the account.',true);
+            }
+        });
+        document.getElementById('btnVerifyOtp').addEventListener('click',async()=>{
+            if(!rtOtpCtx){rtShowPane('login');return;}
+            const code=document.getElementById('rtOtpCode').value.trim();
+            if(!/^\d{6}$/.test(code)){rtAuthStatus('Enter the 6-digit code.',true);return;}
+            try{
+                rtAuthStatus('Verifying...');
+                const token=await auth.currentUser.getIdToken();
+                const res=await fetch('/api/verify-otp',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({email:rtOtpCtx.email,code,challengeId:rtOtpCtx.challengeId})});
+                let data;try{data=await res.json();}catch{data={};}
+                if(!res.ok)throw new Error(data.error||'Wrong or expired code.');
+                await signInWithCustomToken(auth,data.customToken);
+            }catch(err){rtAuthStatus(err.message||'Verification failed.',true);}
+        });
+        document.getElementById('rtOtpResend').addEventListener('click',async e=>{
+            e.preventDefault();if(!rtOtpCtx)return;
+            try{const data=await rtRequestOtp(rtOtpCtx.email);rtOtpCtx.challengeId=data.challengeId;rtAuthStatus('New code sent. Check your inbox.');}catch(err){rtAuthStatus(err.message||'Could not resend.',true);}
+        });
+        document.getElementById('rtOtpBack').addEventListener('click',async e=>{e.preventDefault();rtOtpCtx=null;await signOut(auth).catch(()=>{});rtShowPane('login');});
+        document.getElementById('rtForgotLink').addEventListener('click',async e=>{
+            e.preventDefault();
+            const email=document.getElementById('rtLoginEmail').value.trim();
+            if(!email){rtAuthStatus('Enter your email first.',true);return;}
+            if(!isFirebaseConfigured||!auth){rtAuthStatus('Temporarily unavailable.',true);return;}
+            try{await sendPasswordResetEmail(auth,email);rtAuthStatus('Password reset email sent. Check your inbox.');}catch(err){rtAuthStatus((err&&err.message)||'Could not send the reset email.',true);}
+        });
+
+        // Consent-gated guest import (replaces the old silent merge).
+        function rtAskGuestImport(){return new Promise(resolve=>{
+            const modal=document.getElementById('rtGuestModal');
+            modal.hidden=false;
+            const imp=document.getElementById('rtGuestImport'),dis=document.getElementById('rtGuestDiscard');
+            const done=v=>{modal.hidden=true;imp.onclick=dis.onclick=null;resolve(v);};
+            imp.onclick=()=>done(true);dis.onclick=()=>done(false);
+        });}
 
         const IS_ANDROID_APP = /StudyDashApp|; wv\)/.test(navigator.userAgent);
 
@@ -3056,23 +3242,29 @@ rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document
 
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
+                    const rtTokenResult=await user.getIdTokenResult().catch(()=>null);
+                    if(rtTokenResult&&rtTokenResult.signInProvider==='password'){
+                        if(rtOtpCtx)return; // OTP flow in progress: hold on the auth screen
+                        await signOut(auth).catch(()=>{});rtShowAuth('Log in again and enter the code we email you.');finishSessionCheck();return;
+                    }
+                    rtOtpCtx=null;
                     rtPendingGuest=rtCaptureGuest();if(rtPendingGuest)rtSaveWorkspace();if(!localStorage.getItem('rt_legacy_workspace_backup'))localStorage.setItem('rt_legacy_workspace_backup',JSON.stringify(rtWorkspaceSnapshot()));currentUser = user;rtCloudLoading=true;isOfflineMode=false;rtUseWorkspace(safeParse(`rt_workspace_user_${user.uid}`,null));localStorage.removeItem('offline_mode');
                     document.getElementById('userSyncStatus').textContent = `[ SYNC: CLOUD ACTIVE ]`;
                     document.getElementById('navProfileArea').innerHTML = `<span class="logout-text" id="btnNavSignOut">Disconnect</span><svg class="profile-pic rt-profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Profile" title="${user.email}"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1.6-3.6 4.6-5.4 7.5-5.4s5.9 1.8 7.5 5.4"/></svg>`;
                     document.getElementById('btnNavSignOut').addEventListener('click', () => signOut(auth));
                     await pullDataFromCloud(user.uid); openApp('cloud');if(!v6Phone.matches)rtGo('homeSection');renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute(); syncWidgetTheme();rtResumeTimer();rtFriendsRender();
                 } else {
-                    if(currentUser){rtSaveWorkspace();resetTimerUI();rtUseWorkspace(safeParse('rt_guest_workspace',null));}currentUser = null;rtCloudLoading=false;
+                    if(currentUser){rtSaveWorkspace();resetTimerUI();}if(currentUser||localStorage.getItem('offline_mode')==='true')rtUseWorkspace(safeParse('rt_guest_workspace',null));currentUser = null;rtCloudLoading=false;isOfflineMode=false;
                     rtMarksScope=null;rtMarksRecords={};rtMarksSelected='';rtMarksLoad++;rtMClose();rtMRender();
                     rtFocusScope = null; rtFocusSessions = {}; rtFocusRun = null; rtRenderHeatmap();
                     rtHabitScope=null;rtHabitData={};rtHRender();
                     try { if (window.AndroidWidget && window.AndroidWidget.clearCalendarEvents) window.AndroidWidget.clearCalendarEvents(); } catch (e) {}
                     if(localStorage.getItem('offline_mode') !== 'true'){try{window.RTrackerHabits?.postMessage(JSON.stringify({type:'clear'}));}catch(e){}}
-                    openApp('offline');rtFriendsRender();
+                    rtShowAuth();rtFriendsRender();finishSessionCheck();
                 }
             }, sessionCheckFailed);
         } else {
-            openApp('offline');
+            rtShowAuth('Sign-in is temporarily unavailable.');finishSessionCheck();
         }
 
         // ===== 19 Oct fixes: bulk exam removal + focus rename during timer =====
