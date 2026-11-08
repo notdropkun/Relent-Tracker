@@ -2875,6 +2875,26 @@ function rtMRender() {}
         // ===== Auth redesign: entry / login / signup panes, scramble mask =====
         const rtAuthPanes={entry:'rtPaneEntry',login:'rtPaneLogin',signup:'rtPaneSignup'};
         function rtAuthStatus(msg,isErr){const el=document.getElementById('rtAuthStatus');if(!el)return;el.textContent=msg||'';el.style.color=isErr?'var(--accent-danger)':'var(--accent-secondary)';}
+        function rtAuthErr(err,fallback){
+            const code=(err&&err.code)||'';
+            const map={
+                'auth/invalid-credential':'Wrong email or password.',
+                'auth/wrong-password':'Wrong email or password.',
+                'auth/user-not-found':'Wrong email or password.',
+                'auth/invalid-email':'That email address does not look valid.',
+                'auth/email-already-in-use':'That email already has an account. Log in instead.',
+                'auth/weak-password':'Password needs at least 6 characters.',
+                'auth/too-many-requests':'Too many attempts. Wait a few minutes and try again.',
+                'auth/network-request-failed':'No connection. Check your network and try again.',
+                'auth/popup-closed-by-user':'',
+                'auth/cancelled-popup-request':'',
+                'auth/account-exists-with-different-credential':'This email already has an account with a different sign-in method. Use the method you signed up with.',
+                'auth/operation-not-allowed':'This sign-in method is not enabled yet.',
+                'auth/user-disabled':'This account has been disabled.'
+            };
+            if(code in map)return map[code];
+            return fallback;
+        }
         function rtShowPane(name){Object.values(rtAuthPanes).forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});const pane=document.getElementById(rtAuthPanes[name]);if(pane)pane.classList.add('active');rtAuthStatus('');}
         function rtShowAuth(statusMsg){document.getElementById('appContainer').classList.remove('visible');authScreen.classList.remove('hidden');document.body.classList.add('rt-auth-open');rtShowPane('entry');if(statusMsg)rtAuthStatus(statusMsg,true);}
         document.getElementById('btnGoLogin').addEventListener('click',()=>rtShowPane('login'));
@@ -2909,10 +2929,7 @@ function rtMRender() {}
             if(!email||!pass){rtAuthStatus('Enter your email and password.',true);return;}
             try{
                 await signInWithEmailAndPassword(auth,email,pass);
-            }catch(err){
-                if(err&&err.code==='auth/invalid-credential')rtAuthStatus('Wrong email or password.',true);
-                else rtAuthStatus((err&&err.message)||'Could not log in.',true);
-            }
+            }catch(err){rtAuthStatus(rtAuthErr(err,'Could not log in. Try again.')||'Could not log in. Try again.',true);}
         });
         document.getElementById('btnEmailSignup').addEventListener('click',async()=>{
             if(!isFirebaseConfigured||!auth){rtAuthStatus('Sign-up is temporarily unavailable.',true);return;}
@@ -2921,17 +2938,15 @@ function rtMRender() {}
             if(p1!==p2){rtAuthStatus('Passwords do not match.',true);return;}
             try{
                 await createUserWithEmailAndPassword(auth,email,p1);
-            }catch(err){
-                if(err&&err.code==='auth/email-already-in-use')rtAuthStatus('That email already has an account. Log in instead.',true);
-                else rtAuthStatus((err&&err.message)||'Could not create the account.',true);
-            }
+            }catch(err){rtAuthStatus(rtAuthErr(err,'Could not create the account. Try again.')||'Could not create the account. Try again.',true);}
         });
         document.getElementById('rtForgotLink').addEventListener('click',async e=>{
             e.preventDefault();
             const email=document.getElementById('rtLoginEmail').value.trim();
             if(!email){rtAuthStatus('Enter your email first.',true);return;}
             if(!isFirebaseConfigured||!auth){rtAuthStatus('Temporarily unavailable.',true);return;}
-            try{await sendPasswordResetEmail(auth,email);rtAuthStatus('Password reset email sent. Check your inbox.');}catch(err){rtAuthStatus((err&&err.message)||'Could not send the reset email.',true);}
+            const rtResetNeutral='If an account exists for that email, a reset link is on its way.';
+            try{await sendPasswordResetEmail(auth,email);rtAuthStatus(rtResetNeutral);}catch(err){if(err&&['auth/user-not-found','auth/invalid-email'].includes(err.code))rtAuthStatus(rtResetNeutral);else rtAuthStatus(rtAuthErr(err,'Could not send the reset email. Try again.')||'Could not send the reset email. Try again.',true);}
         });
 
         // Consent-gated guest import (replaces the old silent merge).
@@ -2970,15 +2985,16 @@ function rtMRender() {}
                 provider.addScope('https://www.googleapis.com/auth/calendar.readonly');
 
                 if (IS_ANDROID_APP) {
-                    signInWithRedirect(auth, provider).catch(err => { showToast(`Auth failed: ${err.message}`); });
+                    signInWithRedirect(auth, provider).catch(err => { showToast(rtAuthErr(err,'Google sign-in failed. Try again.')||'Google sign-in failed. Try again.'); });
                 } else {
                     signInWithPopup(auth, provider).then((result) => {
                         handleGoogleSignInResult(result, audioAdmin, audioUser);
                     }).catch(err => {
                         if (err && ['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment'].includes(err.code)) {
-                            signInWithRedirect(auth, provider).catch(e => { showToast(`Auth failed: ${e.message}`); });
+                            signInWithRedirect(auth, provider).catch(e => { showToast(rtAuthErr(e,'Google sign-in failed. Try again.')||'Google sign-in failed. Try again.'); });
                         } else {
-                            showToast(`Auth failed: ${err.message}`);
+                            const m = rtAuthErr(err,'Google sign-in failed. Try again.');
+                            if (m) showToast(m);
                         }
                     });
                 }
@@ -3198,7 +3214,7 @@ rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document
                 const audioAdmin = new Audio('./assets/audio/jarvis-admin.mp3'); const audioUser = new Audio('./assets/audio/jarvis-user.mp3');
                 audioAdmin.load(); audioUser.load();
                 handleGoogleSignInResult(result, audioAdmin, audioUser);
-            }).catch(err => { showToast(`Auth failed: ${err.message}`); });
+            }).catch(err => { showToast(rtAuthErr(err,'Google sign-in failed. Try again.')||'Google sign-in failed. Try again.'); });
 
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
