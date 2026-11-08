@@ -94,6 +94,9 @@ Real captures from the web app. No invented screens.
 <p align="center">
   <img src="docs/screenshots/showcase-06-appearance.png" alt="Appearance settings - feature card">
 </p>
+<p align="center">
+  <img src="docs/screenshots/tabs-demo.gif" alt="Tab transitions and dock animation - real capture from the web app">
+</p>
 
 ## 📱 Take it to your home screen
 
