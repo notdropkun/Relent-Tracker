@@ -524,6 +524,11 @@ body:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu) .bt
 <style id="rtAppearanceStyles">
 /* Appearance: Black/White mode + independent accent. Black accents reuse the existing theme classes; white mode gets per-accent overrides so primary, secondary and glow always match the chosen accent. */
 .rt-accent-swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--border-color);cursor:pointer;padding:0;flex-shrink:0}
+.rt-collapse-head{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:none;border:0;padding:8px 0;margin:0 0 6px;color:var(--text-muted);font-family:var(--font-premium);font-size:0.9rem;letter-spacing:-0.02em;text-align:left;cursor:pointer;min-height:36px}
+.rt-collapse-head:hover{color:var(--accent-primary)}
+.rt-collapse-head:focus-visible{outline:2px solid var(--accent-primary);outline-offset:2px}
+.rt-collapse-ind{font-family:var(--font-mono);color:var(--accent-primary);font-size:14px;line-height:1}
+.rt-collapse-body{padding-top:4px}
 .rt-accent-swatch.active{box-shadow:0 0 0 2px var(--bg-color),0 0 0 4px var(--sw)}
 #rtModeBlack.rt-mode-active,#rtModeWhite.rt-mode-active{border-color:var(--accent-primary);color:var(--accent-primary);background:rgba(var(--neon-rgb),.1)}
 body.theme-white-terminal[data-accent="red"]:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu){--accent-primary:#D30B31!important;--accent-secondary:#A4475C!important;--neon-rgb:211,11,49!important}
@@ -1088,13 +1093,17 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
                         <button type="button" id="rtModeBlack" class="btn btn-outline" style="flex:1">Black</button>
                         <button type="button" id="rtModeWhite" class="btn btn-outline" style="flex:1">White</button>
                     </div>
-                    <label>Accent colour</label>
+                    <div class="rt-collapse" id="rtAccentCollapse">
+                        <button type="button" class="rt-collapse-head" id="rtAccentHead" aria-expanded="false" aria-controls="rtAccentBody"><span>Accent colour</span><span class="rt-collapse-ind" aria-hidden="true">+</span></button>
+                        <div class="rt-collapse-body" id="rtAccentBody" hidden>
                     <div id="rtAccentRow" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
                         <button type="button" class="rt-accent-swatch" data-accent="red" title="Blood red" style="--sw:#F20D36;background:#F20D36"></button>
                         <button type="button" class="rt-accent-swatch" data-accent="purple" title="Ultraviolet" style="--sw:#A855F7;background:#A855F7"></button>
                         <button type="button" class="rt-accent-swatch" data-accent="pink" title="Hot pink" style="--sw:#FF3B9D;background:#FF3B9D"></button>
                         <button type="button" class="rt-accent-swatch" data-accent="cyan" title="Ice cyan" style="--sw:#27D8E8;background:#27D8E8"></button>
                         <button type="button" class="rt-accent-swatch" data-accent="silver" title="Silver" style="--sw:#F1F5FC;background:#F1F5FC"></button>
+                    </div>
+                        </div>
                     </div>
                     <select id="themeSwitcher" class="form-control" style="display:none" aria-hidden="true" tabindex="-1">
                         <option value="default">Blood neon</option><option value="theme-white-terminal">White terminal</option>
@@ -1126,16 +1135,17 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
                 </div>
 
                 <div id="rtPasswordWrap" style="display: none;">
-                    <div class="form-group">
-                        <label>Change Password</label>
+                    <div class="form-group rt-collapse" id="rtPassCollapse">
+                        <button type="button" class="rt-collapse-head" id="rtPassHead" aria-expanded="false" aria-controls="rtPassBody"><span>Change Password</span><span class="rt-collapse-ind" aria-hidden="true">+</span></button>
+                        <div class="rt-collapse-body" id="rtPassBody" hidden>
                         <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.4;">Email accounts only. Enter your current password, then the new one.</p>
                         <input type="password" id="rtOldPass" class="form-control" placeholder="current password" autocomplete="current-password" style="margin-bottom: 0.5rem;">
                         <input type="password" id="rtNewPass" class="form-control" placeholder="new password (6+ characters)" autocomplete="new-password" style="margin-bottom: 0.5rem;">
                         <input type="password" id="rtNewPass2" class="form-control" placeholder="confirm new password" autocomplete="new-password" style="margin-bottom: 0.75rem;">
                         <button id="btnChangePass" class="btn btn-outline" style="width: 100%;">Change password</button>
                         <p class="rt-auth-status" id="rtPassStatus" role="status" style="text-align: left;"></p>
+                        </div>
                     </div>
-                    <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 1.5rem 0;">
                 </div>
 
                 <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 1.5rem 0;">
@@ -2519,6 +2529,15 @@ function rtMRender() {}
         function rtAccentFromTheme(t){for(const k in rtAccentMap){if(rtAccentMap[k]===t)return k;}return rtSavedAccent()||'purple';}
         function rtRefreshAppearanceUI(accent){const mode=rtCurrentMode();if(rtModeBlack)rtModeBlack.classList.toggle('rt-mode-active',mode==='black');if(rtModeWhite)rtModeWhite.classList.toggle('rt-mode-active',mode==='white');if(rtAccentRow)[...rtAccentRow.children].forEach(b=>b.classList.toggle('active',b.dataset.accent===accent));}
         function rtApplyAppearance(mode,accent){if(activePersona!=='default')return;const target=mode==='white'?'theme-white-terminal':rtAccentMap[accent];themeSelect.value=target;themeSelect.dispatchEvent(new Event('change'));if(mode==='white'){document.body.dataset.accent=accent;}else{delete document.body.dataset.accent;}localStorage.setItem('app_accent',accent);rtRefreshAppearanceUI(accent);}
+        document.querySelectorAll('.rt-collapse-head').forEach(h=>{
+            h.addEventListener('click',()=>{
+                const c=h.closest('.rt-collapse'),b=document.getElementById(h.getAttribute('aria-controls'));
+                if(!c||!b)return;
+                const open=!c.classList.contains('rt-open');
+                c.classList.toggle('rt-open',open);b.hidden=!open;h.setAttribute('aria-expanded',String(open));
+                const ind=h.querySelector('.rt-collapse-ind');if(ind)ind.textContent=open?'\u2013':'+';
+            });
+        });
         if(rtModeBlack&&rtModeWhite&&rtAccentRow){
             rtModeBlack.addEventListener('click',()=>rtApplyAppearance('black',rtAccentFromTheme(readSavedTheme())));
             rtModeWhite.addEventListener('click',()=>rtApplyAppearance('white',rtAccentFromTheme(readSavedTheme())));
@@ -2851,6 +2870,7 @@ function rtMRender() {}
             try {
                 rtSetFocusScope(uid);
                 const userDoc = await getDoc(doc(db, "users", uid));
+                window.__rtCloudCustomName = userDoc.exists() ? (userDoc.data().customName || null) : null;
                 if (userDoc.exists()) {
                     const data = userDoc.data();
                     if(rtHabitScope===`user_${uid}`&&!isTeacherMode){rtHabitData=rtHMerge(data.habitRecords,rtHabitData);rtHApplyFocus();rtHSave();rtHRender();rtHUpload();}
@@ -2929,8 +2949,16 @@ function rtMRender() {}
             return fallback;
         }
         function rtShowPane(name){Object.values(rtAuthPanes).forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});const pane=document.getElementById(rtAuthPanes[name]);if(pane)pane.classList.add('active');rtAuthStatus('');}
-        // New email/password users pick a nickname before entering the app; it syncs via the normal cloud backup.
-        let rtJustSignedUpEmail=false;
+        // Email/password users without a synced alias pick a nickname before app use; it syncs via the normal cloud backup.
+        // Decided per account from the cloud doc (never from device-local leftovers), only after a clean cloud load.
+        function rtMaybeAskNickname(user){
+            if(!user||!user.providerData||!user.providerData.some(p=>p.providerId==='password'))return;
+            if(user.displayName)return;
+            if(window.rtCloudOk===false)return;
+            if(window.__rtCloudCustomName)return;
+            if(localStorage.getItem('custom_user_name')){localStorage.removeItem('custom_user_name');updateGreeting();}
+            rtAskNickname();
+        }
         function rtAskNickname(){
             const modal=document.getElementById('rtNameModal');if(!modal)return;
             modal.hidden=false;const inp=document.getElementById('rtNameInput'),st=document.getElementById('rtNameStatus');
@@ -2938,7 +2966,7 @@ function rtMRender() {}
             const save=()=>{
                 const name=inp.value.trim();
                 if(!name){st.textContent='Pick a nickname to continue.';st.style.color='var(--accent-danger)';return;}
-                localStorage.setItem('custom_user_name',name);updateGreeting();syncData(true);
+                localStorage.setItem('custom_user_name',name);window.__rtCloudCustomName=name;updateGreeting();syncData(true);
                 modal.hidden=true;showToast('Welcome, '+name+'.');
             };
             document.getElementById('rtNameSave').onclick=save;
@@ -3005,9 +3033,8 @@ function rtMRender() {}
             if(!email||p1.length<6){rtAuthStatus('Enter your email and a password of 6+ characters.',true);return;}
             if(p1!==p2){rtAuthStatus('Passwords do not match.',true);return;}
             try{
-                rtJustSignedUpEmail=true;
                 await createUserWithEmailAndPassword(auth,email,p1);
-            }catch(err){rtJustSignedUpEmail=false;rtAuthStatus(rtAuthErr(err,'Could not create the account. Try again.')||'Could not create the account. Try again.',true);}
+            }catch(err){rtAuthStatus(rtAuthErr(err,'Could not create the account. Try again.')||'Could not create the account. Try again.',true);}
         });
         document.getElementById('rtForgotLink').addEventListener('click',async e=>{
             e.preventDefault();
@@ -3291,7 +3318,7 @@ rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document
                     document.getElementById('userSyncStatus').textContent = `[ SYNC: CLOUD ACTIVE ]`;
                     document.getElementById('navProfileArea').innerHTML = `<span class="logout-text" id="btnNavSignOut">Disconnect</span><svg class="profile-pic rt-profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Profile" title="${user.email}"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1.6-3.6 4.6-5.4 7.5-5.4s5.9 1.8 7.5 5.4"/></svg>`;
                     document.getElementById('btnNavSignOut').addEventListener('click', () => signOut(auth));
-                    await pullDataFromCloud(user.uid); openApp('cloud');if(!v6Phone.matches)rtGo('homeSection');renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute(); syncWidgetTheme();rtResumeTimer();rtFriendsRender();if(rtJustSignedUpEmail){rtJustSignedUpEmail=false;if(user.providerData&&user.providerData.some(p=>p.providerId==='password'))rtAskNickname();}
+                    await pullDataFromCloud(user.uid); openApp('cloud');if(!v6Phone.matches)rtGo('homeSection');renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute(); syncWidgetTheme();rtResumeTimer();rtFriendsRender();rtMaybeAskNickname(user);
                 } else {
                     if(currentUser){rtSaveWorkspace();resetTimerUI();}if(currentUser||localStorage.getItem('offline_mode')==='true')rtUseWorkspace(safeParse('rt_guest_workspace',null));currentUser = null;rtCloudLoading=false;isOfflineMode=false;
                     rtMarksScope=null;rtMarksRecords={};rtMarksSelected='';rtMarksLoad++;rtMClose();rtMRender();
