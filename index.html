@@ -112,6 +112,10 @@
         #authScreen{overflow-y:auto;padding:24px 16px;box-sizing:border-box;background:var(--bg-color)}
         #authScreen .auth-card{margin:auto;z-index:1;border-radius:22px;border:1px solid rgba(255,255,255,.07);box-shadow:0 10px 28px rgba(0,0,0,.38)}
         .auth-glow{position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.16) 0%,rgba(168,85,247,.05) 45%,transparent 70%);pointer-events:none;z-index:0}
+        .auth-card h2.rt-split:after{content:none}
+        body.rt-auth-open{overflow:hidden}
+        #authScreen .btn{border-radius:8px!important;font-family:var(--font-display)!important;font-size:1rem!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:1px!important;padding:.6rem 1.2rem!important}
+        .rt-mask-view .tail{color:var(--accent-secondary)}
         .rt-auth-pane{display:none}
         .rt-auth-pane.active{display:block}
         .rt-split{margin-bottom:1rem}
@@ -799,7 +803,7 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
             </div>
             <div class="rt-auth-pane" id="rtPaneOtp">
                 <h2 class="rt-split"><span class="goth">Check.</span><span class="norm accent-text">Inbox</span><span class="cur">_</span></h2>
-                <p style="margin-bottom:1rem">Enter the 6-digit code sent to <b id="rtOtpEmail"></b>. It expires in 10 minutes.</p>
+                <p style="margin-bottom:1rem">Enter the 6-digit code sent to <b id="rtOtpEmail">your email</b>. It expires in 10 minutes.</p>
                 <div class="rt-auth-fields">
                     <input class="form-control" id="rtOtpCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" maxlength="6" style="text-align:center;letter-spacing:.4em">
                 </div>
@@ -2864,7 +2868,7 @@ function rtMRender() {}
             console.warn('Session check did not finish', error);rtShowAuth('Could not check your session. Check your connection and reload.');
         }
         function openApp(mode) {
-            if(!isTeacherMode)rtBootRun(mode);authScreen.classList.add('hidden'); appContainer.classList.add('visible'); updateGreeting(); finishSessionCheck();
+            if(!isTeacherMode)rtBootRun(mode);authScreen.classList.add('hidden');document.body.classList.remove('rt-auth-open'); appContainer.classList.add('visible'); updateGreeting(); finishSessionCheck();
             rtHRender();document.getElementById('rtAiSignIn').hidden=!!currentUser;
             rtRenderHeatmap(); updatePomoStatsDisplay();
             if (mode === 'offline') {
@@ -2881,7 +2885,7 @@ function rtMRender() {}
         const rtAuthPanes={entry:'rtPaneEntry',login:'rtPaneLogin',signup:'rtPaneSignup',otp:'rtPaneOtp'};
         function rtAuthStatus(msg,isErr){const el=document.getElementById('rtAuthStatus');if(!el)return;el.textContent=msg||'';el.style.color=isErr?'var(--accent-danger)':'var(--accent-secondary)';}
         function rtShowPane(name){Object.values(rtAuthPanes).forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});const pane=document.getElementById(rtAuthPanes[name]);if(pane)pane.classList.add('active');rtAuthStatus('');}
-        function rtShowAuth(statusMsg){document.getElementById('appContainer').classList.remove('visible');authScreen.classList.remove('hidden');rtShowPane('entry');if(statusMsg)rtAuthStatus(statusMsg,true);}
+        function rtShowAuth(statusMsg){document.getElementById('appContainer').classList.remove('visible');authScreen.classList.remove('hidden');document.body.classList.add('rt-auth-open');rtShowPane('entry');if(statusMsg)rtAuthStatus(statusMsg,true);}
         document.getElementById('btnGoLogin').addEventListener('click',()=>rtShowPane('login'));
         document.getElementById('btnGoSignup').addEventListener('click',()=>rtShowPane('signup'));
         document.getElementById('rtToSignup').addEventListener('click',e=>{e.preventDefault();rtShowPane('signup');});
@@ -2889,14 +2893,16 @@ function rtMRender() {}
         document.getElementById('btnGoogleSignup').addEventListener('click',()=>document.getElementById('btnMainGoogleLogin').click());
 
         // Scramble password mask (original fast re-roll, text nodes only). Reduced motion: native bullets.
-        const RT_GLYPHS='ABCDEFGHKMNPQRSTUVWXYZ#$%&*+=?~^';
+        const RT_GLYPHS='#@$%&*!?/\\|<>_-+=~';
         const rtMaskReduced=window.matchMedia('(prefers-reduced-motion: reduce)');
         function rtMaskInit(inputId){
             const input=document.getElementById(inputId);if(!input)return;
             const view=input.closest('.rt-mask-wrap').querySelector('.rt-mask-view');
             if(rtMaskReduced.matches){view.remove();return;}
             input.classList.add('rt-masked');
-            const draw=()=>{view.replaceChildren(...[...input.value].map(()=>{const s=document.createElement('span');s.textContent=RT_GLYPHS[Math.floor(Math.random()*RT_GLYPHS.length)];return s;}));};
+            let lastTypeAt=0,lastLen=0;
+            input.addEventListener('input',()=>{if(input.value.length>lastLen)lastTypeAt=Date.now();lastLen=input.value.length;});
+            const draw=()=>{const v=input.value,now=Date.now();view.replaceChildren(...[...v].map((ch,i)=>{const s=document.createElement('span');if(i===v.length-1&&now-lastTypeAt<200){s.className='tail';s.textContent=ch;}else{s.textContent=RT_GLYPHS[Math.floor(Math.random()*RT_GLYPHS.length)];}return s;}));};
             let iv=null;
             const start=()=>{draw();if(!iv)iv=setInterval(()=>{if(input.value)draw();},100);};
             const stop=()=>{clearInterval(iv);iv=null;};
