@@ -1,8 +1,11 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "app.vercel.study_dashboard_rose_psi.twa",
-        "sha256_cert_fingerprints": ["CF:00:EA:AB:E7:AA:7F:F7:CE:9A:FB:3A:EA:D8:74:0D:83:9B:74:8A:D2:39:51:4A:89:B9:06:E4:83:08:67:53"]
-      }
-    }]
+ "relation": ["delegate_permission/common.handle_all_urls"],
+ "target": {
+ "namespace": "android_app",
+ "package_name": "app.vercel.study_dashboard_rose_psi.twa",
+ "sha256_cert_fingerprints": [
+ "CF:00:EA:AB:E7:AA:7F:F7:CE:9A:FB:3A:EA:D8:74:0D:83:9B:74:8A:D2:39:51:4A:89:B9:06:E4:83:08:67:53",
+ "D2:5A:81:C7:D7:53:C3:39:98:0F:7E:DF:F4:CE:BB:67:0E:7F:D2:1F:AD:74:32:B2:7B:E5:C5:BB:89:B0:89:B9"
+ ]
+ }
+ }]
