@@ -1750,8 +1750,9 @@ function rtMRender() {}
             const viaCtor=()=>{try{window.__rtDoneNote=new Notification('Relent Tracker',{body,tag});clearLater();}catch(e){}};
             if('serviceWorker' in navigator){navigator.serviceWorker.ready.then(r=>r.showNotification('Relent Tracker',{body,tag})).then(clearLater).catch(viaCtor);}else viaCtor();
         }
-        function rtNativeAlertSchedule(){try{if(window.RTrackerTimer&&rtFocusRun&&pomoTargetEndTime)window.RTrackerTimer.postMessage(JSON.stringify({type:'schedule',endMs:pomoTargetEndTime,title:'Relent Tracker',body:rtFocusRun.mode==='focus'?'Focus session complete. Time for a break.':'Break complete. Ready to focus?'}));}catch(e){}}
+        function rtNativeAlertSchedule(){try{if(window.RTrackerTimer&&rtFocusRun&&pomoTargetEndTime)window.RTrackerTimer.postMessage(JSON.stringify({type:'schedule',endMs:pomoTargetEndTime,kind:rtFocusRun.mode,title:'Relent Tracker',body:rtFocusRun.mode==='focus'?'Focus session complete. Time for a break.':'Break complete. Ready to focus?'}));}catch(e){}}
         function rtNativeAlertCancel(){try{if(window.RTrackerTimer)window.RTrackerTimer.postMessage(JSON.stringify({type:'cancel'}));}catch(e){}}
+        window.rtTimerGiveUpExternal=function(){try{if(pomoTargetEndTime)btnPomoGiveUp.click();}catch(e){}};
         let pomoTimer,pomoTargetEndTime=0;
         let pomoTimeLeft=pomoSettings.focus*60;
         const displayPomo=document.getElementById('timerDisplay'),btnPomoStart=document.getElementById('btnTimerStart'),btnPomoGiveUp=document.getElementById('btnTimerGiveUp'),btnPomoReset=document.getElementById('btnTimerReset');
