@@ -124,6 +124,7 @@
         .rt-split .cur{color:var(--accent-primary);font-family:var(--font-mono);animation:rtCursor 1s step-end infinite;font-size:1.7rem}
         @media(prefers-reduced-motion:reduce){.rt-split .cur{animation:none}}
         .rt-stack{display:flex;flex-direction:column;gap:12px;margin-top:1.75rem}
+        #rtPaneEntry .rt-stack{margin-top:1.25rem}
         .btn-filled{background:var(--accent-primary);border:1px solid var(--accent-primary);color:#0B0614;box-shadow:0 0 20px rgba(168,85,247,.45);text-shadow:none}
         .btn-filled:hover{box-shadow:0 0 28px rgba(168,85,247,.6)}
         /* Auth screens: keep filled buttons readable on hover/active - generic .btn:hover (surface bg) would otherwise beat .btn-filled and hide the dark label */
@@ -144,6 +145,9 @@
         .rt-guest-card p{color:var(--text-muted);font-size:.85rem;margin-bottom:.5rem}
         @media(max-width:600px){#authScreen{padding:16px;box-sizing:border-box;width:100%;overflow-x:hidden}#authScreen .auth-card{box-sizing:border-box;width:100%;max-width:100%;min-width:0;padding:1.25rem}#authScreen .auth-card h2{font-size:2rem;overflow-wrap:anywhere}#authScreen .auth-card p{overflow-wrap:anywhere;margin-bottom:1.5rem}#authScreen .auth-card .btn{box-sizing:border-box;max-width:100%;white-space:normal;text-align:center}}
         .engineered-text { font-size: 0.75rem; color: var(--text-muted); margin-top: 2rem; letter-spacing: 2px; }
+        #authScreen .auth-card .engineered-text { margin-top: 1.75rem; margin-bottom: 0; }
+        #authScreen .rt-auth-status:empty { display: none; }
+        .rt-tagline { font: 11px var(--font-mono); color: var(--accent-secondary); letter-spacing: 3px; margin-top: 1rem; }
         
         .advaay-glow { color: #ff00ff; text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; font-family: var(--font-display); font-size: 1.1rem; font-weight: bold; animation: pulse-glow 2s infinite alternate; }
         @keyframes pulse-glow { from { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; } to { text-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, 0 0 40px #ff00ff; color: #ff88ff; } }
@@ -766,6 +770,7 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
         <div class="auth-card card-panel">
             <div class="rt-auth-pane active" id="rtPaneEntry">
                 <h2 class="rt-split"><span class="goth">Relent</span><span class="norm accent-text">_Tracker</span><span class="cur">_</span></h2>
+                <p class="rt-tagline">stay relentless.</p>
                 <div class="rt-stack">
                     <button id="btnGoLogin" class="btn btn-filled" style="width:100%" type="button">[ Log in ]</button>
                     <button id="btnGoSignup" class="btn btn-outline" style="width:100%" type="button">[ Sign up ]</button>
@@ -815,6 +820,18 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
                 <button class="btn btn-filled" id="rtGuestImport" type="button">[ Import my data ]</button>
                 <button class="btn btn-outline" id="rtGuestDiscard" type="button">[ Discard it ]</button>
             </div>
+        </div>
+    </div>
+
+    <div class="rt-guest-modal" id="rtNameModal" hidden>
+        <div class="rt-guest-card card-panel">
+            <h3 style="margin-bottom:.75rem">What should we call you?</h3>
+            <p>Shown on your dashboard and synced to your account.</p>
+            <div class="rt-stack">
+                <input type="text" id="rtNameInput" class="form-control" maxlength="30" placeholder="your nickname" autocomplete="nickname" style="text-align:center">
+                <button class="btn btn-filled" id="rtNameSave" type="button">[ Continue ]</button>
+            </div>
+            <p class="rt-auth-status" id="rtNameStatus" role="status"></p>
         </div>
     </div>
 
@@ -1108,6 +1125,19 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
                     </div>
                 </div>
 
+                <div id="rtPasswordWrap" style="display: none;">
+                    <div class="form-group">
+                        <label>Change Password</label>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.4;">Email accounts only. Enter your current password, then the new one.</p>
+                        <input type="password" id="rtOldPass" class="form-control" placeholder="current password" autocomplete="current-password" style="margin-bottom: 0.5rem;">
+                        <input type="password" id="rtNewPass" class="form-control" placeholder="new password (6+ characters)" autocomplete="new-password" style="margin-bottom: 0.5rem;">
+                        <input type="password" id="rtNewPass2" class="form-control" placeholder="confirm new password" autocomplete="new-password" style="margin-bottom: 0.75rem;">
+                        <button id="btnChangePass" class="btn btn-outline" style="width: 100%;">Change password</button>
+                        <p class="rt-auth-status" id="rtPassStatus" role="status" style="text-align: left;"></p>
+                    </div>
+                    <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 1.5rem 0;">
+                </div>
+
                 <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 1.5rem 0;">
 
                 <div class="form-group" style="margin-bottom: 0;">
@@ -1213,7 +1243,7 @@ const rtMotionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
 window.rtInAndroidApp=!!(window.AndroidWidget||window.RTrackerHabits)||/; wv\)/i.test(navigator.userAgent);if(window.rtInAndroidApp)document.documentElement.classList.add('rt-inapp');
 let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=false,rtExamRemoveTimer=null;let rtArchiveConfirmId='',rtArchiveConfirmTimer=null;
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, addDoc, runTransaction, onSnapshot, query, where, updateDoc, deleteDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const ADMIN_EMAILS = ["dropadvaay@gmail.com", "advaay1981@gmail.com"];
@@ -2437,6 +2467,7 @@ function rtMRender() {}
         const settingsModal = document.getElementById('globalSettingsModal');
         document.getElementById('btnGlobalSettings').addEventListener('click', () => {
             refreshAppUpdateEntry();
+            document.getElementById('rtPasswordWrap').style.display = (currentUser && currentUser.providerData && currentUser.providerData.some(p => p.providerId === 'password')) ? '' : 'none';
             settingsModal.classList.add('active');
             document.getElementById('shareLinkOutput').style.display = 'none';
         });
@@ -2898,6 +2929,41 @@ function rtMRender() {}
             return fallback;
         }
         function rtShowPane(name){Object.values(rtAuthPanes).forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});const pane=document.getElementById(rtAuthPanes[name]);if(pane)pane.classList.add('active');rtAuthStatus('');}
+        // New email/password users pick a nickname before entering the app; it syncs via the normal cloud backup.
+        let rtJustSignedUpEmail=false;
+        function rtAskNickname(){
+            const modal=document.getElementById('rtNameModal');if(!modal)return;
+            modal.hidden=false;const inp=document.getElementById('rtNameInput'),st=document.getElementById('rtNameStatus');
+            inp.value='';st.textContent='';setTimeout(()=>inp.focus(),60);
+            const save=()=>{
+                const name=inp.value.trim();
+                if(!name){st.textContent='Pick a nickname to continue.';st.style.color='var(--accent-danger)';return;}
+                localStorage.setItem('custom_user_name',name);updateGreeting();syncData(true);
+                modal.hidden=true;showToast('Welcome, '+name+'.');
+            };
+            document.getElementById('rtNameSave').onclick=save;
+            inp.onkeydown=e=>{if(e.key==='Enter')save();};
+        }
+        document.getElementById('btnChangePass').addEventListener('click',async()=>{
+            const st=document.getElementById('rtPassStatus');
+            const set=(m,isErr)=>{st.textContent=m;st.style.color=isErr?'var(--accent-danger)':'var(--accent-secondary)';};
+            if(!currentUser||!currentUser.email){set('Sign in first.',true);return;}
+            const oldP=document.getElementById('rtOldPass').value,p1=document.getElementById('rtNewPass').value,p2=document.getElementById('rtNewPass2').value;
+            if(!oldP||p1.length<6){set('Enter your current password and a new one of 6+ characters.',true);return;}
+            if(p1!==p2){set('New passwords do not match.',true);return;}
+            const btn=document.getElementById('btnChangePass');btn.disabled=true;
+            try{
+                await reauthenticateWithCredential(currentUser,EmailAuthProvider.credential(currentUser.email,oldP));
+                await updatePassword(currentUser,p1);
+                document.getElementById('rtOldPass').value='';document.getElementById('rtNewPass').value='';document.getElementById('rtNewPass2').value='';
+                set('Password updated.');showToast('Password updated.');
+            }catch(err){
+                const code=(err&&err.code)||'';
+                if(code==='auth/wrong-password'||code==='auth/invalid-credential')set('Current password is incorrect.',true);
+                else if(code==='auth/weak-password')set('New password needs at least 6 characters.',true);
+                else set(rtAuthErr(err,'Could not update the password. Try again.')||'Could not update the password. Try again.',true);
+            }finally{btn.disabled=false;}
+        });
         function rtShowAuth(statusMsg){document.getElementById('appContainer').classList.remove('visible');authScreen.classList.remove('hidden');document.body.classList.add('rt-auth-open');rtShowPane('entry');if(statusMsg)rtAuthStatus(statusMsg,true);}
         document.getElementById('btnGoLogin').addEventListener('click',()=>rtShowPane('login'));
         document.getElementById('btnGoSignup').addEventListener('click',()=>rtShowPane('signup'));
@@ -2939,8 +3005,9 @@ function rtMRender() {}
             if(!email||p1.length<6){rtAuthStatus('Enter your email and a password of 6+ characters.',true);return;}
             if(p1!==p2){rtAuthStatus('Passwords do not match.',true);return;}
             try{
+                rtJustSignedUpEmail=true;
                 await createUserWithEmailAndPassword(auth,email,p1);
-            }catch(err){rtAuthStatus(rtAuthErr(err,'Could not create the account. Try again.')||'Could not create the account. Try again.',true);}
+            }catch(err){rtJustSignedUpEmail=false;rtAuthStatus(rtAuthErr(err,'Could not create the account. Try again.')||'Could not create the account. Try again.',true);}
         });
         document.getElementById('rtForgotLink').addEventListener('click',async e=>{
             e.preventDefault();
@@ -3224,7 +3291,7 @@ rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document
                     document.getElementById('userSyncStatus').textContent = `[ SYNC: CLOUD ACTIVE ]`;
                     document.getElementById('navProfileArea').innerHTML = `<span class="logout-text" id="btnNavSignOut">Disconnect</span><svg class="profile-pic rt-profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Profile" title="${user.email}"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1.6-3.6 4.6-5.4 7.5-5.4s5.9 1.8 7.5 5.4"/></svg>`;
                     document.getElementById('btnNavSignOut').addEventListener('click', () => signOut(auth));
-                    await pullDataFromCloud(user.uid); openApp('cloud');if(!v6Phone.matches)rtGo('homeSection');renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute(); syncWidgetTheme();rtResumeTimer();rtFriendsRender();
+                    await pullDataFromCloud(user.uid); openApp('cloud');if(!v6Phone.matches)rtGo('homeSection');renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute(); syncWidgetTheme();rtResumeTimer();rtFriendsRender();if(rtJustSignedUpEmail){rtJustSignedUpEmail=false;if(user.providerData&&user.providerData.some(p=>p.providerId==='password'))rtAskNickname();}
                 } else {
                     if(currentUser){rtSaveWorkspace();resetTimerUI();}if(currentUser||localStorage.getItem('offline_mode')==='true')rtUseWorkspace(safeParse('rt_guest_workspace',null));currentUser = null;rtCloudLoading=false;isOfflineMode=false;
                     rtMarksScope=null;rtMarksRecords={};rtMarksSelected='';rtMarksLoad++;rtMClose();rtMRender();
