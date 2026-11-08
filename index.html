@@ -126,6 +126,8 @@
         .rt-stack{display:flex;flex-direction:column;gap:12px;margin-top:1.75rem}
         .btn-filled{background:var(--accent-primary);border:1px solid var(--accent-primary);color:#0B0614;box-shadow:0 0 20px rgba(168,85,247,.45);text-shadow:none}
         .btn-filled:hover{box-shadow:0 0 28px rgba(168,85,247,.6)}
+        /* Auth screens: keep filled buttons readable on hover/active - generic .btn:hover (surface bg) would otherwise beat .btn-filled and hide the dark label */
+        #authScreen .btn-filled:hover,#authScreen .btn-filled:active,#authScreen .btn-filled:focus-visible{background:var(--accent-primary);border-color:var(--accent-primary);color:#0B0614}
         .rt-auth-fields{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;text-align:left}
         .rt-auth-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--text-muted);font:10px var(--font-mono);letter-spacing:2px;text-transform:uppercase}
         .rt-auth-divider:before,.rt-auth-divider:after{content:'';flex:1;height:1px;background:var(--border-color)}
