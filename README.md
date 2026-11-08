@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/showcase-01-home.png" alt="Relent Tracker home dashboard - feature card">
+  <img src="docs/screenshots/showcase-01-home-duo.png" alt="Relent Tracker home dashboard on laptop and phone - feature card">
 </p>
 
 <p align="center"><strong>Exam countdowns · Habits + XP ranks · Focus timer · Squad · Android widgets</strong></p>
