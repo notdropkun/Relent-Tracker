@@ -537,20 +537,26 @@ body.theme-white-terminal[data-accent="pink"]:not(.theme-miku):not(.theme-teto):
 body.theme-white-terminal[data-accent="cyan"]:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu){--accent-primary:#0E8FA3!important;--accent-secondary:#4E8A96!important;--neon-rgb:14,143,163!important}
 body.theme-white-terminal[data-accent="silver"]:not(.theme-miku):not(.theme-teto):not(.theme-ben10):not(.theme-pikachu){--accent-primary:#4A5568!important;--accent-secondary:#7A8699!important;--neon-rgb:74,85,104!important}
 </style><style id="rtFocusHeatmapStyle">
-/* Focus heatmap: uses the existing palettes, including secret themes. */
+/* Focus study-time graph: token-driven, works in every theme + accent. */
 .rt-heatmap{margin-top:22px;max-width:100%;min-width:0;text-align:left}
-.rt-hm-bar{display:flex;justify-content:space-between;gap:10px;font:10px var(--font-mono);color:var(--accent-primary);border-bottom:1px solid var(--border-color);padding:12px 14px;margin:-15px -15px 16px;background:var(--surface-color)}
-.rt-hm-controls{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}.rt-hm-controls .btn{font:10px var(--font-mono);padding:8px 10px}.rt-hm-controls select{width:auto;padding:8px;font:10px var(--font-mono)}
-.rt-hm-scroll{overflow-x:auto;padding:3px 3px 9px;max-width:100%;scrollbar-width:thin;scrollbar-color:var(--accent-primary) var(--surface-color)}
-.rt-hm-grid{display:grid;gap:4px;align-items:center}.rt-hm-label{font:8px var(--font-mono);color:var(--text-muted)}
-.rt-hm-cell{display:block;width:100%;height:17px;min-width:17px;border:1px solid var(--border-color);padding:0;border-radius:1px;background:var(--bg-color);cursor:pointer;color:var(--accent-primary);position:relative}
-.rt-hm-cell::before{content:'';position:absolute;inset:0;background:var(--accent-primary);opacity:var(--hm-opacity,0)}
-.rt-hm-cell[aria-pressed="true"],.rt-hm-cell:focus-visible{outline:1px solid var(--text-main);outline-offset:2px}.rt-hm-cell:disabled{cursor:default;opacity:.3}
-.rt-hm-legend{display:flex;justify-content:flex-end;align-items:center;gap:4px;font:8px var(--font-mono);color:var(--text-muted);margin:8px 0 16px}.rt-hm-legend i{width:13px;height:13px;background:var(--accent-primary)}
-.rt-hm-detail{border-top:1px solid var(--border-color);padding-top:13px;font:11px/1.8 var(--font-mono)}.rt-hm-detail strong{color:var(--accent-primary)}.rt-hm-detail small{display:block;color:var(--text-muted);font-size:10px}
-.rt-hm-stats{display:flex;justify-content:space-between;border-top:1px solid var(--border-color);padding-top:15px;margin-top:15px;gap:10px}.rt-hm-stats small{display:block;color:var(--text-muted);font:9px var(--font-mono);margin-bottom:7px}.rt-hm-stats b{font:700 20px var(--font-mono);color:var(--accent-primary)}
-.rt-hm-note{font:10px/1.8 var(--font-mono);color:var(--text-muted);margin-top:15px}.rt-hm-empty{font:11px/1.8 var(--font-mono);color:var(--text-muted);margin-bottom:14px}.rt-hm-status{font:9px/1.7 var(--font-mono);color:var(--text-muted);margin-top:12px}
-@media(min-width:601px){.rt-heatmap{width:100%;max-width:640px;margin:22px auto}.rt-hm-bar{font-size:12px}.rt-hm-label{font-size:10px}.rt-hm-cell{height:20px}}
+.rt-graph-card{border-color:color-mix(in srgb,var(--accent-primary) 35%,var(--border-color));background:linear-gradient(180deg,color-mix(in srgb,var(--accent-primary) 10%,var(--surface-color)),var(--surface-color));border-radius:22px;padding:24px 20px}
+.rt-g-head h3{font:600 21px var(--font-display);color:var(--text-main);letter-spacing:-.01em;margin:0}
+.rt-g-sub{font:500 11.5px var(--font-main);color:var(--text-muted);margin:5px 0 0}
+.rt-g-seg{display:flex;background:color-mix(in srgb,var(--bg-color) 65%,transparent);border:1px solid color-mix(in srgb,var(--accent-primary) 25%,var(--border-color));border-radius:12px;padding:3px;margin:18px 0 20px}
+.rt-g-seg button{flex:1;border:0;background:none;color:var(--text-muted);font:600 11.5px var(--font-main);padding:8px 0;border-radius:9px;min-height:38px;cursor:pointer;transition:var(--transition)}
+.rt-g-seg button.active{background:color-mix(in srgb,var(--accent-primary) 22%,var(--surface-color));color:var(--text-main)}
+.rt-g-seg button:focus-visible{outline:2px solid var(--text-main);outline-offset:2px}
+.rt-g-summary b{font:800 30px var(--font-main);color:var(--text-main);letter-spacing:-.02em}
+.rt-g-summary span{display:block;font:500 11.5px var(--font-main);color:var(--text-muted);margin-top:4px}
+.rt-hm-empty{font:11px/1.8 var(--font-mono);color:var(--text-muted);margin:14px 0 0}
+.rt-g-chart{margin:14px -2px 0}
+.rt-g-chart svg{display:block;width:100%;height:auto}
+.rt-g-detail{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid color-mix(in srgb,var(--text-muted) 18%,transparent)}
+.rt-g-detail b{font:700 13px var(--font-main);color:var(--text-main)}
+.rt-g-detail span{font:500 11px var(--font-main);color:var(--text-muted);text-align:right}
+.rt-g-foot{font:500 9.5px/1.8 var(--font-main);color:var(--text-muted);opacity:.8;margin:12px 0 0}
+@media(min-width:601px){.rt-heatmap{width:100%;max-width:640px;margin:22px auto}}
+@media(prefers-reduced-motion:reduce){.rt-g-seg button{transition:none}}
 </style>
 
 <style id="rtNavIcons">.rt-nav-icon{display:block;flex-shrink:0;color:inherit;width:20px;height:20px}.side-taskbar .taskbar-btn{display:flex;flex-direction:column;gap:6px}.side-taskbar .taskbar-btn:after{content:attr(data-mobile-label);position:static;transform:none;opacity:1;visibility:visible;background:none;border:0;box-shadow:none;padding:0;font:10px var(--font-mono);color:inherit;white-space:nowrap;text-transform:none}@media(min-width:601px){.side-taskbar .taskbar-btn{width:72px;height:64px}.side-taskbar .taskbar-btn:hover{transform:none}}.side-taskbar .taskbar-btn{color:var(--text-muted)}.side-taskbar .taskbar-btn.active{color:var(--accent-primary)}</style>
@@ -999,12 +1005,14 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
                 </div>
             </div>
             
-            <section class="rt-heatmap card-panel" aria-label="Focus activity heatmap" id="rtHeatmap">
-                <div class="rt-hm-bar"><span>focus.heatmap</span><span id="rtHmRangeLabel">13 WEEKS</span></div>
-                <div class="rt-hm-controls"><button class="btn btn-outline active" id="rtHmRecent" type="button">13 weeks</button><button class="btn btn-outline" id="rtHmYear" type="button">Year</button><select class="form-control" id="rtHmYearSelect" aria-label="Focus activity year"></select></div>
-                <p class="rt-hm-empty" id="rtHmEmpty">Your heatmap starts with your next completed focus session. Old totals stay unchanged.</p>
-                <div class="rt-hm-scroll" id="rtHmScroll"><div class="rt-hm-grid" id="rtHmGrid" role="group" aria-label="Daily focus minutes"></div></div>
-                <div class="rt-hm-legend"><span>0m</span><i style="opacity:.06"></i><i style="opacity:.22"></i><i style="opacity:.42"></i><i style="opacity:.67"></i><i></i><span>120m+</span></div>
+            <section class="rt-heatmap card-panel rt-graph-card" aria-label="Focus activity graph" id="rtHeatmap">
+                <div class="rt-g-head"><h3 class="rt-g-title">Study time</h3><p class="rt-g-sub" id="rtGRangeSub">Daily focus &middot; last 7 days</p></div>
+                <div class="rt-g-seg" role="group" aria-label="Graph range"><button class="active" id="rtGWeek" type="button">Week</button><button id="rtGMonth" type="button">Month</button><button id="rtGYear" type="button">Year</button></div>
+                <div class="rt-g-summary"><b id="rtGTotal">0 m</b><span id="rtGStats"></span></div>
+                <p class="rt-hm-empty" id="rtHmEmpty" hidden>Your graph starts with your next completed focus session. Old totals stay unchanged.</p>
+                <div class="rt-g-chart" id="rtGChart"></div>
+                <div class="rt-g-detail" id="rtGDetail" hidden></div>
+                <p class="rt-g-foot" id="rtGFoot"></p>
             </section>
         </div>
 
@@ -1722,7 +1730,7 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
 
         // Dated focus history is separate from legacy pomoStats. No backfill.
         let rtFocusSessions = {}, rtFocusRun = null, rtFocusScope = null;
-        let rtHmRange = 'recent', rtHmYear = new Date().getFullYear(), rtHmSelected = rtLocalDay(new Date());
+        let rtHmRange = 'week', rtHmYear = new Date().getFullYear(), rtHmSelected = rtLocalDay(new Date());
         let rtFocusCloudFailed = false;
         function rtLocalDay(d) {
             return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -1791,62 +1799,208 @@ function rtMRender() {}
             Object.values(rtFocusSessions).forEach(s=>{if(s.day>=rtLocalDay(first)&&s.day<=rtLocalDay(today))days[s.day]=(days[s.day]||0)+s.minutes;});
             try{bridge.setFocusHeatmap(rtFocusScope,JSON.stringify({days}));}catch(e){}
         }
+        let rtGraphDrawn = false, rtGraphLiveLast = 0;
+        function rtGFmtMin(m) {
+            m = Math.max(0, Math.round(m));
+            if (m < 60) return `${m} m`;
+            const h = Math.floor(m / 60), r = m % 60;
+            return r ? `${h} h ${r} m` : `${h} h`;
+        }
+        function rtGLiveMinutes(now) {
+            if (!rtFocusRun || rtFocusRun.scope !== rtFocusScope) return 0;
+            if (rtFocusRun.state !== 'studying' && rtFocusRun.state !== 'paused') return 0;
+            // Provisional only: an unfinished round is not saved yet and a discarded round never lands. Paused minutes are banked focus time; breaks never count.
+            return Math.min(rtSwActiveMs(now), rtFocusRun.targetMin * 60000) / 60000;
+        }
+        function rtGDayTotals() {
+            const days = {};
+            Object.values(rtFocusSessions).forEach(s => { days[s.day] = (days[s.day] || 0) + s.minutes; });
+            const live = rtGLiveMinutes(Date.now());
+            if (live > 0) { const k = rtLocalDay(new Date()); days[k] = (days[k] || 0) + live; }
+            return days;
+        }
+        function rtGPoints() {
+            const today = new Date(); today.setHours(12, 0, 0, 0);
+            const days = rtGDayTotals();
+            if (rtHmRange === 'year') {
+                const pts = [], cur = new Date(today.getFullYear(), today.getMonth(), 1, 12);
+                for (let i = 11; i >= 0; i--) {
+                    const d = new Date(cur); d.setMonth(d.getMonth() - i);
+                    const mk = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    let v = 0;
+                    Object.entries(days).forEach(([k, m]) => { if (k.startsWith(mk)) v += m; });
+                    pts.push({ key: mk, label: d.toLocaleDateString('en', { month: 'short' }), value: v });
+                }
+                return pts;
+            }
+            const n = rtHmRange === 'month' ? 30 : 7, pts = [];
+            for (let i = n - 1; i >= 0; i--) {
+                const d = new Date(today); d.setDate(d.getDate() - i);
+                const k = rtLocalDay(d);
+                pts.push({ key: k, label: rtHmRange === 'week' ? d.toLocaleDateString('en', { weekday: 'short' }) : d.toLocaleDateString('en', { day: 'numeric', month: 'short' }), value: days[k] || 0 });
+            }
+            return pts;
+        }
+        function rtGCurve(p) {
+            // Catmull-Rom with control points clamped to each segment's endpoint range.
+            // A bezier stays inside its control polygon, so the curve can never rise above
+            // the higher day or dip below the lower one: rounded, but never unearned.
+            if (p.length < 2) return '';
+            if (p.length === 2) return `M${p[0][0]},${p[0][1]}L${p[1][0]},${p[1][1]}`;
+            let d = `M${p[0][0]},${p[0][1]}`;
+            for (let i = 0; i < p.length - 1; i++) {
+                const p0 = p[Math.max(0, i - 1)], p1 = p[i], p2 = p[i + 1], p3 = p[Math.min(p.length - 1, i + 2)];
+                const lo = Math.min(p1[1], p2[1]), hi = Math.max(p1[1], p2[1]);
+                const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = Math.min(hi, Math.max(lo, p1[1] + (p2[1] - p0[1]) / 6));
+                const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = Math.min(hi, Math.max(lo, p2[1] - (p3[1] - p1[1]) / 6));
+                d += `C${c1x},${c1y} ${c2x},${c2y} ${p2[0]},${p2[1]}`;
+            }
+            return d;
+        }
+        function rtGraphLiveTick() {
+            const now = Date.now();
+            if (now - rtGraphLiveLast < 15000) return;
+            rtGraphLiveLast = now;
+            if (!rtFocusRun || (rtFocusRun.state !== 'studying' && rtFocusRun.state !== 'paused')) return;
+            const card = document.getElementById('rtHeatmap');
+            if (!card || card.hidden || isTeacherMode) return;
+            if (document.getElementById('pomodoroSection')?.classList.contains('hidden-section')) return;
+            rtRenderHeatmap();
+        }
         function rtRenderHeatmap() {
             rtSyncFocusWidget();
-            if(!document.getElementById('rtSubjectHours'))document.getElementById('rtHeatmap')?.insertAdjacentHTML('beforeend','<section class="rt-subject-hours" id="rtSubjectHours"></section>');const grid = document.getElementById('rtHmGrid');
-            if (!grid) return;
-            // Observer links expose no owner's focus history.
-            document.getElementById('rtHeatmap').hidden = isTeacherMode;
+            if (!document.getElementById('rtSubjectHours')) document.getElementById('rtHeatmap')?.insertAdjacentHTML('beforeend', '<section class="rt-subject-hours" id="rtSubjectHours"></section>');
+            const card = document.getElementById('rtHeatmap');
+            if (!card) return;
+            card.hidden = isTeacherMode;
             if (isTeacherMode) return;
-            const today = new Date(); today.setHours(12,0,0,0);
-            const days = {};
-            Object.values(rtFocusSessions).forEach(s => {
-                if (!days[s.day]) days[s.day] = {minutes:0,count:0};
-                days[s.day].minutes += s.minutes; days[s.day].count++;
-            });
-            const select = document.getElementById('rtHmYearSelect');
-            const years = [...new Set([today.getFullYear(), rtHmYear, ...Object.keys(days).map(x=>+x.slice(0,4))])].sort((a,b)=>b-a);
-            select.replaceChildren(...years.map(year => { const o=document.createElement('option');o.value=year;o.textContent=year;return o; })); select.value=rtHmYear;
-            const from = rtHmRange === 'year' ? new Date(rtHmYear,0,1,12) : new Date(today);
-            const to = rtHmRange === 'year' ? new Date(rtHmYear,11,31,12) : new Date(today);
-            if (rtHmRange === 'recent') {from.setDate(from.getDate()-((from.getDay()+6)%7)-84);to.setDate(to.getDate()+(6-((to.getDay()+6)%7)));}
-            const start = new Date(from); start.setDate(start.getDate()-((start.getDay()+6)%7));
-            const end = new Date(to); end.setDate(end.getDate()+(6-((end.getDay()+6)%7)));
-            const cols = Math.floor((Date.UTC(end.getFullYear(),end.getMonth(),end.getDate())-Date.UTC(start.getFullYear(),start.getMonth(),start.getDate()))/86400000/7)+1;
-            grid.style.gridTemplateColumns=`32px repeat(${cols}, minmax(17px, 1fr))`;grid.style.gridAutoFlow='row';grid.style.gridTemplateRows='repeat(8,auto)';
-            grid.style.minWidth=rtHmRange==='year'?`${32+cols*21}px`: '0';
-            grid.replaceChildren();
-            const label = (text) => {const el=document.createElement('span');el.className='rt-hm-label';el.textContent=text;grid.appendChild(el);};
-            label(''); let previousMonth=-1;
-            for(let col=0;col<cols;col++){
-                const d=new Date(start);d.setDate(d.getDate()+col*7);
-                const weekEnd=new Date(d);weekEnd.setDate(d.getDate()+6);const monthDate=weekEnd>to?to:weekEnd.getMonth()!==d.getMonth()?weekEnd:d;const show=monthDate.getMonth()!==previousMonth;label(show?monthDate.toLocaleDateString('en',{month:'short'}):'');grid.lastElementChild.style.gridColumn=String(col+2);grid.lastElementChild.style.gridRow='1';previousMonth=monthDate.getMonth();
+            const chart = document.getElementById('rtGChart');
+            if (!chart) return;
+            const pts = rtGPoints();
+            const todayKey = rtLocalDay(new Date());
+            const hasData = Object.keys(rtFocusSessions).length > 0;
+            document.getElementById('rtHmEmpty').hidden = hasData;
+            const subs = { week: 'Daily focus · last 7 days', month: 'Daily focus · last 30 days', year: 'Monthly focus · last 12 months' };
+            document.getElementById('rtGRangeSub').textContent = subs[rtHmRange];
+            [['rtGWeek', 'week'], ['rtGMonth', 'month'], ['rtGYear', 'year']].forEach(([id, r]) => document.getElementById(id).classList.toggle('active', rtHmRange === r));
+            const total = pts.reduce((a, p) => a + p.value, 0);
+            const best = Math.max(0, ...pts.map(p => p.value));
+            document.getElementById('rtGTotal').textContent = rtGFmtMin(total);
+            document.getElementById('rtGStats').textContent = `total · avg ${rtGFmtMin(total / pts.length)} a ${rtHmRange === 'year' ? 'month' : 'day'} · best ${rtGFmtMin(best)}`;
+
+            const cs = getComputedStyle(document.body);
+            const ACC = cs.getPropertyValue('--accent-primary').trim() || '#A855F7';
+            const ACC2 = cs.getPropertyValue('--accent-secondary').trim() || '#C4A1EF';
+            const MUT = cs.getPropertyValue('--text-muted').trim() || '#A998BD';
+            const SURF = cs.getPropertyValue('--surface-color').trim() || '#110C1B';
+            const TXT = cs.getPropertyValue('--text-main').trim() || '#EFE9F6';
+
+            const W = 340, H = 200, PL = 26, PR = 8, PT = 30, PB = 22, iw = W - PL - PR, ih = H - PT - PB;
+            const step = best <= 300 ? 60 : 120;
+            const top = Math.max(step, Math.ceil(best / step) * step);
+            const X = i => PL + (pts.length > 1 ? iw * i / (pts.length - 1) : iw / 2);
+            const Y = v => PT + ih * (1 - Math.min(v, top) / top);
+            const xy = pts.map((p, i) => [X(i), Y(p.value)]);
+            const line = rtGCurve(xy);
+            const area = line ? line + `L${xy[xy.length - 1][0]},${Y(0)}L${xy[0][0]},${Y(0)}Z` : '';
+
+            let selIdx = pts.findIndex(p => rtHmRange === 'year' ? rtHmSelected.startsWith(p.key) : p.key === rtHmSelected);
+            if (selIdx < 0) selIdx = pts.length - 1;
+            rtHmSelected = rtHmRange === 'year' ? pts[selIdx].key + '-01' : pts[selIdx].key;
+            const selIsToday = rtHmRange !== 'year' && pts[selIdx].key === todayKey;
+            const live = rtGLiveMinutes(Date.now());
+            const sv = pts[selIdx].value;
+
+            let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${rtHmRange === 'year' ? 'Monthly focus minutes, last 12 months' : `Daily focus minutes, last ${rtHmRange === 'month' ? 30 : 7} days`}">`;
+            s += `<defs><linearGradient id="rtGArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${ACC}" stop-opacity=".25"/><stop offset="1" stop-color="${ACC}" stop-opacity="0"/></linearGradient></defs>`;
+            for (let v = step; v <= top; v += step) {
+                s += `<line x1="${PL}" y1="${Y(v)}" x2="${W - PR}" y2="${Y(v)}" stroke="${MUT}" stroke-opacity=".18" stroke-width="1"/>`;
+                s += `<text x="${PL - 7}" y="${Y(v) + 2.5}" text-anchor="end" font-family="Manrope" font-weight="500" font-size="7.5" fill="${MUT}" opacity=".8">${v / 60}h</text>`;
             }
-            for(let row=0;row<7;row++){
-                label(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][row]);grid.lastElementChild.classList.add('rt-weekday');
-                for(let col=0;col<cols;col++){
-                    const d=new Date(start);d.setDate(d.getDate()+col*7+row);const key=rtLocalDay(d),item=days[key]||{minutes:0,count:0};
-                    const valid=d>=from && d<=to && d<=today;
-                    const b=document.createElement('button');b.type='button';b.className='rt-hm-cell';b.dataset.day=key;b.disabled=!valid;
-                    b.style.setProperty('--hm-opacity',item.minutes>=120?'1':item.minutes>=60?'.67':item.minutes>=30?'.42':item.minutes>0?'.22':'.04');
-                    b.setAttribute('aria-pressed',String(key===rtHmSelected));
-                    b.title=`${key}: ${item.minutes} min, ${item.count} focus sessions`;b.setAttribute('aria-label',b.title);grid.appendChild(b);
+            s += `<line x1="${PL}" y1="${Y(0)}" x2="${W - PR}" y2="${Y(0)}" stroke="${MUT}" stroke-opacity=".3" stroke-width="1"/>`;
+            pts.forEach((p, i) => {
+                const show = rtHmRange !== 'month' || (i % 7 === 0 && pts.length - 1 - i > 3) || i === pts.length - 1;
+                if (show) s += `<text x="${X(i)}" y="${H - 6}" text-anchor="middle" font-family="Manrope" font-weight="500" font-size="8" fill="${MUT}" opacity=".8">${p.label}</text>`;
+            });
+            if (area) s += `<path d="${area}" fill="url(#rtGArea)"/>`;
+            if (line) s += `<path id="rtGLine" d="${line}" fill="none" stroke="${ACC}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+            const sx = X(selIdx), sy = Y(pts[selIdx].value);
+            s += `<line x1="${sx}" y1="${PT - 8}" x2="${sx}" y2="${Y(0)}" stroke="${ACC2}" stroke-width="1" opacity=".35"/>`;
+            pts.forEach((p, i) => {
+                const x = X(i), y = Y(p.value);
+                if (p.key === todayKey) s += `<circle cx="${x}" cy="${y}" r="7" fill="none" stroke="${ACC}" stroke-width="1.2" opacity=".6"/><circle cx="${x}" cy="${y}" r="3.2" fill="${ACC}"/>`;
+                else if (i === selIdx) s += `<circle cx="${x}" cy="${y}" r="9" fill="${ACC}" opacity=".16"/><circle cx="${x}" cy="${y}" r="4.5" fill="${ACC}" stroke="${TXT}" stroke-width="1.6"/>`;
+                else if (p.value === 0) s += `<circle cx="${x}" cy="${y}" r="2.2" fill="${MUT}" opacity=".3"/>`;
+                else s += `<circle cx="${x}" cy="${y}" r="2.6" fill="${ACC}"/>`;
+            });
+            const tipMain = rtGFmtMin(sv);
+            let tipSub = rtHmRange === 'year'
+                ? new Date(pts[selIdx].key + '-02T12:00:00').toLocaleDateString('en', { month: 'long', year: 'numeric' })
+                : new Date(pts[selIdx].key + 'T12:00:00').toLocaleDateString('en', { weekday: 'short', day: 'numeric', month: 'short' });
+            if (selIsToday) tipSub = 'Today' + (live > 0 ? ' · live' : '');
+            const tw = 100, th = 32;
+            let tx, ty;
+            if (sx > W * 0.66) { tx = sx - tw - 14; ty = Math.min(Math.max(sy - th / 2, PT - 10), H - PB - th); }
+            else if (sx < W * 0.25) { tx = sx + 14; ty = Math.min(Math.max(sy - th / 2, PT - 10), H - PB - th); }
+            else { tx = Math.min(Math.max(sx - tw / 2, PL), W - PR - tw); ty = Math.max(sy - th - 12, 2); }
+            s += `<g pointer-events="none"><rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="9" fill="${SURF}" stroke="${ACC}" stroke-opacity=".5"/>`;
+            s += `<text x="${tx + tw / 2}" y="${ty + 14}" text-anchor="middle" font-family="Manrope" font-weight="700" font-size="10.5" fill="${TXT}">${tipMain}</text>`;
+            s += `<text x="${tx + tw / 2}" y="${ty + 25}" text-anchor="middle" font-family="Manrope" font-weight="500" font-size="7.5" fill="${MUT}">${tipSub}</text></g>`;
+            const colW = pts.length > 1 ? iw / (pts.length - 1) : iw;
+            pts.forEach((p, i) => {
+                const cw = Math.max(12, colW);
+                const cx = pts.length > 1 ? Math.min(Math.max(PL, X(i) - colW / 2), W - PR - cw) : PL;
+                s += `<rect data-gkey="${p.key}" x="${cx}" y="0" width="${cw}" height="${H}" fill="transparent" style="cursor:pointer"><title>${p.label}: ${rtGFmtMin(p.value)}</title></rect>`;
+            });
+            s += '</svg>';
+            chart.innerHTML = s;
+
+            const detail = document.getElementById('rtGDetail');
+            let dMain, dSub;
+            if (rtHmRange === 'year') {
+                dMain = new Date(pts[selIdx].key + '-02T12:00:00').toLocaleDateString('en', { month: 'long', year: 'numeric' });
+                dSub = `${rtGFmtMin(sv)} total`;
+            } else {
+                const count = Object.values(rtFocusSessions).filter(x => x.day === pts[selIdx].key).length;
+                dMain = selIsToday ? 'Today' : new Date(pts[selIdx].key + 'T12:00:00').toLocaleDateString('en', { weekday: 'short', day: 'numeric', month: 'short' });
+                dSub = selIsToday && live > 0
+                    ? `${rtGFmtMin(sv)} so far · updates live`
+                    : `${rtGFmtMin(sv)} · ${count} session${count === 1 ? '' : 's'}`;
+            }
+            detail.hidden = false;
+            detail.innerHTML = '<b></b><span></span>';
+            detail.querySelector('b').textContent = dMain;
+            detail.querySelector('span').textContent = dSub;
+            document.getElementById('rtGFoot').textContent = rtHmRange === 'year'
+                ? 'Tap a month for its total · this month updates while a round runs'
+                : 'Tap any point for that day · today updates while a round runs';
+
+            if (!rtGraphDrawn) {
+                rtGraphDrawn = true;
+                if (!(typeof rtMotionPreference !== 'undefined' && rtMotionPreference.matches)) {
+                    const path = chart.querySelector('#rtGLine');
+                    if (path && typeof path.getTotalLength === 'function') {
+                        try {
+                            const len = path.getTotalLength();
+                            path.style.strokeDasharray = String(len);
+                            path.style.strokeDashoffset = String(len);
+                            const anim = path.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration: 900, easing: 'cubic-bezier(.2,.75,.25,1)' });
+                            anim.onfinish = () => { path.style.strokeDasharray = 'none'; path.style.strokeDashoffset = '0'; };
+                        } catch (e) {}
+                    }
                 }
             }
-            const fromKey=rtLocalDay(from),toKey=rtLocalDay(to),todayKey=rtLocalDay(today);
-            if(rtHmSelected<fromKey||rtHmSelected>toKey||rtHmSelected>todayKey)rtHmSelected=todayKey>=fromKey&&todayKey<=toKey?todayKey:fromKey;
-            grid.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===rtHmSelected)));
-            document.getElementById('rtHmEmpty').hidden=Object.keys(days).length>0;
-            document.getElementById('rtHmRangeLabel').textContent=rtHmRange==='year'?`${rtHmYear} / YEAR`:'13 WEEKS';
-            document.getElementById('rtHmRecent').classList.toggle('active',rtHmRange==='recent');
-            document.getElementById('rtHmYear').classList.toggle('active',rtHmRange==='year');
-            select.disabled=rtHmRange!=='year';
             rtRenderSubjectHours();
         }
-        document.getElementById('rtHmGrid').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b||b.disabled)return;rtHmSelected=b.dataset.day;rtRenderHeatmap();});
-        document.getElementById('rtHmRecent').addEventListener('click',()=>{rtHmRange='recent';rtRenderHeatmap();document.getElementById('rtHmScroll').scrollLeft=0;});
-        document.getElementById('rtHmYear').addEventListener('click',()=>{rtHmRange='year';rtRenderHeatmap();});
-        document.getElementById('rtHmYearSelect').addEventListener('change',e=>{rtHmYear=+e.target.value;rtHmRange='year';rtRenderHeatmap();});
+        document.getElementById('rtGWeek').addEventListener('click', () => { rtHmRange = 'week'; rtRenderHeatmap(); });
+        document.getElementById('rtGMonth').addEventListener('click', () => { rtHmRange = 'month'; rtRenderHeatmap(); });
+        document.getElementById('rtGYear').addEventListener('click', () => { rtHmRange = 'year'; rtRenderHeatmap(); });
+        document.getElementById('rtGChart').addEventListener('click', e => {
+            const t = e.target.closest('[data-gkey]');
+            if (!t) return;
+            rtHmSelected = t.dataset.gkey + (rtHmRange === 'year' ? '-01' : '');
+            rtRenderHeatmap();
+        });
         window.addEventListener('online',()=>{if(currentUser&&!isTeacherMode)rtUploadFocusHistory(currentUser.uid);});
 
         // ==========================================
@@ -1978,6 +2132,7 @@ function rtMRender() {}
                 const left=Math.max(0,run.breakEndTs-now);rtTimerDigits(rtSwFmt(left));
                 document.title=`(${rtSwFmt(left)}) Break - Relent Tracker`;rtStateLabel.textContent='BREAK';
             }else{rtTimerDigits('0:00');document.title='Relent Tracker';rtStateLabel.textContent='BREAK OVER';}
+            if(typeof rtGraphLiveTick==='function')rtGraphLiveTick();
         }
         function rtSetFocusLocked(locked){const off=!!locked||isTeacherMode;const inp=document.getElementById('rtFocusCustom');if(inp)inp.disabled=off;const wrap=document.getElementById('rtFocusPresets');if(wrap){wrap.classList.toggle('rt-locked',off);wrap.querySelectorAll('button').forEach(b=>b.disabled=off);}}
 
@@ -2007,6 +2162,7 @@ function rtMRender() {}
             const wasMid=rtFocusRun&&(rtFocusRun.state==='studying'||rtFocusRun.state==='paused');
             if(wasMid){pomoStats.givenUp++;localStorage.setItem('pomo_stats',JSON.stringify(pomoStats));updatePomoStatsDisplay();}
             resetTimerUI();rtSquadSync();syncData(true);
+            rtRenderHeatmap();
             showToast(wasMid?'Session ended. Start again when you are ready.':'Focus session wrapped up. Good work.');
         }
         function rtSwTick(){
