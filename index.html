@@ -475,7 +475,13 @@
         #sessionRetry { display: none; color: var(--accent-primary); }
         #sessionSplash.session-slow #sessionRetry { display: inline-block; }
     </style>
-<style id="v6PhoneWorkspace">
+<style id="v6PhoneWorkspace">.v6-pace{margin-top:15px;border-top:1px solid var(--workspace-rule);padding-top:13px;display:flex;flex-direction:column;gap:8px}
+.v6-pace-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font:10px var(--font-mono)}
+.v6-pace-row>span{color:var(--workspace-detail);letter-spacing:.12em;white-space:nowrap}
+.v6-pace-row>b{font-weight:500;color:var(--text-main);text-align:right;letter-spacing:.02em}
+.v6-pace-row.v6-pace-ok>b,.v6-pace-row.v6-pace-ok>span{color:var(--accent-primary)}
+.v6-pace-row.v6-pace-bad>b,.v6-pace-row.v6-pace-bad>span{color:var(--accent-danger,#f87171)}
+
 /* v6: the workspace presentation is phone-only. Original tablet/desktop CSS remains above. */
 .v6-mobile-only{display:none!important}
 @media(max-width:600px){
@@ -3475,8 +3481,36 @@ function rtMRender() {}
         function v6Date(value) { return widgetDate(value); }
         function v6Days(exam) { const d=v6Date(exam.date); if(!d) return null; const now=new Date(); return Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()))/86400000); }
         function v6DateLabel(value) { const d=v6Date(value); return d?d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}):String(value||'No date'); }
+        // Syllabus pace target: full syllabus by Jan 1, 2027.
+        const RT_SYLLABUS_TARGET='2027-01-01';
+        function rtPaceHtml(){
+            if(typeof currentSyllabusData==='undefined'||!Array.isArray(currentSyllabusData))return'';
+            let total=0,done=0,done7=0;const weekAgo=Date.now()-7*86400000;
+            currentSyllabusData.forEach(ex=>(ex.subjects||[]).forEach(sub=>(sub.categories||[]).forEach(cat=>(cat.topics||[]).forEach(topic=>{
+                total++;const m=rtMastery(rtTopicUid(ex,sub,cat,topic));
+                if(m.state>=2){done++;const rec=rtTopicMastery[rtTopicUid(ex,sub,cat,topic)];const rev=rec?Date.parse(rec.revisedAt||'')||0:0;if(rev>=weekAgo)done7++;}
+            }))));
+            if(!total)return'';
+            const remaining=total-done,now=new Date();
+            const t=new Date(RT_SYLLABUS_TARGET+'T00:00:00');
+            const daysLeft=Math.round((Date.UTC(t.getFullYear(),t.getMonth(),t.getDate())-Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()))/86400000);
+            const targetLabel=t.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}).replace(/,/g,'').toUpperCase();
+            const pace=done7/7;
+            let status='',ok=true,paceRow='';
+            if(remaining===0){status='FULL SYLLABUS DONE';paceRow=pace.toFixed(1)+' topics/day';}
+            else if(daysLeft<0){ok=false;status='TARGET PASSED · '+remaining+' LEFT';paceRow=pace.toFixed(1)+' topics/day';}
+            else{
+                const needed=remaining/Math.max(daysLeft,1);
+                const projDays=pace>0?Math.ceil(remaining/pace):null;
+                const projLabel=projDays!==null?new Date(now.getTime()+projDays*86400000).toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'}).replace(/,/g,'').toUpperCase():null;
+                ok=projDays!==null&&projDays<=daysLeft;
+                status=ok?('ON TRACK · '+projLabel+' · '+(daysLeft-projDays)+'d early'):(projDays!==null?('BEHIND · '+projLabel+' · '+(projDays-daysLeft)+'d late'):'BEHIND · no completions in 7d');
+                paceRow=pace.toFixed(1)+' topics/day · need '+needed.toFixed(1);
+            }
+            return `<div class="v6-pace"><div class="v6-pace-row"><span>TARGET ▸</span><b>${targetLabel} · FULL SYLLABUS</b></div><div class="v6-pace-row"><span>PACE ▸</span><b>${paceRow}</b></div><div class="v6-pace-row ${ok?'v6-pace-ok':'v6-pace-bad'}"><span>STATUS ▸</span><b>${status}</b></div></div>`;
+        }
         function v6TopicStats(exam){let total=0,done=0,weighted=0;(exam.subjects||[]).forEach(sub=>(sub.categories||[]).forEach(cat=>(cat.topics||[]).forEach(topic=>{total++;const state=rtMastery(rtTopicUid(exam,sub,cat,topic)).state;weighted+=RT_WEIGHTS[state];if(state>=2)done++;})));return {total,done,weighted,percent:total?Math.round(weighted/total*100):0};}
-        function v6ExamPanel(exam,home=false) { const st=v6TopicStats(exam), days=v6Days(exam); const count=days===null?'--':days<0?String(Math.abs(days)).padStart(2,'0'):String(days).padStart(2,'0');const unit=days===null?'NO DATE':days<0?'DAYS AGO':days===0?'TODAY':'DAYS LEFT'; return `<div class="v6-file"><div class="v6-filebar"><span>${home?'next-exam':v6Escape(exam.name)+'.exam'}</span><span>${home?'UP NEXT':''}</span></div><div class="v6-content"><div class="v6-name">${v6Escape(exam.name)}</div><div class="v6-meta">${v6Escape(v6DateLabel(exam.date))} / ${v6Escape(exam.marks||'N/A')} MARKS</div><div class="v6-countrow"><div class="v6-count">${count}<small>${unit}</small></div><div class="v6-percent"><b>${st.percent}%</b><small>${st.done} / ${st.total} topics in revision or mastered</small></div></div><div class="v6-bar"><i style="width:${st.percent}%"></i></div></div>${home?`<button class="v6-open" data-v6-exam="${v6Escape(exam.id)}">Open syllabus <small>${v6Escape(exam.name)}.exam ↗</small></button>`:(!isTeacherMode?``:'')}</div>`; }
+        function v6ExamPanel(exam,home=false) { const st=v6TopicStats(exam), days=v6Days(exam); const count=days===null?'--':days<0?String(Math.abs(days)).padStart(2,'0'):String(days).padStart(2,'0');const unit=days===null?'NO DATE':days<0?'DAYS AGO':days===0?'TODAY':'DAYS LEFT'; return `<div class="v6-file"><div class="v6-filebar"><span>${home?'next-exam':v6Escape(exam.name)+'.exam'}</span><span>${home?'UP NEXT':''}</span></div><div class="v6-content"><div class="v6-name">${v6Escape(exam.name)}</div><div class="v6-meta">${v6Escape(v6DateLabel(exam.date))} / ${v6Escape(exam.marks||'N/A')} MARKS</div><div class="v6-countrow"><div class="v6-count">${count}<small>${unit}</small></div><div class="v6-percent"><b>${st.percent}%</b><small>${st.done} / ${st.total} topics in revision or mastered</small></div></div><div class="v6-bar"><i style="width:${st.percent}%"></i></div>${!home?rtPaceHtml():''}</div>${home?`<button class="v6-open" data-v6-exam="${v6Escape(exam.id)}">Open syllabus <small>${v6Escape(exam.name)}.exam ↗</small></button>`:(!isTeacherMode?``:'')}</div>`; }
         function v6RenderMobile() {
             
             if(!v6Phone.matches) return;
