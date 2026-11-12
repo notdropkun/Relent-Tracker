@@ -2173,8 +2173,17 @@ function rtMRender() {}
         }
         function rtSwCompleteRound(){
             const run=rtFocusRun;if(!run)return;
+            const roundKey=`${run.id}_r${run.round}`;
+            const logged=safeParse('rt_pomo_logged',[]);
+            if(logged.includes(roundKey))return; // another open tab already logged this round
+            localStorage.setItem('rt_pomo_logged',JSON.stringify([...logged,roundKey].slice(-100)));
             const now=new Date();
-            rtFocusSessions[`${run.id}_r${run.round}`]={day:rtLocalDay(now),minutes:run.targetMin,finishedAt:now.toISOString(),xpV2:true,xpDouble:true,...(run.examId?{examId:run.examId,subject:run.subject,topicUid:run.topicUid}:{}),...(run.topicLabel?{topicLabel:run.topicLabel}:{})};
+            const dayNow=rtLocalDay(now),dayStart=rtLocalDay(new Date(now.getTime()-run.targetMin*60000));
+            const base={finishedAt:now.toISOString(),xpV2:true,xpDouble:true,...(run.examId?{examId:run.examId,subject:run.subject,topicUid:run.topicUid}:{}),...(run.topicLabel?{topicLabel:run.topicLabel}:{})};
+            let minsToday=run.targetMin,minsPrev=0;
+            if(dayStart!==dayNow){const mid=new Date(now);mid.setHours(0,0,0,0);minsToday=Math.max(0,Math.min(run.targetMin,Math.round((now.getTime()-mid.getTime())/60000)));minsPrev=run.targetMin-minsToday;}
+            if(minsToday>0)rtFocusSessions[roundKey]={day:dayNow,minutes:minsToday,...base};
+            if(minsPrev>0)rtFocusSessions[`${roundKey}_prev`]={day:dayStart,minutes:minsPrev,...base};
             rtSaveFocusLocal();rtHmSelected=rtLocalDay(now);rtRenderHeatmap();
             if(rtHApplyFocus())rtHUpload();rtHRender();
             if(currentUser&&isFirebaseConfigured){rtUploadFocusHistory(currentUser.uid);rtSquadSync();}
@@ -2637,7 +2646,7 @@ function rtMRender() {}
 
             const token = sessionStorage.getItem('gcal_token');
             const pushGcal = async () => {
-                if (!token) return true;
+                if (!token) return !gcalId; // a previously-synced event must not silently skip the Google update
                 try {
                     let payload = { summary: title, description: description };
                     
@@ -2693,11 +2702,13 @@ function rtMRender() {}
             if (gcalOk && window.rtCloudOk !== false) {
                 showToast("Event Saved");
             } else {
-                const what = (!gcalOk && window.rtCloudOk === false) ? 'cloud + Google Calendar sync failed'
+                const gcalNoToken = !gcalOk && !sessionStorage.getItem('gcal_token');
+                const what = gcalNoToken ? 'Google Calendar needs a fresh Google sign-in'
+                    : (!gcalOk && window.rtCloudOk === false) ? 'cloud + Google Calendar sync failed'
                     : (!gcalOk ? 'Google Calendar sync failed' : 'cloud sync failed');
                 const retrySync = async () => {
                     let ok = true;
-                    if (!gcalOk) { ok = await pushGcal(); evObj.gcalId = gcalId; }
+                    if (!gcalOk) { if (sessionStorage.getItem('gcal_token')) { ok = await pushGcal(); evObj.gcalId = gcalId; } else ok = false; }
                     await syncData(true);
                     if (ok && window.rtCloudOk !== false) { document.getElementById('rtSyncFail')?.remove(); showToast("Event Saved"); }
                     else rtShowSyncFail('Still not synced. Saved locally.', retrySync);
@@ -2729,7 +2740,8 @@ function rtMRender() {}
             await syncData(true);
             renderCalendar();
             calEventModal.classList.remove('active');
-            showToast("Event Deleted");
+            if (gcalId && !sessionStorage.getItem('gcal_token')) showToast("Deleted here. Sign in with Google again to remove it from Google Calendar.");
+            else showToast("Event Deleted");
         });
 
         // ==========================================
@@ -2986,6 +2998,8 @@ function rtMRender() {}
             
             const tops = document.getElementById('manTopics').value.split(',').map(t=>t.trim()).filter(t=>t!=='');
             cat.topics = [...new Set([...(cat.topics || []), ...tops])];
+            if (Array.isArray(exam.removedTopics)) { const reAdded = new Set(tops.map(String)); exam.removedTopics = exam.removedTopics.filter(n => !reAdded.has(String(n))); if (!exam.removedTopics.length) delete exam.removedTopics; }
+            exam.updatedAt = Date.now();
 
             await syncData();
             showToast("Exam saved.");
@@ -3037,9 +3051,12 @@ function rtMRender() {}
                     }
                 });
 
+                const rtOldSubs = targetExam.subjects || [];
                 targetExam.subjects = parsedSubjects.filter(sub => sub.categories && sub.categories.length > 0);
+                const rtRenamed = rtApplyExamTopicDiff(targetExam, rtOldSubs);
+                targetExam.updatedAt = Date.now();
                 await syncData();
-                showToast("Exam updated.");
+                showToast(rtRenamed ? "Exam updated. Renamed chapters kept their progress." : "Exam updated.");
                 editModal.classList.remove('active');
             }
         });
@@ -3052,6 +3069,7 @@ function rtMRender() {}
             if (delBtn) {
                 if (isTeacherMode) return; 
                 e.stopPropagation();
+                rtRecordExamTombstone(delBtn.dataset.examId);
                 currentSyllabusData = currentSyllabusData.filter(ex => String(ex.id) !== String(delBtn.dataset.examId));
                 renderDashboardStructure();
                 showToast("Exam deleted.");
@@ -3103,6 +3121,7 @@ function rtMRender() {}
         // ==========================================
         // CLOUD DATA SYNC
         // ==========================================
+        let rtCloudSaveQueue = Promise.resolve();
         async function syncData(skipRender = false) {
             if (isTeacherMode) return; 
 
@@ -3116,14 +3135,36 @@ function rtMRender() {}
 
             window.rtCloudOk = true;
             if (currentUser && isFirebaseConfigured && !rtCloudLoading) {
-                try {
-                    await setDoc(doc(db, "users", currentUser.uid), {
-                        completedTasks: completedTasksArray, customSyllabus: currentSyllabusData,
-                        pomoStats: pomoStats, customName: customName, topicMastery:rtTopicMastery,
-                        calendarEvents: calendarEvents
-                    }, { merge: true });
-                } catch (e) { console.error("Cloud Save Error", e); window.rtCloudOk = false; }
-                mirrorExamsToWidget(currentUser.uid);
+                const rtSyncUid = currentUser.uid;
+                rtCloudSaveQueue = rtCloudSaveQueue.catch(() => {}).then(async () => {
+                    try {
+                        await runTransaction(db, async (tx) => {
+                            const ref = doc(db, "users", rtSyncUid);
+                            const snap = await tx.get(ref);
+                            const remote = snap.exists() ? snap.data() : {};
+                            const tombs = [...new Set([...(Array.isArray(remote.deletedExams) ? remote.deletedExams : []), ...rtGetExamTombstones()].map(String))].slice(-100);
+                            tx.set(ref, {
+                                completedTasks: [...new Set([...(remote.completedTasks || []), ...completedTasksArray])],
+                                customSyllabus: rtMergeExams(remote.customSyllabus || [], currentSyllabusData, tombs),
+                                pomoStats: { completed: Math.max((remote.pomoStats || {}).completed || 0, pomoStats.completed || 0), givenUp: Math.max((remote.pomoStats || {}).givenUp || 0, pomoStats.givenUp || 0) },
+                                customName: customName || remote.customName || "",
+                                topicMastery: rtMergeMastery(remote.topicMastery || {}, rtTopicMastery),
+                                calendarEvents: [...new Map([...(remote.calendarEvents || []), ...calendarEvents].map(x => [String(x.id), x])).values()],
+                                simpleTasks: rtMergeSimpleTasks(remote.simpleTasks || [], simpleTasksArray),
+                                deletedExams: tombs
+                            }, { merge: true });
+                        });
+                        window.rtCloudOk = true;
+                        const _stOk = document.getElementById('userSyncStatus'); if (_stOk) _stOk.textContent = '[ SYNC: CLOUD ACTIVE ]';
+                        document.getElementById('rtSyncFail')?.remove();
+                    } catch (e) {
+                        console.error("Cloud Save Error", e); window.rtCloudOk = false;
+                        const _stBad = document.getElementById('userSyncStatus'); if (_stBad) _stBad.textContent = '[ SYNC: SAVE FAILED ]';
+                        rtShowSyncFail('Cloud save failed. Your work is safe on this device.', () => syncData(true));
+                    }
+                });
+                await rtCloudSaveQueue;
+                mirrorExamsToWidget(rtSyncUid);
             }
             
             if (!skipRender) { renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); }
@@ -3256,7 +3297,10 @@ function rtMRender() {}
                         rtUploadFocusHistory(uid);
                     }
                     rtTopicMastery=rtMergeMastery(rtMergeMastery(data.topicMastery||{},rtTopicMastery),rtPendingGuest?.mastery||{});if(data.completedTasks) completedTasksArray = [...new Set([...data.completedTasks,...completedTasksArray])];
-                    if(data.customSyllabus) currentSyllabusData = rtMergeExams(data.customSyllabus,currentSyllabusData);
+                    const rtCloudTombs=[...new Set([...(Array.isArray(data.deletedExams)?data.deletedExams:[]),...rtGetExamTombstones()].map(String))].slice(-100);
+                    localStorage.setItem('rt_deleted_exams',JSON.stringify(rtCloudTombs));
+                    if(data.customSyllabus) currentSyllabusData = rtMergeExams(data.customSyllabus,currentSyllabusData,rtCloudTombs);
+                    currentSyllabusData = currentSyllabusData.filter(ex=>!rtCloudTombs.includes(String(ex.id)));
                     if(data.pomoStats)pomoStats={completed:Math.max(data.pomoStats.completed||0,pomoStats.completed||0),givenUp:Math.max(data.pomoStats.givenUp||0,pomoStats.givenUp||0)};
                     if(data.customName) localStorage.setItem('custom_user_name', data.customName);
                     if(data.simpleTasks) simpleTasksArray = data.simpleTasks;
@@ -3272,7 +3316,7 @@ function rtMRender() {}
                     mirrorExamsToWidget(uid);
                 }
                 if(!userDoc.exists())rtTopicMastery=rtPendingGuest?.mastery||safeParse(`rt_mastery_user_${uid}`,{});
-                let migratedGuest=null;if(rtPendingGuest){const g=rtPendingGuest;if(await rtAskGuestImport()){migratedGuest=g;currentSyllabusData=rtMergeExams(currentSyllabusData,g.exams);completedTasksArray=[...new Set([...completedTasksArray,...g.completed])];rtTopicMastery=rtMergeMastery(rtTopicMastery,g.mastery);rtHabitData=rtHMerge(rtHabitData,g.habits);rtHSave();rtFocusSessions={...rtCleanSessions(g.focus),...rtFocusSessions};rtSaveFocusLocal();calendarEvents=[...new Map([...calendarEvents,...g.calendar].map(x=>[String(x.id),x])).values()];pomoStats={completed:Math.max(pomoStats.completed||0,g.stats.completed||0),givenUp:Math.max(pomoStats.givenUp||0,g.stats.givenUp||0)};if(g.timer){g.timer.scope=`user_${uid}`;localStorage.setItem('rt_pomo_run',JSON.stringify(g.timer));if(window.rtSwMigrateLegacy)window.rtSwMigrateLegacy();}}rtPendingGuest=null;}
+                let migratedGuest=null;if(rtPendingGuest){const g=rtPendingGuest;if(await rtAskGuestImport()){migratedGuest=g;currentSyllabusData=rtMergeExams(currentSyllabusData,g.exams,rtGetExamTombstones());completedTasksArray=[...new Set([...completedTasksArray,...g.completed])];rtTopicMastery=rtMergeMastery(rtTopicMastery,g.mastery);rtHabitData=rtHMerge(rtHabitData,g.habits);rtHSave();rtFocusSessions={...rtCleanSessions(g.focus),...rtFocusSessions};rtSaveFocusLocal();calendarEvents=[...new Map([...calendarEvents,...g.calendar].map(x=>[String(x.id),x])).values()];pomoStats={completed:Math.max(pomoStats.completed||0,g.stats.completed||0),givenUp:Math.max(pomoStats.givenUp||0,g.stats.givenUp||0)};if(g.timer){g.timer.scope=`user_${uid}`;localStorage.setItem('rt_pomo_run',JSON.stringify(g.timer));if(window.rtSwMigrateLegacy)window.rtSwMigrateLegacy();}}rtPendingGuest=null;}
                 rtCloudLoading=false;rtMasterySyncCompleted();localStorage.setItem(`rt_mastery_user_${uid}`,JSON.stringify(rtTopicMastery));await syncData();if(migratedGuest&&window.rtCloudOk){localStorage.setItem('rt_guest_migrated_backup',JSON.stringify(migratedGuest));localStorage.setItem('rt_guest_workspace',JSON.stringify({exams:[],completed:[],mastery:{},calendar:[],stats:{completed:0,givenUp:0}}));localStorage.setItem('rt_habits_offline','{}');localStorage.setItem('rt_focus_sessions_offline','{}');}rtHUpload();rtUploadFocusHistory(uid);
             } catch(e){rtCloudLoading=true;window.rtCloudOk=false;rtShowSyncFail('Cloud load did not finish. Your local work is safe; retry before making cloud changes.',()=>pullDataFromCloud(uid));}
         }
@@ -3568,7 +3612,7 @@ async function rtHUploadSnapshot(uid,scope,snapshot){const _sig=JSON.stringify(r
 async function rtHRefresh(){const uid=currentUser?.uid,scope=rtHabitScope;if(!uid||isTeacherMode||!db||scope!==`user_${uid}`)return;try{const snap=await getDoc(doc(db,'users',uid));if(scope!==rtHabitScope)return;if(snap.exists())rtHabitData=rtHMerge(snap.data().habitRecords,rtHabitData);rtHApplyFocus();rtHSave();await rtHUpload();}catch(e){if(scope===rtHabitScope){rtHabitCloudFailed=true;rtHRender();}}}
 function rtHActive(day=rtHDay()){return Object.values(rtHabitData).filter(h=>h.createdDay<=day&&(!h.archivedDay||day<h.archivedDay)).sort((a,b)=>a.createdAt-b.createdAt);}
 function rtHMinutes(day){return Object.values(rtFocusSessions||{}).filter(x=>x.day===day).reduce((sum,x)=>sum+x.minutes,0);}
-function rtHApplyFocus(){if(isTeacherMode||!rtHabitScope)return;let changed=false;const totals={};Object.values(rtFocusSessions||{}).forEach(x=>{totals[x.day]=(totals[x.day]||0)+x.minutes;});for(const h of Object.values(rtHabitData)){if(h.mode!=='focus')continue;for(const [day,total] of Object.entries(totals)){if(day>=h.createdDay&&(!h.archivedDay||day<h.archivedDay)&&total>=h.minutes&&!h.checks[day]?.done){h.checks[day]={done:true,at:rtHStamp()};changed=true;}}}if(changed)rtHSave();return changed;}
+function rtHApplyFocus(){if(isTeacherMode||!rtHabitScope)return;let changed=false;const totals={};Object.values(rtFocusSessions||{}).forEach(x=>{totals[x.day]=(totals[x.day]||0)+x.minutes;});for(const h of Object.values(rtHabitData)){if(h.mode!=='focus')continue;for(const [day,total] of Object.entries(totals)){if(day>=h.createdDay&&(!h.archivedDay||day<h.archivedDay)&&total>=h.minutes&&!h.checks[day]?.done){h.checks[day]={done:true,at:rtHStamp(),auto:true};changed=true;}}for(const [day,e] of Object.entries(h.checks||{})){if(e&&e.done&&e.auto===true&&!(day>=h.createdDay&&(!h.archivedDay||day<h.archivedDay)&&(totals[day]||0)>=h.minutes)){delete h.checks[day];changed=true;}}}if(changed)rtHSave();return changed;}
 function rtHDayStats(day){const habits=rtHActive(day);const done=habits.filter(h=>h.checks[day]?.done).length;return {total:habits.length,done,perfect:habits.length>0&&done===habits.length};}
 function rtFocusXP(){let xp=0;for(const s of Object.values(rtFocusSessions||{})){if(!s||s.xpV2!==true||!Number.isFinite(s.minutes)||s.minutes<=0)continue;const b=s.minutes>=90?RT_GAME.focusXP90:s.minutes>=45?RT_GAME.focusXP45:RT_GAME.focusXP;xp+=s.xpDouble===true?b*2:b;}return xp;}
 function rtHXP(){let count=0;const days=new Set();for(const h of Object.values(rtHabitData)){for(const [day,e] of Object.entries(h.checks)){if(e.done&&day<=rtHDay()&&day>=h.createdDay&&(!h.archivedDay||day<h.archivedDay)){count++;days.add(day);}}}let perfect=0;for(const day of days)if(rtHDayStats(day).perfect)perfect++;return {xp:count*RT_GAME.checkInXP+perfect*RT_GAME.perfectDayXP+rtFocusXP(),count,perfect};}
@@ -3693,7 +3737,7 @@ function rtRenderFocusPicker(){const el=document.getElementById('rtFocusTopic');
 function rtRenderSubjectHours(){const el=document.getElementById('rtSubjectHours');if(!el)return;el.hidden=isTeacherMode;const totals={};Object.values(rtFocusSessions).forEach(s=>{const subject=s.subject||'General Focus';totals[subject]=(totals[subject]||0)+s.minutes;});const entries=Object.entries(totals).sort((a,b)=>b[1]-a[1]),max=Math.max(1,...entries.map(x=>x[1]));el.innerHTML='<h3>Focus by subject</h3><p class="rt-help">All completed sessions. Unlinked history stays in General Focus.</p>'+(entries.length?entries.map(([name,min])=>`<div class="rt-hours-row"><div><span>${v6Escape(name)}</span><span>${(min/60).toFixed(1)}h</span></div><div class="rt-hours-track"><i style="width:${min/max*100}%;background:${rtSubjectColor(name)};box-shadow:0 0 8px ${rtSubjectColor(name)}"></i></div></div>`).join(''):'<p class="rt-help">Finish a focus session to start your breakdown.</p>');}
 function rtRenderReviews(){const el=document.getElementById('rtHomeContent');if(!el)return;el.querySelector('#rtRevisionCard')?.remove();el.querySelector('#rtDemoBanner')?.remove();if(isTeacherMode)return;const today=rtLocalDay(new Date()),due=rtTopicIndex(true).filter(t=>{const m=rtMastery(t.uid);return m.reviewAt&&m.reviewAt<=today&&m.state>=2;});/* Revision card removed from homepage; reviewAt data retained. */if(!currentUser&&currentSyllabusData.some(e=>e.demo))el.insertAdjacentHTML('beforeend','<div class="rt-demo-note" id="rtDemoBanner"><span>Sample exam · Try topics and focus. Add your own exams when ready.</span><button data-remove-demo>Remove sample</button></div>');}
 function rtRepaintTopics(){const expanded=[...document.querySelectorAll('.exam-card.expanded')].map(el=>el.querySelector('[data-exam-id]')?.dataset.examId);renderDashboardStructure();document.querySelectorAll('.exam-card').forEach(el=>{if(expanded.includes(el.querySelector('[data-exam-id]')?.dataset.examId))el.classList.add('expanded');});}
-document.addEventListener('click',async e=>{const cycle=e.target.closest('[data-topic-cycle]'),review=e.target.closest('[data-review-topic]');if(cycle||review){if(isTeacherMode)return;e.preventDefault();const uid=(cycle||review).dataset[cycle?'topicCycle':'reviewTopic'],prev=rtMastery(uid),state=cycle?(((rtTopicMastery[uid]&&(rtTopicMastery[uid].state>0||rtTopicMastery[uid].s===true))||(!rtTopicMastery[uid]&&completedTasksArray.includes(uid)))?(prev.state+1)%4:0):prev.state,now=Date.now(),next={state,updatedAt:now,s:true};if(state>=2){const d=new Date();d.setDate(d.getDate()+(state===2?3:14));next.reviewAt=rtLocalDay(d);next.revisedAt=new Date(now).toISOString();}rtTopicMastery[uid]=next;rtMasterySyncCompleted();rtRepaintTopics();await syncData(true);return;}if(e.target.closest('[data-remove-demo]')){if(isTeacherMode)return;currentSyllabusData=currentSyllabusData.filter(ex=>!ex.demo);await syncData();}const preset=e.target.closest('[data-exam-preset]');if(preset&&!isTeacherMode){const p=RT_EXAM_PRESETS[Number(preset.dataset.examPreset)],date=document.getElementById('rtPresetDate').value;if(!rtDayDate(date)){showToast('Choose your exam date first.');return;}const ex={id:rtNewExamId(),name:p.name,date,marks:'-',subjects:structuredClone(p.subjects)};currentSyllabusData.push(ex);await syncData();cmdModal.classList.remove('active');showToast('Starter outline added. Edit it to match your syllabus.');}});
+document.addEventListener('click',async e=>{const cycle=e.target.closest('[data-topic-cycle]'),review=e.target.closest('[data-review-topic]');if(cycle||review){if(isTeacherMode)return;e.preventDefault();const uid=(cycle||review).dataset[cycle?'topicCycle':'reviewTopic'],prev=rtMastery(uid),state=cycle?(((rtTopicMastery[uid]&&(rtTopicMastery[uid].state>0||rtTopicMastery[uid].s===true))||(!rtTopicMastery[uid]&&completedTasksArray.includes(uid)))?(prev.state+1)%4:0):prev.state,now=Date.now(),next={state,updatedAt:now,s:true};if(state>=2){const d=new Date();d.setDate(d.getDate()+(state===2?3:14));next.reviewAt=rtLocalDay(d);next.revisedAt=new Date(now).toISOString();}rtTopicMastery[uid]=next;rtMasterySyncCompleted();rtRepaintTopics();await syncData(true);return;}if(e.target.closest('[data-remove-demo]')){if(isTeacherMode)return;currentSyllabusData=currentSyllabusData.filter(ex=>!ex.demo);await syncData();}const preset=e.target.closest('[data-exam-preset]');if(preset&&!isTeacherMode){const p=RT_EXAM_PRESETS[Number(preset.dataset.examPreset)],date=document.getElementById('rtPresetDate').value;if(!rtDayDate(date)){showToast('Choose your exam date first.');return;}const ex={id:rtNewExamId(),name:p.name,date,marks:'-',updatedAt:Date.now(),subjects:structuredClone(p.subjects)};currentSyllabusData.push(ex);await syncData();cmdModal.classList.remove('active');showToast('Starter outline added. Edit it to match your syllabus.');}});
 function rtNewExamId(){return `exam-${crypto.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2)}`;}
 function rtOutline(name,topics){return {name,categories:[{name:'Core topics',topics}]};}
 const rtPhysics=['Electric charges and fields','Electrostatic potential and capacitance','Current electricity','Moving charges and magnetism','Magnetism and matter','Electromagnetic induction','Alternating current','Electromagnetic waves','Ray optics','Wave optics','Dual nature of radiation and matter','Atoms','Nuclei','Semiconductor electronics'];
@@ -3701,12 +3745,78 @@ const rtChemistry=['Solutions','Electrochemistry','Chemical kinetics','d- and f-
 const rtMaths=['Relations and functions','Inverse trigonometric functions','Matrices','Determinants','Continuity and differentiability','Applications of derivatives','Integrals','Applications of integrals','Differential equations','Vector algebra','Three dimensional geometry','Linear programming','Probability'];
 const rtBiology=['Sexual reproduction in flowering plants','Human reproduction','Reproductive health','Principles of inheritance and variation','Molecular basis of inheritance','Evolution','Human health and disease','Microbes in human welfare','Biotechnology: principles and processes','Biotechnology and its applications','Organisms and populations','Ecosystem','Biodiversity and conservation'];
 const RT_EXAM_PRESETS=[{name:'CBSE Class 12 PCM',detail:'Physics, Chemistry, Mathematics. Add your other subjects.',subjects:[rtOutline('Physics',rtPhysics),rtOutline('Chemistry',rtChemistry),rtOutline('Mathematics',rtMaths)]},{name:'CBSE Class 12 PCB',detail:'Physics, Chemistry, Biology. Add your other subjects.',subjects:[rtOutline('Physics',rtPhysics),rtOutline('Chemistry',rtChemistry),rtOutline('Biology',rtBiology)]},{name:'JEE Mains',detail:'Class 11 + 12 starter outline for PCM.',subjects:[rtOutline('Physics',['Units and measurements','Kinematics','Laws of motion','Work, energy and power','Rotational motion','Gravitation','Solids and fluids','Thermodynamics','Kinetic theory','Oscillations and waves',...rtPhysics]),rtOutline('Chemistry',['Basic concepts of chemistry','Atomic structure','Chemical bonding','Chemical thermodynamics','Equilibrium','Redox reactions','Periodicity','p-block elements','Organic chemistry fundamentals','Hydrocarbons',...rtChemistry]),rtOutline('Mathematics',['Sets and functions','Complex numbers and quadratic equations','Sequences and series','Permutations and combinations','Binomial theorem','Trigonometry','Straight lines and conic sections','Statistics',...rtMaths.filter(x=>x!=='Linear programming')])]},{name:'NEET',detail:'Class 11 + 12 starter outline for PCB.',subjects:[rtOutline('Physics',['Units and measurements','Kinematics','Laws of motion','Work, energy and power','Rotational motion','Gravitation','Solids and fluids','Thermodynamics','Kinetic theory','Oscillations and waves',...rtPhysics]),rtOutline('Chemistry',['Basic concepts of chemistry','Atomic structure','Chemical bonding','Chemical thermodynamics','Equilibrium','Redox reactions','Periodicity','p-block elements','Organic chemistry fundamentals','Hydrocarbons',...rtChemistry]),rtOutline('Biology',['Diversity in the living world','Structural organisation in plants and animals','Cell structure and function','Plant physiology','Human physiology',...rtBiology])]},{name:'SAT',detail:'Reading and Writing + Math starter outline.',subjects:[rtOutline('Reading and Writing',['Information and ideas','Craft and structure','Expression of ideas','Standard English conventions']),rtOutline('Mathematics',['Algebra','Advanced math','Problem-solving and data analysis','Geometry and trigonometry'])]},{name:'Semester Finals',detail:'A blank structure to make your own.',subjects:[{name:'Your subject',categories:[{name:'Unit 1',topics:['Add your first topic']},{name:'Unit 2',topics:['Add your next topic']}]}]}];
-function rtSeedGuest(){if(isTeacherMode||localStorage.getItem('rt_guest_initialized')||currentSyllabusData.length||localStorage.getItem('dynamic_syllabus_data')!==null)return;const d=new Date();d.setDate(d.getDate()+14);const ex={id:'rt-demo-exam',demo:true,name:'Your next big exam',date:rtLocalDay(d),marks:'Sample',subjects:[rtOutline('Mathematics',['Functions and graphs','Differentiation','Integration']),rtOutline('Physics',['Motion and forces','Energy and momentum','Waves and optics'])]};currentSyllabusData.push(ex);const t=rtTopicIndex().filter(t=>t.examId===ex.id);rtTopicMastery[t[0].uid]={state:1,updatedAt:Date.now()};rtTopicMastery[t[3].uid]={state:2,updatedAt:Date.now(),revisedAt:new Date().toISOString(),reviewAt:rtLocalDay(new Date(Date.now()+3*86400000))};rtMasterySyncCompleted();localStorage.setItem('dynamic_syllabus_data',JSON.stringify(currentSyllabusData));localStorage.setItem('local_completed_tasks',JSON.stringify(completedTasksArray));localStorage.setItem('rt_guest_initialized','true');}
-function rtMergeExams(remote,local){const map=new Map((remote||[]).map(ex=>[String(ex.id),structuredClone(ex)]));for(const ex of local||[]){const old=map.get(String(ex.id));if(!old){map.set(String(ex.id),structuredClone(ex));continue;}const merged={...old,...ex,subjects:structuredClone(old.subjects||[])};for(const sub of ex.subjects||[]){let dest=merged.subjects.find(s=>s.name===sub.name);if(!dest){merged.subjects.push(structuredClone(sub));continue;}for(const cat of sub.categories||[]){let c=dest.categories.find(c=>c.name===cat.name);if(!c)dest.categories.push(structuredClone(cat));else c.topics=[...new Set([...c.topics,...cat.topics])];}}map.set(String(ex.id),merged);}return [...map.values()];}
-function rtCaptureGuest(){if(localStorage.getItem('offline_mode')!=='true')return null;return {exams:structuredClone(currentSyllabusData),completed:[...completedTasksArray],mastery:structuredClone(rtTopicMastery),habits:safeParse('rt_habits_offline',{}),focus:safeParse('rt_focus_sessions_offline',{}),calendar:structuredClone(calendarEvents),stats:{...pomoStats},timer:safeParse('rt_pomo_run',null)};}
+function rtSeedGuest(){if(isTeacherMode||localStorage.getItem('rt_guest_initialized')||currentSyllabusData.length||localStorage.getItem('dynamic_syllabus_data')!==null)return;const d=new Date();d.setDate(d.getDate()+14);const ex={id:'rt-demo-exam',demo:true,updatedAt:Date.now(),name:'Your next big exam',date:rtLocalDay(d),marks:'Sample',subjects:[rtOutline('Mathematics',['Functions and graphs','Differentiation','Integration']),rtOutline('Physics',['Motion and forces','Energy and momentum','Waves and optics'])]};currentSyllabusData.push(ex);const t=rtTopicIndex().filter(t=>t.examId===ex.id);rtTopicMastery[t[0].uid]={state:1,updatedAt:Date.now()};rtTopicMastery[t[3].uid]={state:2,updatedAt:Date.now(),revisedAt:new Date().toISOString(),reviewAt:rtLocalDay(new Date(Date.now()+3*86400000))};rtMasterySyncCompleted();localStorage.setItem('dynamic_syllabus_data',JSON.stringify(currentSyllabusData));localStorage.setItem('local_completed_tasks',JSON.stringify(completedTasksArray));localStorage.setItem('rt_guest_initialized','true');}
+function rtGetExamTombstones(){const t=safeParse('rt_deleted_exams',[]);return Array.isArray(t)?t:[];}
+function rtRecordExamTombstone(id){const t=rtGetExamTombstones();t.push(String(id));localStorage.setItem('rt_deleted_exams',JSON.stringify([...new Set(t)].slice(-100)));}
+function rtMergeSimpleTasks(remote,local){const seen=new Map();for(const t of [...(remote||[]),...(local||[])]){const k=t&&t.id!=null?String(t.id):JSON.stringify(t);if(!seen.has(k))seen.set(k,t);}return [...seen.values()];}
+function rtApplyExamTopicDiff(exam, oldSubs) {
+    const removed = [], renames = [];
+    (oldSubs || []).forEach(sub => {
+        const newSub = (exam.subjects || []).find(x => x.name === sub.name);
+        (sub.categories || []).forEach(cat => {
+            const newCat = newSub ? (newSub.categories || []).find(c => c.name === cat.name) : null;
+            const newNames = newCat ? newCat.topics : [];
+            const gone = (cat.topics || []).filter(t => !newNames.includes(t));
+            const added = newCat ? newNames.filter(t => !(cat.topics || []).includes(t)) : [];
+            removed.push(...gone);
+            if (gone.length === 1 && added.length === 1) renames.push({ sub: sub.name, cat: cat.name, from: gone[0], to: added[0] });
+        });
+    });
+    renames.forEach(r => {
+        const oldUid = rtTopicUid(exam, { name: r.sub }, { name: r.cat }, r.from);
+        const newUid = rtTopicUid(exam, { name: r.sub }, { name: r.cat }, r.to);
+        if (rtTopicMastery[oldUid] && !rtTopicMastery[newUid]) rtTopicMastery[newUid] = { ...rtTopicMastery[oldUid] };
+        delete rtTopicMastery[oldUid];
+        const ci = completedTasksArray.indexOf(oldUid);
+        if (ci > -1) completedTasksArray[ci] = newUid;
+        Object.values(rtFocusSessions || {}).forEach(x => { if (x && x.topicUid === oldUid) x.topicUid = newUid; });
+    });
+    if (renames.length && typeof rtSaveFocusLocal === 'function') rtSaveFocusLocal();
+    const present = new Set();
+    (exam.subjects || []).forEach(sub => (sub.categories || []).forEach(cat => (cat.topics || []).forEach(t => present.add(String(t)))));
+    const rt = [...new Set([...(Array.isArray(exam.removedTopics) ? exam.removedTopics : []), ...removed].map(String))].filter(n => !present.has(n)).slice(-200);
+    if (rt.length) exam.removedTopics = rt; else delete exam.removedTopics;
+    return renames.length;
+}
+function rtMergeExams(remote,local,tombstones){
+    const tomb=new Set((tombstones||[]).map(String));
+    const map=new Map();
+    for(const ex of remote||[]){if(ex&&!tomb.has(String(ex.id)))map.set(String(ex.id),structuredClone(ex));}
+    for(const ex of local||[]){
+        if(!ex||tomb.has(String(ex.id)))continue;
+        const old=map.get(String(ex.id));
+        if(!old){map.set(String(ex.id),structuredClone(ex));continue;}
+        const removedSet=new Set([...(Array.isArray(old.removedTopics)?old.removedTopics:[]),...(Array.isArray(ex.removedTopics)?ex.removedTopics:[])].map(String));
+        const useLocal=Number.isFinite(ex.updatedAt)&&Number.isFinite(old.updatedAt)?ex.updatedAt>=old.updatedAt:true;
+        // a strictly newer local copy still carrying a tombstoned topic is a deliberate re-add
+        const localNewer=Number.isFinite(ex.updatedAt)&&Number.isFinite(old.updatedAt)&&ex.updatedAt>old.updatedAt;
+        const remoteTopics=new Set();for(const sub of old.subjects||[])for(const c of sub.categories||[])for(const t of c.topics||[])remoteTopics.add(String(t));
+        const readded=new Set();
+        if(localNewer)for(const sub of ex.subjects||[])for(const c of sub.categories||[])for(const t of c.topics||[]){const k=String(t);if(removedSet.has(k)&&!remoteTopics.has(k))readded.add(k);}
+        const removed=new Set([...removedSet].filter(n=>!readded.has(n)));
+        const merged={...(useLocal?old:ex),...(useLocal?ex:old),subjects:structuredClone(old.subjects||[])};
+        for(const sub of merged.subjects)for(const c of sub.categories||[])c.topics=(c.topics||[]).filter(t=>!removed.has(String(t)));
+        for(const sub of ex.subjects||[]){
+            let dest=merged.subjects.find(x=>x.name===sub.name);
+            if(!dest){const cl=structuredClone(sub);for(const c of cl.categories||[])c.topics=(c.topics||[]).filter(t=>!removed.has(String(t)));merged.subjects.push(cl);continue;}
+            for(const cat of sub.categories||[]){
+                let c=dest.categories.find(y=>y.name===cat.name);
+                if(!c)dest.categories.push(structuredClone(cat));
+                else c.topics=[...new Set([...c.topics,...cat.topics])].filter(t=>!removed.has(String(t)));
+            }
+        }
+        const present=new Set();
+        for(const sub of merged.subjects)for(const c of sub.categories||[])for(const t of c.topics||[])present.add(String(t));
+        const rt=[...removed].filter(n=>!present.has(n)).slice(-200);
+        if(rt.length)merged.removedTopics=rt;else delete merged.removedTopics;
+        map.set(String(ex.id),merged);
+    }
+    return [...map.values()];
+}
+function rtCaptureGuest(){if(localStorage.getItem('offline_mode')!=='true')return null;return {exams:structuredClone(currentSyllabusData.filter(ex=>!ex.demo)),completed:completedTasksArray.filter(u=>!String(u).startsWith('rt-demo-exam_')),mastery:Object.fromEntries(Object.entries(rtTopicMastery).filter(([k])=>!String(k).startsWith('rt-demo-exam_'))),habits:safeParse('rt_habits_offline',{}),focus:safeParse('rt_focus_sessions_offline',{}),calendar:structuredClone(calendarEvents),stats:{...pomoStats},timer:safeParse('rt_pomo_run',null)};}
 async function rtParseSyllabus(){const status=document.getElementById('rtParserStatus'),btn=document.getElementById('rtParseSyllabus');rtParserPreview=null;document.getElementById('rtOutlineReview').hidden=true;document.getElementById('rtConfirmParsed').hidden=true;document.getElementById('rtParserPreview').textContent='';if(isTeacherMode)return;if(!currentUser){status.textContent='Sign in with Google to use AI parsing. Manual entry, JSON import and presets work without an account.';return;}const name=document.getElementById('rtParseName').value.trim(),date=document.getElementById('rtParseDate').value,text=document.getElementById('rtParseText').value.trim();if(!name||!rtDayDate(date)||text.length<10||text.length>24000){status.textContent='Add an exam name, a valid date and 10-24,000 characters of syllabus text.';return;}btn.disabled=true;btn.classList.add('rt-is-working');btn.querySelector('span').textContent='Organizing your syllabus';status.textContent='Organizing your syllabus…';try{const token=await currentUser.getIdToken();const res=await fetch('/api/parse-syllabus',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({name,date,text}),signal:AbortSignal.timeout(55000)});let data;try{data=await res.json();}catch{throw new Error('Parser endpoint is not deployed yet. Use JSON import or a preset for now.');}if(!res.ok)throw new Error(data.error||'Could not parse this syllabus.');rtParserPreview=rtValidateExams([data.exam]);document.getElementById('rtParserPreview').textContent=rtParserPreview.map(ex=>[ex.name,`Exam date: ${ex.date}`,...ex.subjects.flatMap(sub=>['',sub.name,...sub.categories.flatMap(cat=>[cat.name,...cat.topics.map(topic=>'• '+topic)])])].join('\n')).join('\n\n');document.getElementById('rtOutlineReview').hidden=false;document.getElementById('rtConfirmParsed').hidden=false;status.textContent='Check the outline below before adding it. AI can miss or group topics incorrectly.';}catch(err){status.textContent=err.message||'Parsing failed. Your text is still here.';}finally{btn.disabled=false;btn.classList.remove('rt-is-working');btn.querySelector('span').textContent='Create my outline';}}
 function rtValidateExamNotes(n){const out={};if(!n||typeof n!=='object'||Array.isArray(n))return out;for(const [k,v] of Object.entries(n)){const key=String(k).trim(),val=String(v==null?'':v).trim();if(key&&key.length<=300&&val)out[key]=val.slice(0,1500);if(Object.keys(out).length>=400)break;}return out;}
-function rtValidateExams(value){if(!Array.isArray(value)||!value.length||value.length>20)throw new Error('Use an array of 1-20 exams.');let count=0;return value.map(ex=>{if(!ex||typeof ex.name!=='string'||!ex.name.trim()||!rtDayDate(ex.date)||!Array.isArray(ex.subjects)||!ex.subjects.length||ex.subjects.length>30)throw new Error('Each exam needs a name, YYYY-MM-DD date and subjects.');return {id:rtNewExamId(),name:ex.name.trim().slice(0,180),date:ex.date,marks:String(ex.marks||'-').slice(0,30),notes:rtValidateExamNotes(ex.notes),subjects:ex.subjects.map(sub=>{if(!sub||typeof sub.name!=='string'||!sub.name.trim()||!Array.isArray(sub.categories)||!sub.categories.length||sub.categories.length>40)throw new Error('Each subject needs a name and categories.');return {name:sub.name.trim().slice(0,120),categories:sub.categories.map(cat=>{if(!cat||typeof cat.name!=='string'||!Array.isArray(cat.topics)||!cat.topics.length||cat.topics.some(t=>typeof t!=='string'||!t.trim()||t.length>300)||(count+=cat.topics.length)>1500)throw new Error('Use named categories and up to 1,500 nonempty topic strings.');return {name:cat.name.trim().slice(0,120)||'Topics',topics:[...new Set(cat.topics.map(t=>t.trim()))]};})};})};});}
+function rtValidateExams(value){if(!Array.isArray(value)||!value.length||value.length>20)throw new Error('Use an array of 1-20 exams.');let count=0;return value.map(ex=>{if(!ex||typeof ex.name!=='string'||!ex.name.trim()||!rtDayDate(ex.date)||!Array.isArray(ex.subjects)||!ex.subjects.length||ex.subjects.length>30)throw new Error('Each exam needs a name, YYYY-MM-DD date and subjects.');return {id:rtNewExamId(),name:ex.name.trim().slice(0,180),date:ex.date,updatedAt:Date.now(),marks:String(ex.marks||'-').slice(0,30),notes:rtValidateExamNotes(ex.notes),subjects:ex.subjects.map(sub=>{if(!sub||typeof sub.name!=='string'||!sub.name.trim()||!Array.isArray(sub.categories)||!sub.categories.length||sub.categories.length>40)throw new Error('Each subject needs a name and categories.');return {name:sub.name.trim().slice(0,120),categories:sub.categories.map(cat=>{if(!cat||typeof cat.name!=='string'||!Array.isArray(cat.topics)||!cat.topics.length||cat.topics.some(t=>typeof t!=='string'||!t.trim()||t.length>300)||(count+=cat.topics.length)>1500)throw new Error('Use named categories and up to 1,500 nonempty topic strings.');return {name:cat.name.trim().slice(0,120)||'Topics',topics:[...new Set(cat.topics.map(t=>t.trim()))]};})};})};});}
 document.getElementById('rtParseSyllabus').onclick=rtParseSyllabus;document.getElementById('rtConfirmParsed').onclick=async()=>{if(!rtParserPreview||isTeacherMode)return;const rtAddedExams=rtParserPreview;currentSyllabusData.push(...rtAddedExams);rtParserPreview=null;await syncData();await rtSeedChapterNotes(rtAddedExams);cmdModal.classList.remove('active');showToast('Syllabus added.');};
 document.getElementById('rtExamPresets').innerHTML=RT_EXAM_PRESETS.map((p,i)=>`<button type="button" class="rt-preset-card" data-exam-preset="${i}"><strong>${p.name}</strong><small>${p.detail}</small><small>${p.subjects.reduce((n,s)=>n+s.categories.reduce((n,c)=>n+c.topics.length,0),0)} starter topics · Add outline ↗</small></button>`).join('');
 function rtWorkspaceSnapshot(){return {exams:structuredClone(currentSyllabusData),completed:[...completedTasksArray],mastery:structuredClone(rtTopicMastery),calendar:structuredClone(calendarEvents),stats:{...pomoStats}};}
@@ -3750,7 +3860,7 @@ rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document
                     document.getElementById('btnNavSignOut').addEventListener('click', () => signOut(auth));
                     await pullDataFromCloud(user.uid); openApp('cloud');if(!v6Phone.matches)rtGo('homeSection');renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute(); syncWidgetTheme();rtResumeTimer();rtFriendsRender();rtMaybeAskNickname(user);
                 } else {
-                    if(currentUser){rtSaveWorkspace();resetTimerUI();}if(currentUser||localStorage.getItem('offline_mode')==='true')rtUseWorkspace(safeParse('rt_guest_workspace',null));currentUser = null;rtCloudLoading=false;isOfflineMode=false;
+                    if(currentUser){rtSaveWorkspace();const _rtRun=rtFocusRun;resetTimerUI();if(_rtRun){_rtRun.scope=null;try{localStorage.setItem('rt_stopwatch_run',JSON.stringify(_rtRun));}catch(e){}}}if(currentUser||localStorage.getItem('offline_mode')==='true')rtUseWorkspace(safeParse('rt_guest_workspace',null));currentUser = null;rtCloudLoading=false;isOfflineMode=false;
                     rtMarksScope=null;rtMarksRecords={};rtMarksSelected='';rtMarksLoad++;rtMClose();rtMRender();
                     rtFocusScope = null; rtFocusSessions = {}; rtFocusRun = null; rtRenderHeatmap();
                     rtHabitScope=null;rtHabitData={};rtHRender();
@@ -3768,7 +3878,7 @@ rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document
         function rtExamSelectUi(){const bar=document.getElementById('rtExamSelectBar');if(!bar)return;bar.hidden=!rtExamSelectMode;const n=rtExamSelected.size;document.getElementById('rtExamSelectCount').textContent=n+' selected';const rm=document.getElementById('rtExamSelectRemove');rm.disabled=n===0;if(rtExamRemoveArm){rm.textContent='SURE?';rm.classList.add('filled');}else{rm.textContent='REMOVE';rm.classList.remove('filled');}if(rtExamSelectMode&&v6Phone.matches&&!document.getElementById('examsSection').classList.contains('hidden-section'))v6RenderMobile();}
         document.getElementById('rtExamSelectToggle').addEventListener('click',()=>{if(isTeacherMode)return;rtExamSelectMode=!rtExamSelectMode;rtExamSelected.clear();rtExamRemoveArm=false;clearTimeout(rtExamRemoveTimer);document.getElementById('examsSection').classList.toggle('rt-select-mode',rtExamSelectMode);document.getElementById('rtExamSelectToggle').textContent=rtExamSelectMode?'CANCEL':'SELECT';renderDashboardStructure();if(v6Phone.matches)v6RenderMobile();rtExamSelectUi();});
         document.getElementById('rtExamSelectDone').addEventListener('click',()=>{document.getElementById('rtExamSelectToggle').click();});
-        document.getElementById('rtExamSelectRemove').addEventListener('click',async()=>{if(isTeacherMode||!rtExamSelectMode||!rtExamSelected.size)return;if(!rtExamRemoveArm){rtExamRemoveArm=true;clearTimeout(rtExamRemoveTimer);rtExamRemoveTimer=setTimeout(()=>{rtExamRemoveArm=false;rtExamSelectUi();},3000);rtExamSelectUi();return;}rtExamRemoveArm=false;clearTimeout(rtExamRemoveTimer);const n=rtExamSelected.size;currentSyllabusData=currentSyllabusData.filter(ex=>!rtExamSelected.has(String(ex.id)));rtExamSelected.clear();rtExamSelectMode=false;document.getElementById('examsSection').classList.remove('rt-select-mode');document.getElementById('rtExamSelectToggle').textContent='SELECT';renderDashboardStructure();if(v6Phone.matches)v6RenderMobile();rtExamSelectUi();showToast(n===1?'1 exam removed.':n+' exams removed.');await syncData(true);if(currentUser)mirrorExamsToWidget(currentUser.uid);});
+        document.getElementById('rtExamSelectRemove').addEventListener('click',async()=>{if(isTeacherMode||!rtExamSelectMode||!rtExamSelected.size)return;if(!rtExamRemoveArm){rtExamRemoveArm=true;clearTimeout(rtExamRemoveTimer);rtExamRemoveTimer=setTimeout(()=>{rtExamRemoveArm=false;rtExamSelectUi();},3000);rtExamSelectUi();return;}rtExamRemoveArm=false;clearTimeout(rtExamRemoveTimer);const n=rtExamSelected.size;rtExamSelected.forEach(id=>rtRecordExamTombstone(id));currentSyllabusData=currentSyllabusData.filter(ex=>!rtExamSelected.has(String(ex.id)));rtExamSelected.clear();rtExamSelectMode=false;document.getElementById('examsSection').classList.remove('rt-select-mode');document.getElementById('rtExamSelectToggle').textContent='SELECT';renderDashboardStructure();if(v6Phone.matches)v6RenderMobile();rtExamSelectUi();showToast(n===1?'1 exam removed.':n+' exams removed.');await syncData(true);if(currentUser)mirrorExamsToWidget(currentUser.uid);});
         document.getElementById('timelineContainer').addEventListener('change',e=>{const cb=e.target.closest('.rt-exam-check');if(!cb)return;const id=String(cb.dataset.examCheck);if(cb.checked)rtExamSelected.add(id);else rtExamSelected.delete(id);rtExamSelectUi();});
         document.getElementById('rtFocusCustom').addEventListener('input',e=>{if(!rtSwActive()||!rtFocusRun)return;const v=e.target.value.trim().slice(0,180);if(v)rtFocusRun.topicLabel=v;else delete rtFocusRun.topicLabel;rtSwPersist();});
         const rtFocusDefaultLabel='General Focus';document.getElementById('rtFocusCustom').addEventListener('beforeinput',e=>{const el=e.target;if(el.value===rtFocusDefaultLabel&&e.inputType&&e.inputType.startsWith('insert'))el.value='';});
