@@ -103,7 +103,7 @@
         .card-panel { background: var(--surface-color); border: 1px solid var(--border-color); padding: 1.5rem; position: relative; border-radius: var(--radius); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); }
 
         #authScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #050505; z-index: 9999; display: flex; justify-content: center; align-items: center; transition: var(--transition); }
-        #authScreen.hidden { opacity: 0; pointer-events: none; }
+        #authScreen.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
         .auth-card { max-width: 450px; width: 90%; text-align: center; }
         .auth-card h2 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-main); }
         .auth-card p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2rem; }
@@ -1203,6 +1203,14 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
                     <input type="text" id="shareLinkOutput" class="form-control" readonly style="display: none; margin-top: 1rem; text-align: center; color: var(--accent-secondary); border-color: var(--accent-secondary);">
                 </div>
 
+                <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 1.5rem 0;" id="rtSignOutHr" hidden>
+
+                <div class="form-group" id="rtSignOutWrap" style="margin-bottom: 0;" hidden>
+                    <label>Session</label>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.4;">Signed in as <span id="rtSignOutEmail" style="color: var(--text-main);"></span>. Your workspace stays in the cloud.</p>
+                    <button id="btnSettingsSignOut" class="btn btn-outline" style="width: 100%;">Sign out</button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -1235,7 +1243,7 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
                         </div>
                     </div>
                     <div class="form-group"><label>Chapter / Category</label><input type="text" id="manCategory" class="form-control" value="Tasks" required></div>
-                    <div class="form-group"><label>Topics (comma separated)</label><textarea id="manTopics" class="form-control" required></textarea></div>
+                    <div class="form-group"><label>Topics (comma separated, optional)</label><textarea id="manTopics" class="form-control"></textarea></div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Save Exam</button>
                 </form>
             </div>
@@ -2875,11 +2883,17 @@ function rtMRender() {}
         document.getElementById('btnGlobalSettings').addEventListener('click', () => {
             refreshAppUpdateEntry();
             document.getElementById('rtPasswordWrap').style.display = (currentUser && currentUser.providerData && currentUser.providerData.some(p => p.providerId === 'password')) ? '' : 'none';
+            const rtSoW = document.getElementById('rtSignOutWrap'), rtSoHr = document.getElementById('rtSignOutHr');
+            if (rtSoW) { rtSoW.hidden = !currentUser; if (rtSoHr) rtSoHr.hidden = !currentUser; if (currentUser) document.getElementById('rtSignOutEmail').textContent = currentUser.email || ''; }
             settingsModal.classList.add('active');
             document.getElementById('shareLinkOutput').style.display = 'none';
         });
         document.getElementById('closeGlobalSettings').addEventListener('click', () => {
             settingsModal.classList.remove('active');
+        });
+        document.getElementById('btnSettingsSignOut').addEventListener('click', () => {
+            settingsModal.classList.remove('active');
+            if (isFirebaseConfigured && auth) signOut(auth);
         });
 
         document.getElementById('btnSaveName').addEventListener('click', () => {
