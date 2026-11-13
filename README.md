@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://study-dashboard-rose-psi.vercel.app">Open the dashboard</a> ·
   <a href="https://github.com/notdropkun/Relent-Tracker/releases">Get the Android app</a> ·
-  <a href="https://github.com/notdropkun/Relent-Tracker/releases/tag/v1.3.1">See what's new</a>
+  <a href="https://github.com/notdropkun/Relent-Tracker/releases/tag/v1.4.3">See what's new</a>
 </p>
 
 <p align="center">
@@ -117,7 +117,7 @@ Log in once in the app to connect your widgets to your account. Use the same Goo
 2. Download the `RTracker` APK from the release you want.
 3. Open the file on Android and allow installation from that source if Android asks.
 
-**Current featured release:** v1.3.1, with auto-refreshing widgets.
+**Current featured release:** v1.4.3, with the remade calendar widget and the habit tracker fix.
 
 **A note on updating from v1.3.0 or older:** v1.3.1 is signed with a new key, so Android won't offer it as an update over those versions. Don't uninstall before you're ready - a fresh install removes local app and widget data.
 
@@ -136,19 +136,19 @@ Prefer an external update manager? Add `https://github.com/notdropkun/Relent-Tra
 
 <br>
 
-The v1.3.1 APK's SHA-256 hash is:
+The v1.4.3 APK's SHA-256 hash is:
 
 ```text
-8c16ec344094e0cec51e7970972e37d89105cbf7bfe082e9da45a06607303b0d
+b4a052e9861c5f64b05bd3951142e501cd2af528b4bb2adb52fa206f039efaaa
 ```
 
-The v1.3.1 signing certificate SHA-256 fingerprint is:
+The signing certificate SHA-256 fingerprint (v1.3.1 through v1.4.3) is:
 
 ```text
 D2:5A:81:C7:D7:53:C3:39:98:0F:7E:DF:F4:CE:BB:67:0E:7F:D2:1F:AD:74:32:B2:7B:E5:C5:BB:89:B0:89:B9
 ```
 
-Both verified against the published v1.3.1 APK itself. Releases up to v1.3.0 were signed with a different certificate (`CF:00:EA:AB…`), since replaced - which is why they can't update in place to v1.3.1.
+Both verified against the published v1.4.3 APK itself. Releases up to v1.3.0 were signed with a different certificate (`CF:00:EA:AB…`), since replaced - which is why they can't update in place to v1.3.1.
 
 </details>
 
