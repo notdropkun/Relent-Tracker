@@ -1809,10 +1809,17 @@ function rtMRender() {}
         }
         async function rtUploadFocusHistory(uid) {
             if (rtCloudLoading || isTeacherMode || !uid || !db || rtFocusScope !== `user_${uid}` || !Object.keys(rtFocusSessions).length) return;
+            const snapshot = structuredClone(rtFocusSessions);
             try {
-                // Merge session IDs individually: concurrent devices do not replace an array.
-                await setDoc(doc(db, 'users', uid), { focusSessions:rtFocusSessions }, { merge:true });
-                if (rtFocusScope === `user_${uid}`) rtFocusCloudFailed = false;
+                // Merge session IDs individually inside a transaction: concurrent devices never replace each other's sessions.
+                const merged = await runTransaction(db, async tx => {
+                    const ref = doc(db, 'users', uid);
+                    const remote = await tx.get(ref);
+                    const m = { ...rtCleanSessions(remote.exists() ? remote.data().focusSessions : {}), ...snapshot };
+                    tx.set(ref, { focusSessions: m }, { merge: true });
+                    return m;
+                });
+                if (rtFocusScope === `user_${uid}`) { rtFocusSessions = { ...merged, ...rtFocusSessions }; rtSaveFocusLocal(); rtFocusCloudFailed = false; }
             } catch(e) {
                 if (rtFocusScope === `user_${uid}`) rtFocusCloudFailed = true;
                 console.warn('Focus history cloud save failed; local copy retained', e);
@@ -3317,7 +3324,7 @@ function rtMRender() {}
                     currentSyllabusData = currentSyllabusData.filter(ex=>!rtCloudTombs.includes(String(ex.id)));
                     if(data.pomoStats)pomoStats={completed:Math.max(data.pomoStats.completed||0,pomoStats.completed||0),givenUp:Math.max(data.pomoStats.givenUp||0,pomoStats.givenUp||0)};
                     if(data.customName) localStorage.setItem('custom_user_name', data.customName);
-                    if(data.simpleTasks) simpleTasksArray = data.simpleTasks;
+                    if(data.simpleTasks) simpleTasksArray = rtMergeSimpleTasks(data.simpleTasks, simpleTasksArray);
                     if(data.calendarEvents)calendarEvents=[...new Map([...data.calendarEvents,...calendarEvents].map(x=>[String(x.id),x])).values()];
                     
                     localStorage.setItem('dynamic_syllabus_data', JSON.stringify(currentSyllabusData));
@@ -3330,6 +3337,10 @@ function rtMRender() {}
                     mirrorExamsToWidget(uid);
                 }
                 if(!userDoc.exists())rtTopicMastery=rtPendingGuest?.mastery||safeParse(`rt_mastery_user_${uid}`,{});
+                if(!rtPendingGuest){
+                    if(rtFocusScope===`user_${uid}`){const _offS=rtCleanSessions(safeParse('rt_focus_sessions_offline',{}));if(Object.keys(_offS).length){rtFocusSessions={..._offS,...rtFocusSessions};localStorage.setItem('rt_focus_sessions_offline','{}');rtSaveFocusLocal();rtRenderHeatmap();}}
+                    if(rtHabitScope===`user_${uid}`&&!isTeacherMode){const _offH=rtHClean(safeParse('rt_habits_offline',{}));if(Object.keys(_offH).length){rtHabitData=rtHMerge(rtHabitData,_offH);localStorage.setItem('rt_habits_offline','{}');rtHSave();rtHRender();}}
+                }
                 let migratedGuest=null;if(rtPendingGuest){const g=rtPendingGuest;if(await rtAskGuestImport()){migratedGuest=g;currentSyllabusData=rtMergeExams(currentSyllabusData,g.exams,rtGetExamTombstones());completedTasksArray=[...new Set([...completedTasksArray,...g.completed])];rtTopicMastery=rtMergeMastery(rtTopicMastery,g.mastery);rtHabitData=rtHMerge(rtHabitData,g.habits);rtHSave();rtFocusSessions={...rtCleanSessions(g.focus),...rtFocusSessions};rtSaveFocusLocal();calendarEvents=[...new Map([...calendarEvents,...g.calendar].map(x=>[String(x.id),x])).values()];pomoStats={completed:Math.max(pomoStats.completed||0,g.stats.completed||0),givenUp:Math.max(pomoStats.givenUp||0,g.stats.givenUp||0)};if(g.timer){g.timer.scope=`user_${uid}`;localStorage.setItem('rt_pomo_run',JSON.stringify(g.timer));if(window.rtSwMigrateLegacy)window.rtSwMigrateLegacy();}}rtPendingGuest=null;}
                 rtCloudLoading=false;rtMasterySyncCompleted();localStorage.setItem(`rt_mastery_user_${uid}`,JSON.stringify(rtTopicMastery));await syncData();if(migratedGuest&&window.rtCloudOk){localStorage.setItem('rt_guest_migrated_backup',JSON.stringify(migratedGuest));localStorage.setItem('rt_guest_workspace',JSON.stringify({exams:[],completed:[],mastery:{},calendar:[],stats:{completed:0,givenUp:0}}));localStorage.setItem('rt_habits_offline','{}');localStorage.setItem('rt_focus_sessions_offline','{}');}rtHUpload();rtUploadFocusHistory(uid);
             } catch(e){rtCloudLoading=true;window.rtCloudOk=false;rtShowSyncFail('Cloud load did not finish. Your local work is safe; retry before making cloud changes.',()=>pullDataFromCloud(uid));}
