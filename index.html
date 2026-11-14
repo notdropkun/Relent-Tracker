@@ -2111,7 +2111,7 @@ function rtMRender() {}
             }catch(e){}
         }
         function rtNativeAlertCancel(){try{if(window.RTrackerTimer)window.RTrackerTimer.postMessage(JSON.stringify({type:'cancel'}));}catch(e){}}
-        window.rtTimerGiveUpExternal=function(){try{if(!rtFocusRun)return;if(rtFocusRun.state==='studying'||rtFocusRun.state==='paused')btnPomoGiveUp.click();else rtSwDone();}catch(e){}};
+        window.rtTimerGiveUpExternal=function(){try{if(!rtFocusRun)return;if(rtFocusRun.state==='studying'||rtFocusRun.state==='paused'){if(rtSwActiveMs(Date.now())>=rtFocusRun.targetMin*60000)rtSwEnterBreak(Date.now());else btnPomoGiveUp.click();}else rtSwDone();}catch(e){}};
 
         // Run shape: {id,state:'studying'|'paused'|'break'|'breakover',round,activeMs,segStartTs,pausedAtTs,breakEndTs,scope,targetMin,breakMin,xpDouble:true,topicLabel?,examId?,subject?,topicUid?}
         let pomoTimer=null;
