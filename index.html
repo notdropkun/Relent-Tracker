@@ -2193,10 +2193,12 @@ function rtMRender() {}
             if(logged.includes(roundKey))return; // another open tab already logged this round
             localStorage.setItem('rt_pomo_logged',JSON.stringify([...logged,roundKey].slice(-100)));
             const now=new Date();
-            const dayNow=rtLocalDay(now),dayStart=rtLocalDay(new Date(now.getTime()-run.targetMin*60000));
+            const activeMs=rtSwActiveMs(now.getTime());
+            const totalMin=Math.max(1,Math.round(activeMs/60000));
+            const dayNow=rtLocalDay(now),dayStart=rtLocalDay(new Date(now.getTime()-activeMs));
             const base={finishedAt:now.toISOString(),xpV2:true,xpDouble:true,...(run.examId?{examId:run.examId,subject:run.subject,topicUid:run.topicUid}:{}),...(run.topicLabel?{topicLabel:run.topicLabel}:{})};
-            let minsToday=run.targetMin,minsPrev=0;
-            if(dayStart!==dayNow){const mid=new Date(now);mid.setHours(0,0,0,0);minsToday=Math.max(0,Math.min(run.targetMin,Math.round((now.getTime()-mid.getTime())/60000)));minsPrev=run.targetMin-minsToday;}
+            let minsToday=totalMin,minsPrev=0;
+            if(dayStart!==dayNow){const mid=new Date(now);mid.setHours(0,0,0,0);minsToday=Math.max(0,Math.min(totalMin,Math.round((now.getTime()-mid.getTime())/60000)));minsPrev=totalMin-minsToday;}
             if(minsToday>0)rtFocusSessions[roundKey]={day:dayNow,minutes:minsToday,...base};
             if(minsPrev>0)rtFocusSessions[`${roundKey}_prev`]={day:dayStart,minutes:minsPrev,...base};
             rtSaveFocusLocal();rtHmSelected=rtLocalDay(now);rtRenderHeatmap();
@@ -2214,11 +2216,17 @@ function rtMRender() {}
             rtNativeAlertSchedule();rtSquadSync();rtSwUI();
         }
         function rtSwDone(){
-            const wasMid=rtFocusRun&&(rtFocusRun.state==='studying'||rtFocusRun.state==='paused');
-            if(wasMid){pomoStats.givenUp++;localStorage.setItem('pomo_stats',JSON.stringify(pomoStats));updatePomoStatsDisplay();}
+            const run=rtFocusRun;
+            const wasMid=run&&(run.state==='studying'||run.state==='paused');
+            let savedMin=0;
+            if(wasMid){
+                const activeMs=rtSwActiveMs(Date.now());
+                if(activeMs>=60000){savedMin=Math.max(1,Math.round(activeMs/60000));rtSwCompleteRound();}
+                else{pomoStats.givenUp++;localStorage.setItem('pomo_stats',JSON.stringify(pomoStats));updatePomoStatsDisplay();}
+            }
             resetTimerUI();rtSquadSync();syncData(true);
             rtRenderHeatmap();
-            showToast(wasMid?'Session ended. Start again when you are ready.':'Focus session wrapped up. Good work.');
+            showToast(savedMin>0?`Session saved - ${savedMin} min counted.`:(wasMid?'Session ended. Under a minute, nothing counted.':'Focus session wrapped up. Good work.'));
         }
         function rtSwTick(){
             const now=Date.now(),run=rtFocusRun;
