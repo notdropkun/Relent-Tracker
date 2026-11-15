@@ -757,6 +757,16 @@ button,input,select,textarea{font-family:var(--font-main)}.rt-row-note,.rt-subti
  .rt-appearance-window header{display:flex;align-items:center;justify-content:space-between}.rt-appearance-window header small{font:9px var(--font-mono);letter-spacing:1.4px;color:var(--text-muted)}.rt-appearance-window h3{font:600 23px var(--font-display);margin:5px 0 0;color:var(--text-main)}.rt-appearance-window header button{width:40px;height:40px;background:none;border:0;color:var(--text-muted);font-size:26px;cursor:pointer}.rt-appearance-window p{font:12px var(--font-display);color:var(--text-muted);margin:20px 0 12px}.rt-appearance-window footer{font:9px/1.6 var(--font-mono);color:var(--text-muted);padding-top:16px}.rt-appearance-window .rt-pair-row{padding:12px 10px;min-height:66px;border-radius:11px}.rt-appearance-window .rt-pair-copy strong{font-size:11px;line-height:1.4}.rt-appearance-window .rt-pair-copy small{font-size:9px}.rt-appearance-window .rt-pair-sw{width:32px;height:32px;flex-basis:32px}.rt-appearance-window .rt-pair-list{gap:9px}.rt-appearance-window .rt-pair-check{flex-shrink:0}
  
 @media(prefers-reduced-motion:reduce){#rtAppearanceShade,.rt-appearance-window{transition:none!important;transform:none!important}}</style>
+
+<style id="rtCalendarBars">
+#calDaysGrid.view-month{position:relative;--rt-cal-row:96px;--rt-cal-top:28px;--rt-cal-lane:20px;grid-auto-rows:var(--rt-cal-row);gap:0!important}
+#calDaysGrid.view-month .cal-cell{height:var(--rt-cal-row)!important;min-height:0!important;padding:3px 2px!important;overflow:hidden;box-sizing:border-box}
+#calDaysGrid.view-month .cal-events-container{display:none!important}
+#calDaysGrid.view-month .cal-cell.has-event:after{display:none!important;content:none!important}
+#calDaysGrid.view-month .rt-month-bar{position:absolute!important;display:block!important;z-index:2;height:18px;min-height:0;margin:0;padding:0 4px;border:0!important;border-radius:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;color:#130e1b;font:600 10px var(--font-mono);line-height:18px;box-shadow:none;cursor:pointer}
+.rt-cal-more{position:absolute;bottom:0;right:2px;font:7px var(--font-mono);color:var(--text-muted)}
+@media(max-width:600px){#calDaysGrid.view-month{--rt-cal-row:44px;--rt-cal-top:14px;--rt-cal-lane:10px}#calDaysGrid.view-month .cal-date-num{font-size:10px;line-height:12px;padding:0}#calDaysGrid.view-month .rt-month-bar{height:10px;line-height:10px;padding:0 2px;border-radius:2px;font-size:8px}}
+</style>
 </head>
 <body>
         <script>try{document.body.className=localStorage.getItem('app_theme')||'theme-ultraviolet'}catch(e){document.body.className='theme-ultraviolet'}</script>
@@ -1307,7 +1317,7 @@ const rtMotionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');
 window.rtInAndroidApp=!!(window.AndroidWidget||window.RTrackerHabits)||/; wv\)/i.test(navigator.userAgent);if(window.rtInAndroidApp)document.documentElement.classList.add('rt-inapp');
 let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=false,rtExamRemoveTimer=null;let rtArchiveConfirmId='',rtArchiveConfirmTimer=null;
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, reauthenticateWithRedirect, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, addDoc, runTransaction, onSnapshot, query, where, updateDoc, deleteDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const ADMIN_EMAILS = ["dropadvaay@gmail.com", "advaay1981@gmail.com"];
@@ -1614,12 +1624,35 @@ let rtExamSelectMode=false;const rtExamSelected=new Set();let rtExamRemoveArm=fa
         // TASKBAR NAVIGATION ROUTING
         // ==========================================
         const sections = ['homeSection','examsSection','calendarSection','habitsSection','pomodoroSection','squadSection','chapterSection'];
+        let rtNavRestoring=false, rtNavCurrent='homeSection';
+        history.replaceState({...history.state,rtSection:'homeSection'}, '', location.href);
+        window.addEventListener('popstate', ev => {
+            rtNavRestoring=true;
+            const target=sections.includes(ev.state?.rtSection)?ev.state.rtSection:'homeSection';
+            rtNavCurrent=target;document.querySelector(`.taskbar-btn[data-target="${target}"]`)?.click();
+            rtNavRestoring=false;
+        });
+        window.rtHandleBack=function(){
+            const sheet=document.getElementById('rtMoreSheet');
+            if(sheet&&!sheet.hidden){sheet.hidden=true;return true;}
+            const dialog=[...document.querySelectorAll('[role="dialog"]')].reverse().find(el=>!el.hidden&&getComputedStyle(el).display!=='none');
+            if(dialog){const close=dialog.querySelector('[data-rt-close],.modal-close,.close-modal,.close-btn');if(close){close.click();return true;}}
+            const modal=[...document.querySelectorAll('.modal-overlay.active')].reverse()[0];
+            if(modal){modal.classList.remove('active');return true;}
+            if(v6SelectedExam){v6SelectedExam=null;v6RenderMobile();return true;}
+            if(rtNavCurrent!=='homeSection'){history.back();return true;}
+            return false;
+        };
         document.querySelectorAll('.taskbar-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.taskbar-btn').forEach(b => b.classList.remove('active'));
                 e.currentTarget.classList.add('active');
                 
                 const target = e.currentTarget.dataset.target;
+                if (!rtNavRestoring && target !== rtNavCurrent) {
+                    history.pushState({rtSection:target}, '', location.pathname + location.search + location.hash);
+                    rtNavCurrent = target;
+                }
                 if(v6Phone.matches && target==='examsSection'){v6SelectedExam=null;v6RenderMobile();}
                 const _cur=sections.map(id=>document.getElementById(id)).find(el=>el&&!el.classList.contains('hidden-section'));
                 sections.forEach(id=>{const o=document.getElementById(id);if(o&&o.classList.contains('rt-leaving')){o.classList.add('hidden-section');o.classList.remove('rt-leaving');o.style.position='';o.style.left='';o.style.top='';o.style.width='';o.style.zIndex='';}});
@@ -1836,6 +1869,7 @@ function rtMRender() {}
             if (currentUser && isFirebaseConfigured){rtUploadFocusHistory(currentUser.uid);rtSquadSync();}
         }
         function rtSyncFocusWidget() {
+            window.rtQuickFocusRefresh?.();
             const bridge=window.AndroidWidget;
             if(!bridge||!bridge.setFocusHeatmap)return;
             if(isTeacherMode||!rtFocusScope){try{bridge.clearFocusHeatmap?.();}catch(e){}return;}
@@ -2128,9 +2162,65 @@ function rtMRender() {}
         function rtSwActive(){return !!rtFocusRun;}
         function rtSwActiveMs(now){return rtFocusRun?rtFocusRun.activeMs+(rtFocusRun.state==='studying'?now-rtFocusRun.segStartTs:0):0;}
         function rtSwFmt(ms){const t=Math.max(0,Math.floor(ms/1000));return `${Math.floor(t/60)}:${(t%60).toString().padStart(2,'0')}`;}
-        function rtSwPersist(){if(rtFocusRun)localStorage.setItem('rt_stopwatch_run',JSON.stringify(rtFocusRun));}
-        function rtClearTimerStorage(){localStorage.removeItem('rt_stopwatch_run');localStorage.removeItem('pomoTargetEndTime');localStorage.removeItem('rt_pomo_run');}
+        function rtSwPersist(){if(rtFocusRun)localStorage.setItem('rt_stopwatch_run',JSON.stringify(rtFocusRun));rtQuickState();}
+        function rtClearTimerStorage(){localStorage.removeItem('rt_stopwatch_run');localStorage.removeItem('pomoTargetEndTime');localStorage.removeItem('rt_pomo_run');rtQuickState();}
 
+        function rtQuickState(){
+            try{window.RTrackerQuickFocus?.postMessage(JSON.stringify({type:'state',scope:isTeacherMode||(!currentUser&&!isOfflineMode)?'':rtFocusScope||'',busy:!!rtFocusRun,busyUntil:rtFocusRun?(rtFocusRun.state==='paused'?0:rtFocusRun.state==='studying'?Date.now()+Math.max(0,rtFocusRun.targetMin*60000-rtSwActiveMs(Date.now()))+rtFocusRun.breakMin*60000:rtFocusRun.breakEndTs):0,breakMin:swSettings.breakMin}));}catch(e){}
+        }
+        let rtQuickChannelReady=false,rtQuickReadAt=0;
+        window.rtQuickFocusRefresh=function(){
+            const bridge=window.RTrackerQuickFocus;if(!bridge)return;
+            if(Date.now()-rtQuickReadAt<1500)return;rtQuickReadAt=Date.now();
+            if(!rtQuickChannelReady){bridge.onmessage=ev=>{
+                let data;try{data=JSON.parse(ev.data);}catch(e){return;}
+                if(data.type!=='quick-focus-snapshot'||!Array.isArray(data.records)||!rtFocusScope||isTeacherMode)return;
+                const ack=[];const now=Date.now();
+                for(const r of data.records){
+                    if(r.scope!==rtFocusScope||!/^quick_[a-zA-Z0-9-]{1,80}$/.test(r.id)||!Number.isFinite(r.startMs)||!Number.isFinite(r.endMs)||r.endMs-r.startMs!==45*60000||r.startMs>now)continue;
+                    const stopped=Number(r.stoppedAt)||0;
+                    const end=stopped?Math.min(stopped,r.endMs):Math.min(now,r.endMs);
+                    const studying=!stopped&&now<r.endMs;
+                    const onBreak=!stopped&&!studying&&now<r.breakEnd;
+                    if((studying||onBreak)&&rtFocusRun&&rtFocusRun.id!==r.id)continue;
+                    // Same stable round ID as the regular timer. Replays only overwrite the same record.
+                    if(!studying){
+                        const total=end-r.startMs<60000?0:Math.max(0,Math.round((end-r.startMs)/60000));
+                        if(total>0){
+                            const finish=new Date(end),startDay=rtLocalDay(new Date(r.startMs)),endDay=rtLocalDay(finish);
+                            const mid=new Date(finish);mid.setHours(0,0,0,0);
+                            const todayMin=startDay===endDay?total:Math.max(0,Math.min(total,Math.round((end-mid.getTime())/60000)));
+                            const base={finishedAt:finish.toISOString(),xpV2:true,xpDouble:true,topicLabel:'General Category'};
+                            if(todayMin>0)rtFocusSessions[r.id+'_r1']={day:endDay,minutes:todayMin,...base};
+                            if(total-todayMin>0)rtFocusSessions[r.id+'_r1_prev']={day:startDay,minutes:total-todayMin,...base};
+                            const logged=safeParse('rt_pomo_logged',[]);
+                            if(!logged.includes(r.id+'_r1')){
+                                localStorage.setItem('rt_pomo_logged',JSON.stringify([...logged,r.id+'_r1'].slice(-100)));
+                                pomoStats.completed++;localStorage.setItem('pomo_stats',JSON.stringify(pomoStats));
+                            }
+                            // Persist before acknowledging native ownership transfer.
+                            localStorage.setItem(`rt_focus_sessions_${rtFocusScope}`,JSON.stringify(rtFocusSessions));
+                        }
+                    }
+                    if(studying||onBreak){
+                        rtFocusRun={id:r.id,state:studying?'studying':'break',round:1,activeMs:0,segStartTs:r.startMs,pausedAtTs:0,breakEndTs:r.breakEnd,scope:rtFocusScope,targetMin:45,breakMin:Math.max(1,Math.min(60,r.breakMin||15)),xpDouble:true,topicLabel:'General Category'};
+                        localStorage.setItem('rt_stopwatch_run',JSON.stringify(rtFocusRun));
+                        rtSwUI();rtSwRender(now);clearInterval(pomoTimer);pomoTimer=setInterval(rtSwTick,250);
+                        rtNativeAlertSchedule();
+                    }
+                    ack.push(r.id);
+                }
+                if(ack.length){
+                    bridge.postMessage(JSON.stringify({type:'ack',ids:ack}));
+                    rtQuickState();rtRenderHeatmap();rtHRender();updatePomoStatsDisplay();
+                    if(currentUser){rtUploadFocusHistory(currentUser.uid);rtSquadSync();}
+                }
+            };rtQuickChannelReady=true;}
+            rtQuickState();
+            if(!isTeacherMode&&(currentUser||isOfflineMode))bridge.postMessage(JSON.stringify({type:'get',scope:rtFocusScope||''}));
+        };
+        document.addEventListener('visibilitychange',()=>{if(!document.hidden)window.rtQuickFocusRefresh();});
+        window.addEventListener('focus',()=>window.rtQuickFocusRefresh());
         function rtSwSetStartLabel(txt){
             const d=btnPomoStart.querySelector('.v6-desktop-copy'),m=btnPomoStart.querySelector('.v6-mobile-copy');
             if(d)d.textContent=txt.toUpperCase();if(m)m.textContent=txt;
@@ -2408,6 +2498,72 @@ function rtMRender() {}
             return v6Escape(calendarDisplayText(event,field));
         }
 
+        // Older calendar snapshots can retain the timed pre-board copy after GCal
+        // changes it to all-day. Prefer its all-day twin without changing stored data.
+        function rtCalNormTitle(t) {
+            return String(t || '').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+        }
+        function rtCalVisible(events) {
+            const list = Array.isArray(events) ? events.filter(Boolean) : [];
+            const isPreboard = ev => /\bpre\s*(?:b|board)(?:\b|s\b)/i.test(rtCalNormTitle(ev.title));
+            const allDayKeys = new Set(list.filter(ev => ev.allDay && isPreboard(ev))
+                .map(ev => `${ev.date}|${rtCalNormTitle(ev.title)}`));
+            return list.filter(ev => ev.allDay || !isPreboard(ev) || String(ev.startTime || '').slice(0, 5) !== '09:30'
+                || !allDayKeys.has(`${ev.date}|${rtCalNormTitle(ev.title)}`));
+        }
+
+        function rtCalEnd(ev) {
+            const start = widgetDate(ev.date);
+            const end = widgetDate(ev.endDate);
+            return start && end && end >= start ? ev.endDate : ev.date;
+        }
+        function rtCalOnDay(day) {
+            return rtCalVisible(calendarEvents).filter(ev => ev.date <= day && rtCalEnd(ev) >= day);
+        }
+        function rtCalShortTitle(ev) {
+            const title=calendarDisplayText(ev, 'title').replace(/^\[[^\]]+\]\s*/, '').replace(/\s*\(Pre-B\)\s*$/i, '').trim();
+            if(!v6Phone.matches)return title;
+            return title.replace(/Computer Science/i,'CS').replace(/Psychology/i,'Psych').replace(/Chemistry/i,'Chem').replace(/Mathematics/i,'Maths').replace(/Physics/i,'Phy').replace(/Biology/i,'Bio').replace(/English/i,'Eng');
+        }
+        function rtCalChipColor(ev) {
+            const t = rtCalNormTitle(ev.title);
+            if (/pre b|preboard|exam/.test(t)) return '#7fc8bc';
+            if (/gym|workout/.test(t)) return '#e8a96b';
+            if (/birthday|personal/.test(t)) return '#c88bd8';
+            return '#b7a6f5';
+        }
+        function rtCalMonthBars(year, month, offset, days) {
+            const rows = Math.ceil((offset + days) / 7);
+            const events = rtCalVisible(calendarEvents).filter(ev => ev.date && widgetDate(ev.date));
+            const monthStart = rtLocalDay(new Date(year, month, 1)), monthEnd = rtLocalDay(new Date(year, month + 1, 0));
+            const spans = events.filter(ev => ev.date <= monthEnd && rtCalEnd(ev) >= monthStart).map(ev => {
+                const start = ev.date < monthStart ? 0 : widgetDate(ev.date).getDate() - 1;
+                const end = rtCalEnd(ev) > monthEnd ? days - 1 : widgetDate(rtCalEnd(ev)).getDate() - 1;
+                return {ev, start:offset + start, end:offset + end};
+            }).sort((a,b) => (b.end-b.start)-(a.end-a.start) || a.start-b.start || String(a.ev.id).localeCompare(String(b.ev.id)));
+            const occupied = Array.from({length:3}, () => new Set());
+            const hidden = {};
+            spans.forEach(span => {
+                const cells = Array.from({length:span.end-span.start+1}, (_,i) => span.start+i);
+                const lane = occupied.findIndex(set => cells.every(i => !set.has(i)));
+                if (lane < 0) { cells.forEach(i => hidden[i]=(hidden[i]||0)+1); return; }
+                cells.forEach(i => occupied[lane].add(i));
+                for (let row=Math.floor(span.start/7);row<=Math.floor(span.end/7);row++) {
+                    const a=Math.max(span.start,row*7), b=Math.min(span.end,row*7+6);
+                    const bar=document.createElement('button');bar.type='button';bar.className='cal-event rt-month-bar';
+                    bar.dataset.id=span.ev.id;bar.title=calendarDisplayText(span.ev,'title');
+                    bar.setAttribute('aria-label',bar.title+', '+span.ev.date+' to '+rtCalEnd(span.ev));
+                    bar.textContent=(a>span.start?'‹ ':'')+rtCalShortTitle(span.ev)+(b<span.end?' ›':'');
+                    bar.style.cssText=`left:calc(${a%7} * 100% / 7 + 2px);width:calc(${b-a+1} * 100% / 7 - 4px);top:calc(${row} * var(--rt-cal-row) + var(--rt-cal-top) + ${lane} * var(--rt-cal-lane));background:${rtCalChipColor(span.ev)}`;
+                    calDaysGrid.appendChild(bar);
+                }
+            });
+            Object.entries(hidden).forEach(([i,n])=>{
+                const cell=calDaysGrid.querySelectorAll('.cal-cell')[Number(i)];
+                if(cell){const badge=document.createElement('span');badge.className='rt-cal-more';badge.textContent='+'+n;cell.appendChild(badge);}
+            });
+        }
+
         function renderCalendar() {
             calDaysGrid.innerHTML = '';
             calHeaderGrid.innerHTML = '';
@@ -2431,7 +2587,7 @@ function rtMRender() {}
                     const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                     let isToday = i === today.getDate() && month === today.getMonth() && year === today.getFullYear() ? 'today' : '';
                     
-                    const dayEvents = calendarEvents.filter(e => e.date === dateString);
+                    const dayEvents = rtCalOnDay(dateString);
                     const hasEventClass = dayEvents.length > 0 ? 'has-event' : '';
 
                     let eventsHtml = '';
@@ -2450,6 +2606,7 @@ function rtMRender() {}
                         </div>
                     `;
                 }
+                rtCalMonthBars(year, month, firstDayIndex, daysInMonth);
             } 
             else if (currentCalView === 'week') {
                 const dayOfWeek = currentCalDate.getDay();
@@ -2470,7 +2627,7 @@ function rtMRender() {}
                     
                     calHeaderGrid.innerHTML += `<div class="cal-header-day">${daysOfWeek[i]} ${d.getDate()}</div>`;
 
-                    const dayEvents = calendarEvents.filter(e => e.date === dateString);
+                    const dayEvents = rtCalOnDay(dateString);
                     let eventsHtml = '';
                     dayEvents.forEach(ev => {
                         const gcalClass = ev.gcalId ? 'gcal' : '';
@@ -2493,7 +2650,7 @@ function rtMRender() {}
                 calHeaderGrid.innerHTML = `<div class="cal-header-day" style="text-align:left; padding-left:15px; border-bottom: none;">DAILY TIMELINE</div>`;
                 
                 const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(currentCalDate.getDate()).padStart(2, '0')}`;
-                const dayEvents = calendarEvents.filter(e => e.date === dateString);
+                const dayEvents = rtCalOnDay(dateString);
                 
                 const allDayEvents = dayEvents.filter(e => e.allDay);
                 const timedEvents = dayEvents.filter(e => !e.allDay);
@@ -2659,6 +2816,8 @@ function rtMRender() {}
             const startTime = document.getElementById('calEventStart').value;
             const endTime = document.getElementById('calEventEnd').value;
             const selectedCalendarId = calEventCalendarId ? calEventCalendarId.value : 'primary';
+            const originalEvent=calendarEvents.find(ev=>ev.id===id);
+            const preservedEnd=originalEvent&&originalEvent.date===date&&originalEvent.allDay===allDay?rtCalEnd(originalEvent):date;
             let gcalId = document.getElementById('calEventGcalId').value;
 
             // Anti-crash validation for blank times
@@ -2674,14 +2833,14 @@ function rtMRender() {}
                     let payload = { summary: title, description: description };
                     
                     if (allDay) {
-                        const d = new Date(date);
+                        const d = widgetDate(preservedEnd);
                         d.setDate(d.getDate() + 1);
-                        const endDateString = d.toISOString().split('T')[0];
+                        const endDateString = rtLocalDay(d);
                         payload.start = { date: date };
                         payload.end = { date: endDateString };
                     } else {
                         const startDateTime = new Date(`${date}T${startTime}:00`).toISOString();
-                        const endDateTime = new Date(`${date}T${endTime || startTime}:00`).toISOString();
+                        const endDateTime = new Date(`${preservedEnd}T${endTime || startTime}:00`).toISOString();
                         payload.start = { dateTime: startDateTime };
                         payload.end = { dateTime: endDateTime };
                     }
@@ -2710,7 +2869,7 @@ function rtMRender() {}
             };
             const gcalOk = await pushGcal();
 
-            const evObj = { id: id || `cal-${Date.now()}`, title, description, date, allDay, startTime, endTime, gcalId, calendarId: selectedCalendarId };
+            const evObj = { id: id || `cal-${Date.now()}`, title, description, date, endDate:preservedEnd, allDay, startTime, endTime, gcalId, calendarId: selectedCalendarId };
 
             if (id) {
                 const idx = calendarEvents.findIndex(ev => ev.id === id);
@@ -2726,7 +2885,7 @@ function rtMRender() {}
                 showToast("Event Saved");
             } else {
                 const gcalNoToken = !gcalOk && !sessionStorage.getItem('gcal_token');
-                const what = gcalNoToken ? 'Google Calendar needs a fresh Google sign-in'
+                const what = gcalNoToken ? 'Google Calendar needs reconnecting with Sync GCal'
                     : (!gcalOk && window.rtCloudOk === false) ? 'cloud + Google Calendar sync failed'
                     : (!gcalOk ? 'Google Calendar sync failed' : 'cloud sync failed');
                 const retrySync = async () => {
@@ -2763,24 +2922,51 @@ function rtMRender() {}
             await syncData(true);
             renderCalendar();
             calEventModal.classList.remove('active');
-            if (gcalId && !sessionStorage.getItem('gcal_token')) showToast("Deleted here. Sign in with Google again to remove it from Google Calendar.");
+            if (gcalId && !sessionStorage.getItem('gcal_token')) showToast("Deleted here. Tap Sync GCal to reconnect before changing Google Calendar.");
             else showToast("Event Deleted");
         });
 
         // ==========================================
         // SMART GOOGLE CALENDAR SYNC (MULTI-CALENDAR FETCH)
         // ==========================================
-        async function performGCalSync(silent = false) {
-            const token = sessionStorage.getItem('gcal_token');
-            if (!token) {
-                if (!silent) showToast("Google Calendar access missing. Please logout and log back in.");
-                return;
+        function rtGcalForget(){sessionStorage.removeItem('gcal_token');sessionStorage.removeItem('gcal_uid');}
+        function rtGcalSave(result){
+            const credential=GoogleAuthProvider.credentialFromResult(result);
+            if(credential?.accessToken&&result.user){sessionStorage.setItem('gcal_token',credential.accessToken);sessionStorage.setItem('gcal_uid',result.user.uid);}
+        }
+        async function rtReconnectCalendar(){
+            if(!auth?.currentUser){showToast('Sign in to RT before connecting Google Calendar.');return false;}
+            const provider=new GoogleAuthProvider();
+            provider.addScope('https://www.googleapis.com/auth/calendar.events');provider.addScope('https://www.googleapis.com/auth/calendar.readonly');
+            provider.setCustomParameters({login_hint:auth.currentUser.email||''});
+            sessionStorage.setItem('rt_gcal_reconnect','1');
+            try{
+                if(IS_ANDROID_APP){await reauthenticateWithRedirect(auth.currentUser,provider);return false;}
+                const result=await reauthenticateWithPopup(auth.currentUser,provider);rtGcalSave(result);
+                sessionStorage.removeItem('rt_gcal_reconnect');return !!sessionStorage.getItem('gcal_token');
+            }catch(e){
+                if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(e.code)){
+                    await reauthenticateWithRedirect(auth.currentUser,provider);return false;
+                }
+                sessionStorage.removeItem('rt_gcal_reconnect');
+                showToast(e.code==='auth/user-mismatch'?'Use the same Google account as your RT login.':'Calendar connection cancelled or unavailable. RT stays signed in.');return false;
             }
-            
-            if (!silent) showToast("Scanning All Google Calendars...");
+        }
+        let rtGcalSyncing=false;
+        async function performGCalSync(silent = false, retried = false) {
+            if(rtGcalSyncing||isTeacherMode)return;
+            if(sessionStorage.getItem('gcal_uid')&&sessionStorage.getItem('gcal_uid')!==currentUser?.uid)rtGcalForget();
+            let token=sessionStorage.getItem('gcal_token');
+            if(!token){
+                if(silent)return;
+                if(!await rtReconnectCalendar())return;
+                token=sessionStorage.getItem('gcal_token');
+            }
+            rtGcalSyncing=true;
+            if (!silent) showToast("Syncing Google Calendar...");
             try {
                 const timeMin = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() - 1, 1).toISOString();
-                const timeMax = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() + 2, 0).toISOString();
+                const timeMax = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() + 2, 1).toISOString();
                 
                 // Fetch all calendars the user has access to
                 const calRes = await fetch(`https://www.googleapis.com/calendar/v3/users/me/calendarList`, {
@@ -2792,6 +2978,8 @@ function rtMRender() {}
                     return;
                 }
                 
+                if(calRes.status===401){const error=new Error('calendar-auth-expired');error.gcalAuth=true;throw error;}
+                if(!calRes.ok)throw new Error('Calendar list HTTP '+calRes.status);
                 const calData = await calRes.json();
                 
                 if (calData.items) {
@@ -2800,42 +2988,52 @@ function rtMRender() {}
                     localStorage.setItem('gcal_calendars', JSON.stringify(availableCalendars));
                     populateCalendarDropdown();
 
-                    calendarEvents = calendarEvents.filter(ev => !ev.gcalId);
-                    
+                    // Stage the new snapshot. A failed fetch must never clear the visible calendar.
+                    const nextCalendarEvents = calendarEvents.filter(ev => !ev.gcalId || ev.date < timeMin.slice(0,10) || ev.date > timeMax.slice(0,10));
                     // Loop through every single calendar
                     for (const calendar of calData.items) {
-                        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendar.id)}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime&maxResults=250`, {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        
-                        const data = await res.json();
-                        
+                        const items=[];let pageToken='';let pages=0;
+                        do {
+                            const params=new URLSearchParams({timeMin,timeMax,singleEvents:'true',orderBy:'startTime',maxResults:'250'});
+                            if(pageToken)params.set('pageToken',pageToken);
+                            const res=await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendar.id)}/events?${params}`,{headers:{Authorization:`Bearer ${token}`}});
+                            if(res.status===401){const error=new Error('calendar-auth-expired');error.gcalAuth=true;throw error;}
+                            if(!res.ok)throw new Error('Calendar events HTTP '+res.status);
+                            const page=await res.json();items.push(...(page.items||[]));pageToken=page.nextPageToken||'';
+                            if(++pages>=20&&pageToken)throw new Error('Calendar snapshot too large; existing events retained.');
+                        } while(pageToken);
+                        const data={items};
                         if (data.items) {
                             data.items.forEach(item => {
                                 if (item.start) {
-                                    let dateStr = ''; let allDay = true; let startTime = ''; let endTime = '';
+                                    let dateStr = ''; let endDate = ''; let allDay = true; let startTime = ''; let endTime = '';
 
                                     if (item.start.date) {
                                         dateStr = item.start.date;
+                                        if (item.end?.date && widgetDate(item.end.date)) {
+                                            const last=widgetDate(item.end.date);last.setDate(last.getDate()-1);endDate=rtLocalDay(last);
+                                        }
                                     } else if (item.start.dateTime) {
                                         allDay = false;
                                         const dtStart = new Date(item.start.dateTime);
-                                        dateStr = dtStart.toISOString().split('T')[0];
+                                        dateStr = rtLocalDay(dtStart);
                                         startTime = dtStart.toTimeString().substring(0, 5);
                                         if(item.end && item.end.dateTime) {
-                                            endTime = new Date(item.end.dateTime).toTimeString().substring(0, 5);
+                                            const endDt=new Date(item.end.dateTime);endTime=endDt.toTimeString().substring(0,5);
+                                            endDate=rtLocalDay(new Date(endDt.getTime()-1));
                                         }
                                     }
                                     
                                     if (dateStr) {
                                         let titlePrefix = calendar.primary ? '' : `[${calendar.summary}] `;
-                                        calendarEvents.push({
+                                        nextCalendarEvents.push({
                                             id: `cal-g-${item.id}`,
                                             gcalId: item.id,
                                             calendarId: calendar.id,
                                             title: titlePrefix + (item.summary || 'Busy'),
                                             description: item.description || '',
                                             date: dateStr,
+                                            endDate: endDate || dateStr,
                                             allDay: allDay,
                                             startTime: startTime,
                                             endTime: endTime
@@ -2845,14 +3043,19 @@ function rtMRender() {}
                             });
                         }
                     }
+                    calendarEvents=[...new Map(nextCalendarEvents.map(ev=>[ev.id,ev])).values()];
                     await syncData(true);
                     renderCalendar();
                     if (!silent) showToast("All Google Calendars Synced!");
                 }
             } catch (err) {
                 console.error("GCal Fetch Error", err);
-                if (!silent) showToast("Failed to fetch Google Calendar.");
-            }
+                if(err.gcalAuth){
+                    rtGcalForget();rtGcalSyncing=false;
+                    if(!silent&&!retried&&await rtReconnectCalendar()){await performGCalSync(false,true);return;}
+                    if(!silent)showToast('Calendar needs Google permission again. Tap Sync GCal to reconnect. RT stays signed in.');
+                }else if (!silent) showToast("Calendar sync failed. Your saved events are unchanged; try again.");
+            } finally {rtGcalSyncing=false;}
         }
 
         document.getElementById('btnSyncGCal').addEventListener('click', () => performGCalSync(false));
@@ -3216,7 +3419,7 @@ function rtMRender() {}
                     window.AndroidWidget.setWidgetUid(uid);
                     rtSyncFocusWidget();
                     if (window.AndroidWidget.setCalendarEvents) {
-                        const events = (calendarEvents || []).filter(e => e && /^\d{4}-\d{2}-\d{2}$/.test(String(e.date || '')))
+                        const events = rtCalVisible(calendarEvents || []).flatMap(e => { const start=widgetDate(e.date), end=widgetDate(rtCalEnd(e)); if(!start||!end)return [];const items=[];for(let d=new Date(start);d<=end&&items.length<120;d.setDate(d.getDate()+1))items.push({...e,date:rtLocalDay(d)});return items; }).filter(e => e && /^\d{4}-\d{2}-\d{2}$/.test(String(e.date || '')))
                             .map(e => ({
                                 title: String(e.title || 'Event').slice(0, 120),
                                 date: String(e.date),
@@ -3512,7 +3715,7 @@ function rtMRender() {}
         function handleGoogleSignInResult(result, audioAdmin, audioUser) {
             const credential = GoogleAuthProvider.credentialFromResult(result);
             const googleToken = credential ? credential.accessToken : null;
-            if(googleToken) sessionStorage.setItem('gcal_token', googleToken);
+            if(googleToken) rtGcalSave(result);
 
             const user = result.user;
             if (!sessionStorage.getItem('system_booted')) {
@@ -3610,7 +3813,7 @@ function rtMRender() {}
             const cells=Array.from(calDaysGrid.querySelectorAll('.cal-cell[data-date]'));
             if(!cells.some(c=>c.dataset.date===v6SelectedDate)){const today=new Date();const key=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;v6SelectedDate=cells.some(c=>c.dataset.date===key)?key:cells[0]?.dataset.date;}
             cells.forEach(c=>c.classList.toggle('v6-cal-selected',c.dataset.date===v6SelectedDate));
-            const events=calendarEvents.filter(ev=>ev.date===v6SelectedDate);
+            const events=rtCalOnDay(v6SelectedDate);
             agenda.innerHTML=`<div class="v6-agenda-title">${v6Escape(v6DateLabel(v6SelectedDate))}</div>${events.length?events.map(ev=>`<button class="v6-agenda-item" data-v6-event="${v6Escape(ev.id)}"><span>${ev.allDay?'ALL DAY':v6Escape(formatTime(ev.startTime))}</span><b>${calendarDisplayHtml(ev,'title')}${ev.description?`<small>${calendarDisplayHtml(ev,'description')}</small>`:''}</b></button>`).join(''):'<div class="v6-meta">No events on this day. Use Add event to plan one.</div>'}`;
         }
         document.getElementById('v6Agenda').addEventListener('click',e=>{const b=e.target.closest('[data-v6-event]');if(!b)return;const original=Array.from(calDaysGrid.querySelectorAll('.cal-event')).find(el=>el.dataset.id===b.dataset.v6Event);if(original)original.click();});
@@ -3883,6 +4086,7 @@ rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document
                 const audioAdmin = new Audio('./assets/audio/jarvis-admin.mp3'); const audioUser = new Audio('./assets/audio/jarvis-user.mp3');
                 audioAdmin.load(); audioUser.load();
                 handleGoogleSignInResult(result, audioAdmin, audioUser);
+                if(sessionStorage.getItem('rt_gcal_reconnect')&&currentUser){sessionStorage.removeItem('rt_gcal_reconnect');performGCalSync(true);}
             }).catch(err => { showToast(rtAuthErr(err,'Google sign-in failed. Try again.')||'Google sign-in failed. Try again.'); });
 
             onAuthStateChanged(auth, async (user) => {
@@ -3891,9 +4095,9 @@ rtMotionPreference.addEventListener?.('change',event=>{if(event.matches)document
                     document.getElementById('userSyncStatus').textContent = `[ SYNC: CLOUD ACTIVE ]`;
                     document.getElementById('navProfileArea').innerHTML = `<span class="logout-text" id="btnNavSignOut">Disconnect</span><svg class="profile-pic rt-profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Profile" title="${user.email}"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1.6-3.6 4.6-5.4 7.5-5.4s5.9 1.8 7.5 5.4"/></svg>`;
                     document.getElementById('btnNavSignOut').addEventListener('click', () => signOut(auth));
-                    await pullDataFromCloud(user.uid); openApp('cloud');if(!v6Phone.matches)rtGo('homeSection');renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute(); syncWidgetTheme();rtResumeTimer();rtFriendsRender();rtMaybeAskNickname(user);
+                    await pullDataFromCloud(user.uid); openApp('cloud');if(!v6Phone.matches)rtGo('homeSection');renderDashboardStructure(); renderSimpleTasks(); renderCalendar(); applyWidgetRoute(); syncWidgetTheme();rtResumeTimer();rtFriendsRender();rtMaybeAskNickname(user);if(sessionStorage.getItem('rt_gcal_reconnect')&&sessionStorage.getItem('gcal_token')){sessionStorage.removeItem('rt_gcal_reconnect');performGCalSync(true);}
                 } else {
-                    if(currentUser){rtSaveWorkspace();const _rtRun=rtFocusRun;resetTimerUI();if(_rtRun){_rtRun.scope=null;try{localStorage.setItem('rt_stopwatch_run',JSON.stringify(_rtRun));}catch(e){}}}if(currentUser||localStorage.getItem('offline_mode')==='true')rtUseWorkspace(safeParse('rt_guest_workspace',null));currentUser = null;rtCloudLoading=false;isOfflineMode=false;
+                    if(currentUser){rtSaveWorkspace();const _rtRun=rtFocusRun;resetTimerUI();if(_rtRun){_rtRun.scope=null;try{localStorage.setItem('rt_stopwatch_run',JSON.stringify(_rtRun));}catch(e){}}}if(currentUser||localStorage.getItem('offline_mode')==='true')rtUseWorkspace(safeParse('rt_guest_workspace',null));currentUser = null;rtGcalForget();rtCloudLoading=false;isOfflineMode=false;
                     rtMarksScope=null;rtMarksRecords={};rtMarksSelected='';rtMarksLoad++;rtMClose();rtMRender();
                     rtFocusScope = null; rtFocusSessions = {}; rtFocusRun = null; rtRenderHeatmap();
                     rtHabitScope=null;rtHabitData={};rtHRender();
